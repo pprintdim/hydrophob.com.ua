@@ -1,0 +1,71 @@
+
+<section class="action">
+    <div class="container">
+        <div class="action__inner">
+            <div class="action__content">
+                <h2 class="action__title" data-i18n="action.title">Акція</h2>
+                <p class="action__name" data-i18n="action.name">"Безкоштовна доставка"</p>
+                <p class="action__descr" data-i18n="action.descr">При оформленні замовлення сьогодні - доставка за наш рахунок *</p>
+            </div>
+            <div class="action__block">
+                <div class="action__item">
+                    <div class="action__item-circle" id="days">
+
+                        <span class="circle-svg"></span>
+                        <span class="dot-container">
+                            <img src="img/dot.svg" class="dot-image" />
+                        </span>
+                        <span class="white-mask"></span>
+                        <div class="ticks" id="ticks-days"></div>
+                        <span class="pointer"></span>
+                        <div class="number" id="days-number">00</div>
+                    </div>
+                    <p class="action__item-name" data-i18n="action.days">День</p>
+                </div>
+                <div class="action__item">
+                    <div class="action__item-circle" id="hours">
+
+                        <span class="circle-svg"></span>
+                        <span class="dot-container">
+                            <img src="img/dot.svg" class="dot-image" />
+                        </span>
+                        <span class="white-mask"></span>
+                        <div class="ticks" id="ticks-hours"></div>
+                        <span class="pointer"></span>
+                        <div class="number" id="hours-number">00</div>
+                    </div>
+                    <p class="action__item-name" data-i18n="action.hours">Години</p>
+                </div>
+                <div class="action__item">
+                    <div class="action__item-circle" id="minutes">
+
+                        <span class="circle-svg"></span>
+                        <span class="dot-container">
+                            <img src="img/dot.svg" class="dot-image" />
+                        </span>
+                        <span class="white-mask"></span>
+                        <div class="ticks" id="ticks-minutes"></div>
+                        <span class="pointer"></span>
+                        <div class="number" id="minutes-number">00</div>
+                    </div>
+                    <p class="action__item-name" data-i18n="action.minutes">Хвилини</p>
+                </div>
+                <div class="action__item">
+                    <div class="action__item-circle" id="seconds">
+
+                        <span class="circle-svg"></span>
+                        <span class="dot-container">
+                            <img src="img/dot.svg" class="dot-image" />
+                        </span>
+                        <span class="white-mask"></span>
+                        <div class="ticks" id="ticks-seconds"></div>
+                        <span class="pointer"></span>
+                        <div class="number" id="seconds-number">00</div>
+                    </div>
+
+                    <p class="action__item-name" data-i18n="action.seconds">Секунди</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
