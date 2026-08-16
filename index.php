@@ -131,6 +131,7 @@ if ($faqEntities) {
     <meta name="twitter:description" content="<?= $e($meta['description']) ?>">
     <meta name="twitter:image" content="<?= $e($ogImageAbs) ?>">
 
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/svg+xml" href="img/logo.svg">
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="apple-touch-icon" href="img/favicon.png">
