@@ -9,7 +9,7 @@
             </button>
             <div class="popupProduct__content">
                 <div class="popupProduct__left">
-                    <img class="popupProduct__image" src="" alt="">
+                    <img class="popupProduct__image" src="" alt="" loading="lazy" decoding="async">
                 </div>
                 <div class="popupProduct__info">
                     <h3 class="popupProduct__title"></h3>

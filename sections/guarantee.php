@@ -14,16 +14,16 @@
                 <div class="guarantee__item-middle">
                     <p class="guarantee__item-middle--number">100<span>%</span></p>
                     <span class="guarantee__item-icon">
-                        <img src="img/guarantee/1.svg" alt="">
+                        <img src="img/guarantee/1.svg" alt="" loading="lazy" decoding="async">
                     </span>
                     <span class="guarantee__item-icon">
-                        <img src="img/guarantee/2.svg" alt="">
+                        <img src="img/guarantee/2.svg" alt="" loading="lazy" decoding="async">
                     </span>
                     <span class="guarantee__item-icon">
-                        <img src="img/guarantee/3.svg" alt="">
+                        <img src="img/guarantee/3.svg" alt="" loading="lazy" decoding="async">
                     </span>
                     <span class="guarantee__item-icon">
-                        <img src="img/guarantee/4.svg" alt="">
+                        <img src="img/guarantee/4.svg" alt="" loading="lazy" decoding="async">
                     </span>
                 </div>
                 <div class="guarantee__item">

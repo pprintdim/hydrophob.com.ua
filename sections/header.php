@@ -2,7 +2,7 @@
     <div class="container">
         <div class="header__inner">
             <a class="header__logo" href="index.php">
-                <img src="img/logo.svg" alt="">
+                <img src="img/logo.svg" alt="Hydrophob" width="200" height="48">
             </a>
             <div class="header__content">
                 <nav class="header__menu">

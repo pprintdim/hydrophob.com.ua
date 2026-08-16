@@ -1,8 +1,20 @@
 # Робочі матеріали: тексти, оригінали фото, project.md/handoff.md з деталями середовища.
 # НЕ комітити і НЕ деплоїти — можуть містити чутливі шляхи та доступи.
 materials/
+handoff.md
 
 # Системне
 .DS_Store
 .claude/
 *.log
+
+# Секрети та рантайм
+.env
+api/storage/
+
+# IDE (містить sftp.json з паролем)
+.vscode/
+
+# Верстка-референс (окремий git worktree, гілка html)
+/html/
+/openCart3/

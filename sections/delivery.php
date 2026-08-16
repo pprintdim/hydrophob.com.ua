@@ -15,23 +15,23 @@
                 </ul>
             </div>
             <div class="delivery__block">
-                <div class="delivery__item">
-                    <img src="img/delivery/1.png" alt="">
+                <div class="delivery__item delivery-open" data-delivery="np" role="button" tabindex="0">
+                    <img src="img/delivery/1.webp" alt="Нова пошта" loading="lazy" decoding="async">
                 </div>
-                <div class="delivery__item">
-                    <img src="img/delivery/2.png" alt="">
+                <div class="delivery__item delivery-open" data-delivery="ukrposhta" role="button" tabindex="0">
+                    <img src="img/delivery/2.webp" alt="Укрпошта" loading="lazy" decoding="async">
                 </div>
-                <div class="delivery__item">
-                    <img src="img/delivery/3.png" alt="">
+                <div class="delivery__item delivery-open" data-delivery="meest" role="button" tabindex="0">
+                    <img src="img/delivery/3.webp" alt="Meest Express" loading="lazy" decoding="async">
                 </div>
-                <div class="delivery__item">
-                    <img src="img/delivery/4.svg" alt="">
+                <div class="delivery__item delivery-open" data-delivery="other" role="button" tabindex="0">
+                    <img src="img/delivery/4.svg" alt="Інші перевізники" loading="lazy" decoding="async">
                 </div>
-                <div class="delivery__item">
-                    <img src="img/delivery/5.svg" alt="">
+                <div class="delivery__item delivery-open" data-delivery="pickup" role="button" tabindex="0">
+                    <img src="img/delivery/5.svg" alt="Самовивіз" loading="lazy" decoding="async">
                 </div>
-                <div class="delivery__item">
-                    <img src="img/delivery/6.svg" alt="">
+                <div class="delivery__item delivery-open" data-delivery="courier" role="button" tabindex="0">
+                    <img src="img/delivery/6.svg" alt="Кур'єр" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>

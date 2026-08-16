@@ -1,0 +1,21 @@
+Options -MultiViews
+ErrorDocument 404 /hydrophob-landing/404.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /hydrophob-landing/
+
+    # index.php → корінь (301, канонічний URL)
+    RewriteCond %{THE_REQUEST} \s/hydrophob-landing/index\.php[\s?] [NC]
+    RewriteRule ^index\.php$ /hydrophob-landing/ [R=301,L]
+
+    # Старий legal.php?p=X → ЧПУ (301)
+    RewriteCond %{THE_REQUEST} \s/hydrophob-landing/legal\.php\?p=([a-z]+) [NC]
+    RewriteRule ^legal\.php$ /hydrophob-landing/%1? [R=301,L]
+
+    # Прибрати кінцевий слеш у ЧПУ (301)
+    RewriteRule ^(privacy|returns|offer)/$ /hydrophob-landing/$1 [R=301,L]
+
+    # ЧПУ юридичних сторінок → legal.php
+    RewriteRule ^(privacy|returns|offer)$ legal.php?p=$1 [L,QSA]
+</IfModule>

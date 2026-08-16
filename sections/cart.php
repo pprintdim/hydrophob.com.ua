@@ -1,4 +1,16 @@
 
+<?php
+require_once __DIR__ . '/../api/bootstrap.php';
+$HYDRO_PHONE_COUNTRY = hydro_env('DEFAULT_PHONE_COUNTRY', 'UA');
+?>
+<button class="cart-fab cart-open" type="button" aria-label="Відкрити кошик" hidden>
+    <svg width="32" height="32" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path d="M23.0622 24.7806H16.3407C14.1037 24.7806 12.5526 23.5245 12.0989 21.3209L9.5137 8.34427C9.36598 7.62039 9.52425 7.74814 8.77508 7.73749H5.13472C4.1534 7.7162 3.5414 6.85393 3.81575 5.95972C3.99513 5.40617 4.46996 5.02294 5.10306 5.01229H10.5267C11.2653 5.02294 11.7401 5.47004 11.8878 6.21521L14.5785 19.9051C14.7368 20.6716 14.7896 21.9596 16.4884 22.0448H29.541C30.765 22.0448 31.1237 21.7574 31.377 20.5438L33.424 10.9204C33.6561 9.80268 33.0969 9.10009 31.9573 9.10009H18.9786C17.7441 9.06816 17.2798 8.42944 17.2587 7.76943C17.2481 7.08813 17.6913 6.52393 18.3455 6.40683H32.1156C34.5636 6.36425 36.4629 8.36557 36.2308 10.7608L33.9727 21.4806C33.5401 23.4713 31.9679 24.7487 29.9525 24.7593L23.0622 24.7806Z" fill="currentColor"/>
+        <path d="M29.3824 34.9897C27.1665 34.979 25.3411 33.1055 25.3516 30.8699C25.3727 28.6238 27.2193 26.7821 29.4351 26.8034C31.651 26.8247 33.4659 28.6664 33.4659 30.8806C33.4659 33.1587 31.6299 35.0003 29.3824 34.9897ZM30.7647 30.8806C30.7541 30.1354 30.1527 29.5393 29.414 29.5499C28.6543 29.5499 28.0529 30.178 28.0634 30.9232C28.074 31.6683 28.6754 32.2645 29.414 32.2645C30.1632 32.2645 30.7752 31.6364 30.7647 30.8806Z" fill="currentColor"/>
+        <path d="M13.2178 30.8914C13.2178 28.6346 15.0327 26.8036 17.2697 26.8143C19.475 26.8143 21.3004 28.6559 21.311 30.8808C21.311 33.1589 19.5066 35.0005 17.2485 35.0005C15.0327 35.0005 13.2178 33.1589 13.2178 30.8914ZM15.919 30.9021C15.919 31.6579 16.5205 32.2647 17.2697 32.2647C18.0083 32.2647 18.6203 31.6366 18.6097 30.8808C18.5992 30.1462 18.0083 29.5501 17.2697 29.5501C16.5099 29.5501 15.919 30.1356 15.919 30.9021Z" fill="currentColor"/>
+    </svg>
+    <span class="cart-fab__count" aria-hidden="true" hidden>2</span>
+</button>
 <section class="cart">
     <div class="container">
         <button class="cart__close cart-close-btn">
@@ -59,7 +71,11 @@
                         </div>
                         <div class="cart__data-block">
                             <input class="cart__data-input cart__data-fill" type="text" name="name" placeholder="ПІБ" data-i18n-placeholder="cart.namePlaceholder">
-                            <input class="cart__data-input" type="tel" name="tel" placeholder="Телефон" data-i18n-placeholder="cart.phonePlaceholder">
+                            <div class="cart__phone">
+                                <select class="cart__phone-country cart__data-select" name="tel-country" aria-label="Код країни" data-default-country="<?= htmlspecialchars($HYDRO_PHONE_COUNTRY) ?>"></select>
+                                <input class="cart__data-input" type="tel" name="tel" placeholder="Телефон" data-i18n-placeholder="cart.phonePlaceholder" autocomplete="tel">
+                                <input type="hidden" name="tel-full">
+                            </div>
                             <input class="cart__data-input" type="email" name="email" placeholder="Email" data-i18n-placeholder="cart.emailPlaceholder">
                         </div>
                         <div class="cart__data-top cart-top">
@@ -71,42 +87,34 @@
                             </h3>
                         </div>
                         <div class="cart__data-block">
+<?php
+                            $DELIVERIES = json_decode(file_get_contents(__DIR__ . '/../data/deliveries.json'), true);
+                            $CARRIERS = $DELIVERIES['carriers'] ?? [];
+                            ?>
                             <div class="cart__data-deivery cart__data-fill">
                                 <div class="cart__data-deivery--icon">
-                                    <img class="active" src="img/cart/deivery/np.svg" alt="">
-                                    <img src="img/cart/deivery/np.svg" alt="">
-                                    <img src="img/cart/deivery/np.svg" alt="">
+<?php foreach ($CARRIERS as $ci => $carrier): ?>
+                                    <img<?= $ci === 0 ? ' class="active"' : '' ?> src="<?= htmlspecialchars($carrier['icon']) ?>" data-carrier="<?= htmlspecialchars($carrier['id']) ?>" alt="<?= htmlspecialchars($carrier['name']['UA']) ?>" loading="lazy" decoding="async">
+<?php endforeach; ?>
                                 </div>
                                 <select name="delivery" class="cart__data-select">
-                                    <option value="np" selected>Нова пошта</option>
-                                    <option value="Ukrposhta">Ukrposhta</option>
-                                    <option value="Meest">Meest Express</option>
+<?php foreach ($CARRIERS as $ci => $carrier): ?>
+                                    <option value="<?= htmlspecialchars($carrier['id']) ?>"<?= $ci === 0 ? ' selected' : '' ?>><?= htmlspecialchars($carrier['name']['UA']) ?></option>
+<?php endforeach; ?>
                                 </select>
                             </div>
-                            <select name="region" class="cart__data-select">
-                                <option value="" selected disabled data-i18n="cart.region">Область</option>
-                                <option value="Область 1">Область 1</option>
-                                <option value="Область 2">Область 2</option>
-                                <option value="Область 3">Область 3</option>
-                                <option value="Область 4">Область 4</option>
-                                <option value="Область 5">Область 5</option>
+                            <select name="delivery-type" class="cart__data-select cart__data-fill">
+                                <option value="branch" selected data-i18n="cart.toBranch">У відділення</option>
+                                <option value="courier" data-i18n="cart.toCourier">Кур'єром на адресу</option>
                             </select>
-                            <select name="city" class="cart__data-select">
-                                <option value="" selected disabled data-i18n="cart.city">Місто</option>
-                                <option value="Область 1">Місто 1</option>
-                                <option value="Область 2">Місто 2</option>
-                                <option value="Область 3">Місто 3</option>
-                                <option value="Область 4">Місто 4</option>
-                                <option value="Область 5">Місто 5</option>
-                            </select>
-                            <select name="department" class="cart__data-select">
-                                <option value="" selected disabled data-i18n="cart.department">Відділення</option>
-                                <option value="Відділення 1">Відділення 1</option>
-                                <option value="Відділення 2">Відділення 2</option>
-                                <option value="Відділення 3">Відділення 3</option>
-                                <option value="Відділення 4">Відділення 4</option>
-                                <option value="Відділення 5">Відділення 5</option>
-                            </select>
+                            <div class="cart__suggest cart__data-fill">
+                                <input class="cart__data-input" type="text" name="delivery-city" placeholder="Місто" autocomplete="off" data-i18n-placeholder="cart.cityPlaceholder">
+                                <ul class="cart__suggest-list"></ul>
+                            </div>
+                            <div class="cart__suggest cart__data-fill">
+                                <input class="cart__data-input" type="text" name="delivery-branch" placeholder="Відділення" autocomplete="off" data-i18n-placeholder="cart.branchPlaceholder">
+                                <ul class="cart__suggest-list"></ul>
+                            </div>
                         </div>                                
                     </div>
                     <div class="cart__bottom cart-bottom hide-block">
@@ -178,49 +186,7 @@
                         <button class="cart__next btn" data-i18n="cart.next">Продовжити</button>
                     </div>
 
-                    <div class="cart__order cart-content hide-block">
-                        <div class="cart__order-top cart-top">
-                            <h3 class="cart__order-title cart-name">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                                    <path d="M26.2497 24.1667C25.9182 24.1667 25.6002 24.2984 25.3658 24.5328C25.1314 24.7672 24.9997 25.0852 24.9997 25.4167C24.9997 25.7482 25.1314 26.0661 25.3658 26.3006C25.6002 26.535 25.9182 26.6667 26.2497 26.6667H30.4163C30.7479 26.6667 31.0658 26.535 31.3002 26.3006C31.5346 26.0661 31.6663 25.7482 31.6663 25.4167C31.6663 25.0852 31.5346 24.7672 31.3002 24.5328C31.0658 24.2984 30.7479 24.1667 30.4163 24.1667H26.2497ZM3.33301 13.75C3.33301 12.3134 3.90369 10.9357 4.91951 9.91985C5.93533 8.90403 7.31309 8.33334 8.74967 8.33334H31.2497C31.961 8.33334 32.6654 8.47345 33.3225 8.74566C33.9797 9.01788 34.5769 9.41686 35.0798 9.91985C35.5828 10.4228 35.9818 11.02 36.254 11.6771C36.5262 12.3343 36.6663 13.0387 36.6663 13.75V26.25C36.6663 26.9613 36.5262 27.6657 36.254 28.3229C35.9818 28.9801 35.5828 29.5772 35.0798 30.0802C34.5769 30.5832 33.9797 30.9821 33.3225 31.2544C32.6654 31.5266 31.961 31.6667 31.2497 31.6667H8.74967C7.31309 31.6667 5.93533 31.096 4.91951 30.0802C3.90369 29.0644 3.33301 27.6866 3.33301 26.25V13.75ZM34.1663 15.8333V13.75C34.1663 12.9765 33.859 12.2346 33.3121 11.6876C32.7651 11.1406 32.0232 10.8333 31.2497 10.8333H8.74967C7.97613 10.8333 7.23426 11.1406 6.68728 11.6876C6.1403 12.2346 5.83301 12.9765 5.83301 13.75V15.8333H34.1663ZM5.83301 18.3333V26.25C5.83301 27.86 7.13967 29.1667 8.74967 29.1667H31.2497C32.0232 29.1667 32.7651 28.8594 33.3121 28.3124C33.859 27.7654 34.1663 27.0236 34.1663 26.25V18.3333H5.83301Z" fill="white"/>
-                                </svg>
-                                <span data-i18n="cart.payTitle">Спосіб оплати</span>
-                            </h3>
-                        </div>
-                        <div class="cart__order-content">
-                            <div class="cart__order-select">
-                                <button class="cart__order-btn">
-                                    <img src="img/cart/privat.png" alt="">
-                                </button>
-                                <button class="cart__order-btn">
-                                    <img src="img/cart/visa.jpg" alt="">
-                                </button>
-                            </div>
-                            <select name="cart__order-pay" class="cart__data-select">
-                                <option value="Приват Банк">Приват Банк</option>
-                                <option value="Visa">Visa</option>
-                                <option value="MasterCart">MasterCart</option>
-                            </select>
-                            <div class="cart__order-block">
-                                <div class="cart__order-item">
-                                    <label for="card-number" data-i18n-html="cart.cardNumberHtml">Номер картки <span>*</span></label>
-                                    <input type="text" id="card-number" name="card-number" inputmode="numeric" placeholder="1234 5678 9876 5432" maxlength="19">
-                                </div>
-                                <div class="cart__order-item">
-                                    <label for="card-expiry" data-i18n-html="cart.cardExpiryHtml">Дійсна до: <span>*</span></label>
-                                    <input type="text" id="card-expiry" name="card-expiry" inputmode="numeric" placeholder="MM/YY" maxlength="5">
-                                </div>
-                                <div class="cart__order-item">
-                                    <label for="card-cvc" data-i18n-html="cart.cardCvcHtml">CVC <span>*</span></label>
-                                    <input type="text" id="card-cvc" name="card-cvc" inputmode="numeric" placeholder="..." maxlength="4">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cart__bottom cart-bottom hide-block">
-                        <button class="cart__back btn-2" data-i18n="cart.back">Назад</button>
-                        <button class="cart__next btn" data-i18n="cart.next">Продовжити</button>
-                    </div>
+                    
                 </div>
             </div>
         </div>

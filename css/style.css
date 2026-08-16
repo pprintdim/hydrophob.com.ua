@@ -207,7 +207,7 @@ main.main.main-hidden{
     top: 0;
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: 111111;
     background: rgba(22, 22, 22, 0.98);
 }
 .header__logo{
@@ -229,7 +229,7 @@ main.main.main-hidden{
 .header__logo::after{
     content: '';
     position: absolute;
-    background-image: url('../img/light.png');
+    background-image: url('../img/light.webp');
     width: 110px;
     height: 110px;
     min-width: 110px;
@@ -290,7 +290,8 @@ main.main.main-hidden{
     transition: all .5s ease;
 }
 .header__lang-content a:hover,
-.header__menu ul li a:hover{
+.header__menu ul li a:hover,
+.header__menu ul li a.active{
     color: #1D9CB2;
 }
 .header__lang{
@@ -708,7 +709,7 @@ main.main.main-hidden{
     .hero::after {
         position: absolute;
         content: '';
-        background-image: url('../img/faq-bg.png');
+        background-image: url('../img/faq-bg.webp');
         width: 100%;
         height: 400px;
         background-position: center;
@@ -729,7 +730,7 @@ main.main.main-hidden{
     inset: 0;
     overflow: auto;
     background-color: hwb(0 7% 93% / 0.8);
-    z-index: 100;
+    z-index: 1111111;
     opacity: 0;
     pointer-events: none;
     transition: all .2s ease;
@@ -789,7 +790,7 @@ main.main.main-hidden{
     inset: 0;
     overflow: auto;
     background-color: hwb(0 7% 93% / 0.8);
-    z-index: 100;
+    z-index: 1111111;
     opacity: 0;
     pointer-events: none;
     transition: all .2s ease;
@@ -837,7 +838,7 @@ main.main.main-hidden{
 .popupPhoto__content-image .swiper-slide::after{
     content: '';
     position: absolute;
-    background-image: url('../img/imagesBlock/logo.png');
+    background-image: url('../img/imagesBlock/logo.webp');
     width: 543px;
     height: 129px;
     bottom: 80px;
@@ -948,7 +949,7 @@ main.main.main-hidden{
     background-position: center right;
     background-repeat: repeat-y;
     background-size: contain;
-    background-image: url('../img/about-bg.png');
+    background-image: url('../img/about-bg.webp');
     top: 0;
     bottom: 0;
     right: 0;
@@ -1022,7 +1023,7 @@ main.main.main-hidden{
 }
 /* action */
 .action{
-    background-image: url('../img/action-bg.png');
+    background-image: url('../img/action-bg.webp');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -1359,7 +1360,7 @@ main.main.main-hidden{
     content: '';
     background-position: top center;
     background-repeat: repeat-x;
-    background-image: url('../img/product-bg.png');
+    background-image: url('../img/product-bg.webp');
 }
 .product__name{
     position: absolute;
@@ -1381,6 +1382,7 @@ main.main.main-hidden{
     display: flex;
     align-items: center;
     gap: 60px;
+    min-height: 500px;
 }
 button.product__slider-prev,
 button.product__slider-next{
@@ -1557,6 +1559,9 @@ button.product__slider-next{
     .product{
         min-height: 612px;
     }
+    .product__inner {
+        min-height: auto;
+    }
     button.product__slider-prev, button.product__slider-next{
         display: none;
     }
@@ -1653,7 +1658,7 @@ button.product__slider-next{
     height: 48px;
     min-width: 48px;
     border-radius: 50%;
-    background-image: url('../img/infoBlock-btns.png');
+    background-image: url('../img/infoBlock-btns.webp');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -1916,7 +1921,7 @@ button.product__slider-next{
     transform: translateX(-50%);
     background-position: top center;
     background-repeat: repeat-x;
-    background-image: url('../img/reviews-bg.png');
+    background-image: url('../img/reviews-bg.webp');
     width: 110%;
     height: 1151px;
     z-index: -1;
@@ -2056,7 +2061,7 @@ button.product__slider-next{
         background-position: bottom;
         background-repeat: repeat-x;
         background-size: 385px;
-        background-image: url('../img/reviews-bg.png');
+        background-image: url('../img/reviews-bg.webp');
         width: 100%;
         height: 100px;
         z-index: -1;
@@ -2247,7 +2252,7 @@ button.product__slider-next{
     position: absolute;
     bottom: -55px;
     left: 0;
-    background-image: url("../img/guarantee/line.png");
+    background-image: url("../img/guarantee/line.webp");
     width: 478px;
     height: 55px;
     background-size: contain;
@@ -2533,7 +2538,7 @@ button.product__slider-next{
     z-index: -1;
     background-position: top center;
     background-repeat: repeat-x;
-    background-image: url('../img/faq-bg.png');
+    background-image: url('../img/faq-bg.webp');
     width: 100%;
     height: 100%;
     top: 0;
@@ -2918,12 +2923,60 @@ button.product__slider-next{
     }
 }
 /* cart */
+.cart-fab{
+    position: fixed;
+    right: 28px;
+    bottom: 32px;
+    z-index: 90;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #1D9CB2;
+    border-radius: 50%;
+    background: #121212;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+    transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+.cart-fab[hidden],
+.cart-fab__count[hidden]{
+    display: none;
+}
+.cart-fab:hover{
+    transform: translateY(-3px);
+    background: #1D9CB2;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .32);
+}
+.cart-fab:focus-visible{
+    outline: 3px solid rgba(29, 156, 178, .35);
+    outline-offset: 4px;
+}
+.cart-fab__count{
+    position: absolute;
+    top: -7px;
+    right: -5px;
+    min-width: 26px;
+    height: 26px;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: #1D9CB2;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
 .cart{
     position: fixed;
     inset: 0;
     overflow: auto;
     background-color: hwb(0 7% 93% / 0.8);
-    z-index: 100;
+    z-index: 111111;
     opacity: 0;
     pointer-events: none;
     transition: all .2s ease;
@@ -3180,6 +3233,12 @@ button.product__slider-next{
     left: 16px;
     transform: translateY(-50%);
 }
+
+.cart__data-deivery--icon img {
+    width: 40px;
+    height: auto;
+}
+
 .cart__data-deivery--icon img:not(.active){
     display: none;
 }
@@ -3371,6 +3430,16 @@ button.product__slider-next{
     }
 }
 @media (max-width: 767px) {
+    .cart-fab{
+        right: 16px;
+        bottom: 20px;
+        width: 56px;
+        height: 56px;
+    }
+    .cart-fab svg{
+        width: 28px;
+        height: 28px;
+    }
     .cart__inner{
         border-radius: 24px;
     }
@@ -3609,7 +3678,7 @@ section[id]{
     inset: 0;
     overflow: auto;
     background-color: hwb(0 7% 93% / 0.8);
-    z-index: 100;
+    z-index: 1111111;
     opacity: 0;
     pointer-events: none;
     transition: all .2s ease;
@@ -3723,4 +3792,342 @@ section[id]{
         font-size: 24px;
         padding-right: 48px;
     }
+}
+
+/* Автокомпліт міста/відділення НП у кошику */
+.cart__suggest{
+    position: relative;
+}
+.cart__suggest-list{
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 8px;
+    max-height: 240px;
+    overflow: auto;
+    z-index: 20;
+    display: none;
+}
+.cart__suggest-list.active{
+    display: block;
+}
+.cart__suggest-list li{
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+}
+.cart__suggest-list li:hover{
+    background: #1D9CB2;
+}
+
+/* Телефон з кодом країни в кошику */
+.cart__phone{
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+}
+.cart__phone .cart__phone-country{
+    flex: 0 0 132px;
+    width: 132px;
+    border-radius: 16px;
+    padding-right: 36px;
+    cursor: pointer;
+}
+.cart__phone input[name="tel"]{
+    flex: 1;
+    min-width: 0;
+}
+.cart__phone input.phone-invalid{
+    border-color: #e2574c;
+    box-shadow: 0 0 0 1px #e2574c inset;
+}
+
+/* Попап маркера на карті */
+.leaflet-popup-content-wrapper{
+    background: #161616;
+    color: #fff;
+    border-radius: 12px;
+}
+.leaflet-popup-tip{
+    background: #161616;
+}
+.map-popup{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    line-height: 22px;
+}
+.map-popup a{
+    color: #1D9CB2;
+    font-weight: 700;
+}
+
+/* Кнопка "Читати далі" в about */
+.about__more{
+    margin-top: 28px;
+}
+/* Попап "Про нас" — повний SEO-текст */
+.popupAbout{
+    position: fixed;
+    inset: 0;
+    overflow: auto;
+    background-color: hwb(0 7% 93% / 0.8);
+    z-index: 1111111;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .2s ease;
+}
+.popupAbout.active{
+    opacity: 1;
+    pointer-events: all;
+}
+.popupAbout__inner{
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 60px auto;
+    background: #161616;
+    border-radius: 42px;
+    padding: 64px 56px;
+    color: #fff;
+}
+.popupAbout__close{
+    position: absolute;
+    top: 24px;
+    right: 24px;
+}
+.popupAbout__name{
+    color: #1D9CB2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+.popupAbout__title{
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+.popupAbout__text h4{
+    font-size: 20px;
+    color: #1D9CB2;
+    margin: 22px 0 10px;
+}
+.popupAbout__text p{
+    font-size: 16px;
+    line-height: 26px;
+    margin-bottom: 12px;
+    opacity: .9;
+}
+.popupAbout__text ul,
+.popupAbout__text ol{
+    margin: 0 0 14px 20px;
+}
+.popupAbout__text li{
+    font-size: 16px;
+    line-height: 24px;
+    margin-bottom: 6px;
+    opacity: .9;
+    list-style: disc;
+}
+.popupAbout__text ol li{ list-style: decimal; }
+@media (max-width: 767px){
+    .popupAbout__inner{
+        padding: 44px 22px;
+        margin: 16px auto;
+        max-width: calc(100% - 32px);
+        border-radius: 24px;
+    }
+}
+
+/* Анімація блоку гарантії (цифра + іконки) */
+.guarantee-anim .guarantee__item-icon{
+    opacity: 0;
+    transform: translateY(16px) scale(.85);
+    transition: opacity .5s ease, transform .5s ease;
+}
+.guarantee-anim.is-visible .guarantee__item-icon{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.guarantee-anim.is-visible .guarantee__item-icon:nth-child(2){ transition-delay: .15s; }
+.guarantee-anim.is-visible .guarantee__item-icon:nth-child(3){ transition-delay: .30s; }
+.guarantee-anim.is-visible .guarantee__item-icon:nth-child(4){ transition-delay: .45s; }
+.guarantee-anim.is-visible .guarantee__item-icon:nth-child(5){ transition-delay: .60s; }
+.guarantee-anim .guarantee__item-middle--number{
+    transition: transform .5s ease;
+}
+.guarantee-anim.is-visible .guarantee__item-middle--number{
+    animation: guarantee-pop .6s ease;
+}
+@keyframes guarantee-pop{
+    0% { transform: scale(.9); }
+    50% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+}
+
+/* Секція доставки: ховер (грейскейл -> колір, підйом) + поява при скролі */
+.delivery__item{
+    transition: transform .4s ease;
+}
+.delivery__item img{
+    filter: grayscale(1);
+    opacity: .62;
+    transition: filter .45s ease, opacity .45s ease, transform .45s ease;
+}
+@media (hover: hover) and (pointer: fine){
+    .delivery__item:hover{
+        transform: translateY(-8px);
+    }
+    .delivery__item:hover img{
+        filter: grayscale(0);
+        opacity: 1;
+        transform: scale(1.12);
+    }
+}
+/* поява при скролі (клас додає JS; без JS усе видно) */
+.delivery-anim .delivery__item{
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .6s ease, transform .6s ease, filter .45s ease;
+}
+.delivery-anim.is-revealed .delivery__item{
+    opacity: 1;
+    transform: translateY(0);
+}
+.delivery-anim.is-revealed .delivery__item:nth-child(2){ transition-delay: .08s; }
+.delivery-anim.is-revealed .delivery__item:nth-child(3){ transition-delay: .16s; }
+.delivery-anim.is-revealed .delivery__item:nth-child(4){ transition-delay: .24s; }
+.delivery-anim.is-revealed .delivery__item:nth-child(5){ transition-delay: .32s; }
+.delivery-anim.is-revealed .delivery__item:nth-child(6){ transition-delay: .40s; }
+
+/* Клікабельні логотипи доставки + попап способу доставки */
+.delivery-open{
+    cursor: pointer;
+}
+.popupDelivery__title{
+    text-transform: none;
+}
+
+
+
+/* Попап доставки — по центру екрана */
+.popupDelivery{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+}
+.popupDelivery .container{
+    width: 100%;
+}
+.popupDelivery .popupAbout__inner{
+    margin: 0 auto;
+}
+
+/* Cookie-банер */
+.cookie{
+    position: fixed;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    z-index: 200;
+    max-width: 560px;
+    margin: 0 auto;
+    background: #161616;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 24px 60px -20px rgba(0,0,0,.7);
+    transform: translateY(140%);
+    transition: transform .4s ease;
+}
+.cookie.is-visible{
+    transform: translateY(0);
+}
+.cookie__text{
+    font-size: 14px;
+    line-height: 22px;
+    opacity: .9;
+}
+.cookie__actions{
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.cookie__btn{
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.cookie__btn--ghost{
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+}
+.cookie__btn--ghost:hover{
+    background: rgba(255,255,255,.1);
+}
+@media (max-width: 479px){
+    .cookie{ left: 12px; right: 12px; bottom: 12px; padding: 18px; }
+    .cookie__actions{ flex-direction: column; }
+}
+
+/* Юридичні сторінки */
+.legal{
+    padding: 160px 0 80px;
+}
+.legal__back{
+    display: inline-block;
+    margin-bottom: 24px;
+    color: #1D9CB2;
+    font-weight: 700;
+}
+.legal__title{
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    margin-bottom: 32px;
+}
+.legal__content{
+    max-width: 860px;
+}
+.legal__content h2{
+    font-size: 22px;
+    font-weight: 700;
+    margin: 28px 0 12px;
+}
+.legal__content p{
+    font-size: 16px;
+    line-height: 26px;
+    margin-bottom: 14px;
+    opacity: .9;
+}
+.legal__content ul{
+    margin: 0 0 16px 22px;
+}
+.legal__content li{
+    font-size: 16px;
+    line-height: 24px;
+    margin-bottom: 8px;
+    list-style: disc;
+}
+.cookie__link{
+    color: #1D9CB2;
+    font-weight: 700;
+    text-decoration: underline;
+    white-space: nowrap;
+}
+@media (max-width: 767px){
+    .legal{ padding: 120px 0 60px; }
 }

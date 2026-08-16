@@ -1,0 +1,8 @@
+
+<div class="cookie" id="cookieBanner" hidden>
+    <p class="cookie__text" data-i18n="cookie.text">Ми використовуємо файли cookie, щоб сайт працював зручно та щоб аналізувати відвідуваність. Ви можете прийняти всі або залишити лише необхідні. <a class="cookie__link" href="privacy" data-i18n="cookie.more">Детальніше</a></p>
+    <div class="cookie__actions">
+        <button class="cookie__btn cookie__btn--ghost" data-cookie="necessary" data-i18n="cookie.necessary">Лише необхідні</button>
+        <button class="cookie__btn btn" data-cookie="accept" data-i18n="cookie.accept">Прийняти всі</button>
+    </div>
+</div>

@@ -1,13 +1,13 @@
 
 <?php
-$INFO_PRODUCTS = json_decode(file_get_contents(__DIR__ . '/../products.json'), true);
+$INFO_PRODUCTS = json_decode(file_get_contents(__DIR__ . '/../data/products.json'), true);
 if (!is_array($INFO_PRODUCTS)) {
     $INFO_PRODUCTS = [];
 }
 $infoTabs = [
-    'Automobile' => 'p2486252839',
+    'Automobile' => 'p2524537265',
     'Textile'    => 'p2523866690',
-    'Industrial' => 'p2528418243',
+    'Industrial' => 'p2524531368',
 ];
 $infoById = [];
 foreach ($INFO_PRODUCTS as $infoProduct) {
@@ -19,12 +19,12 @@ $tabMedia = [
     'Industrial' => ['poster' => $IMAGES['infoBlock']['Industrial']['poster'] ?? 'img/infoBlock/industrial.webp', 'video' => $IMAGES['infoBlock']['Industrial']['video'] ?? 'video/reels/HYDROFOB-vol2-canister.mp4'],
 ];
 ?>
-<section class="infoBlock">
+<section class="infoBlock" id="lineup">
     <div class="container">
         <div class="infoBlock__inner">
             <div class="infoBlock__select">
 <?php $first = true; foreach ($infoTabs as $tabKey => $tabPid): $tabProduct = $infoById[$tabPid] ?? null; ?>
-                <button class="infoBlock__select-btn<?= $first ? ' active' : '' ?>" data-infoBlock-btn="<?= $tabKey ?>"><?= htmlspecialchars($tabProduct['details']['tabTitle']['UA'] ?? ('Hydrophob ' . $tabKey)) ?></button>
+                <button class="infoBlock__select-btn<?= $first ? ' active' : '' ?>" data-infoBlock-btn="<?= $tabKey ?>" data-p-id="<?= $tabPid ?>" data-p-part="tabTitle"><?= htmlspecialchars($tabProduct['details']['tabTitle']['UA'] ?? ('Hydrophob ' . $tabKey)) ?></button>
 <?php $first = false; endforeach; ?>
             </div>
             <div class="infoBlock__result">
@@ -38,12 +38,12 @@ foreach ($infoTabs as $tabKey => $tabPid):
                 <div class="infoBlock__result-content<?= $first ? ' active' : '' ?>" data-infoBlock-result="<?= $tabKey ?>">
                     <div class="infoBlock__left">
                         <div class="infoBlock__video">
-                            <img class="infoBlock__video-image" src="<?= htmlspecialchars($tabMedia[$tabKey]['poster']) ?>" alt="">
+                            <img class="infoBlock__video-image" src="<?= htmlspecialchars($tabMedia[$tabKey]['poster']) ?>" alt="<?= htmlspecialchars($IMAGES['infoBlock'][$tabKey]['alt'] ?? '') ?>" loading="lazy" decoding="async">
                             <button class="infoBlock__video-play play-btn play-btn-open" data-video="<?= htmlspecialchars($tabMedia[$tabKey]['video']) ?>">Play reels</button>
                         </div>
                     </div>
                     <div class="infoBlock__content">
-                        <h3 class="infoBlock__title"><?= htmlspecialchars($details['tabTitle']['UA']) ?> <span data-p-id="<?= $tabPid ?>" data-p-part="subtitle"><?= htmlspecialchars($details['subtitle']['UA'] ?? '') ?></span></h3>
+                        <h3 class="infoBlock__title"><span data-p-id="<?= $tabPid ?>" data-p-part="title"><?= htmlspecialchars($tabProduct['title']['UA']) ?></span> <span data-p-id="<?= $tabPid ?>" data-p-part="subtitle"><?= htmlspecialchars($details['subtitle']['UA'] ?? '') ?></span></h3>
                         <div class="infoBlock__block">
                             <p class="infoBlock__volume"><span data-i18n="product.volumeLabel">Об'єм</span> <?= htmlspecialchars($tabProduct['volume'] !== '' ? $tabProduct['volume'] : '—') ?></p>
                             <p class="infoBlock__price"><?= htmlspecialchars($tabProduct['price']) ?> <span data-i18n="product.uah">грн.</span></p>

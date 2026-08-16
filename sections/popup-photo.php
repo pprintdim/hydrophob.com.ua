@@ -20,7 +20,7 @@
                         <div class="swiper-wrapper">
 <?php foreach (($IMAGES['imagesBlock']['items'] ?? []) as $galleryItem): ?>
                             <div class="swiper-slide">
-                                <img src="<?= htmlspecialchars($galleryItem['full']) ?>" alt="">
+                                <img src="<?= htmlspecialchars($galleryItem['full']) ?>" alt="<?= htmlspecialchars($galleryItem['alt'] ?? 'Hydrophob') ?>" loading="lazy" decoding="async">
                             </div>
 <?php endforeach; ?>
                         </div>
@@ -37,7 +37,7 @@
                     <div class="swiper-wrapper">
 <?php foreach (($IMAGES['imagesBlock']['items'] ?? []) as $galleryItem): ?>
                         <div class="swiper-slide">
-                            <img src="<?= htmlspecialchars($galleryItem['full']) ?>" alt="">
+                            <img src="<?= htmlspecialchars($galleryItem['full']) ?>" alt="<?= htmlspecialchars($galleryItem['alt'] ?? 'Hydrophob') ?>" loading="lazy" decoding="async">
                         </div>
 <?php endforeach; ?>
                     </div>

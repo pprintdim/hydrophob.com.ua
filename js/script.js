@@ -22,7 +22,11 @@ headerBurger.addEventListener('click', () => {
 
 
 
-const endDate = new Date(2025, 6, 15, 18, 30, 0);
+const timerSection = document.querySelector('.action');
+const startDate = new Date(timerSection ? timerSection.dataset.timerStart : '');
+const endDate = new Date(timerSection ? timerSection.dataset.timerEnd : '');
+const startTimestamp = startDate.getTime();
+const endTimestamp = endDate.getTime();
 
 let ticksDays, ticksHours, ticksMinutes, ticksSeconds;
 
@@ -188,17 +192,16 @@ const progressCircles = {
     seconds: createCircleSvg(document.querySelector("#seconds .circle-svg"), "seconds")
 };
 
-function updateTimer() {
-    const now = new Date();
-    const diff = endDate - now;
-    if (diff <= 0) {
-        document.querySelectorAll('.number').forEach(el => el.textContent = '00');
-        return;
-    }
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+function setTimerProgress(circle, percent) {
+    const circumference = 2 * Math.PI * 90; // 565.48
+    const arc = Math.max(0, Math.min(percent, 100)) / 100 * circumference;
+    // Анімуємо довжину видимої дуги через stroke-dasharray (dashoffset тримаємо 0)
+    circle.setAttribute("stroke-dasharray", `${arc} ${circumference}`);
+    circle.setAttribute("stroke-dashoffset", "0");
+}
+
+// Відмалювати таймер для конкретних значень (для живого ходу і для intro-анімації)
+function renderTimer(days, hours, minutes, seconds) {
     document.getElementById('days-number').textContent = String(days).padStart(2, '0');
     document.getElementById('hours-number').textContent = String(hours).padStart(2, '0');
     document.getElementById('minutes-number').textContent = String(minutes).padStart(2, '0');
@@ -207,25 +210,100 @@ function updateTimer() {
     updateTicks(ticksHours, hours);
     updateTicks(ticksMinutes, minutes);
     updateTicks(ticksSeconds, seconds);
-
-    function setProgress(circle, percent) {
-        const circumference = 2 * Math.PI * 90;
-        const offset = circumference - (percent / 100) * circumference;
-        circle.setAttribute("stroke-dashoffset", offset);
-    }
-    setProgress(progressCircles.days, days > 60 ? 0 : (days / 60) * 100);
-    setProgress(progressCircles.hours, (hours / 60) * 100);
-    setProgress(progressCircles.minutes, (minutes / 60) * 100);
-    setProgress(progressCircles.seconds, (seconds / 60) * 100);
-    updateDotPosition(document.querySelector("#days .dot-image"), (days / 60) * 100);
-    updateDotPosition(document.querySelector("#hours .dot-image"), (hours / 60) * 100);
-    updateDotPosition(document.querySelector("#minutes .dot-image"), (minutes / 60) * 100);
-    updateDotPosition(document.querySelector("#seconds .dot-image"), (seconds / 60) * 100);
-
+    // Один і той самий відсоток для кільця і для шарика (щоб шарик не «накручував» обертів)
+    const pDays = days > 60 ? 0 : (days / 60) * 100;
+    const pHours = (hours / 60) * 100;
+    const pMinutes = (minutes / 60) * 100;
+    const pSeconds = (seconds / 60) * 100;
+    setTimerProgress(progressCircles.days, pDays);
+    setTimerProgress(progressCircles.hours, pHours);
+    setTimerProgress(progressCircles.minutes, pMinutes);
+    setTimerProgress(progressCircles.seconds, pSeconds);
+    updateDotPosition(document.querySelector("#days .dot-image"), pDays);
+    updateDotPosition(document.querySelector("#hours .dot-image"), pHours);
+    updateDotPosition(document.querySelector("#minutes .dot-image"), pMinutes);
+    updateDotPosition(document.querySelector("#seconds .dot-image"), pSeconds);
 }
 
-setInterval(updateTimer, 1000);
-updateTimer();
+function computeRemaining() {
+    const now = Date.now();
+    const active = Number.isFinite(startTimestamp) && Number.isFinite(endTimestamp) &&
+        startTimestamp < endTimestamp && now >= startTimestamp && now < endTimestamp;
+    const diff = active ? endTimestamp - now : 0;
+    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, active: false };
+    return {
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff / 3600000) % 24),
+        minutes: Math.floor((diff / 60000) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+        active: true
+    };
+}
+
+function updateTimer() {
+    const r = computeRemaining();
+    renderTimer(r.days, r.hours, r.minutes, r.seconds);
+}
+
+// Стартова позиція — нулі (щоб при доскролюванні кружечки й цифри «набігали»)
+renderTimer(0, 0, 0, 0);
+
+let timerInView = false;    // секція в зоні видимості
+let timerIntroId = 0;       // id поточної intro-анімації (щоб скасувати попередню)
+
+// Живий хід секунд — тільки коли секція на екрані і не грає intro
+setInterval(function () {
+    if (timerInView && !timerIntroId) updateTimer();
+}, 1000);
+
+// Intro-анімація: кружечки (stroke-dasharray) і цифри набігають з 0 до поточних значень.
+// Запускається щоразу, коли секція заходить у в'юпорт.
+function playTimerIntro() {
+    const target = computeRemaining();
+    if (!target.active || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        timerIntroId = 0;
+        updateTimer();
+        return;
+    }
+    const duration = 1500, start = performance.now();
+    const myId = ++timerIntroId;
+    function frame(now) {
+        if (myId !== timerIntroId) return; // перервано новою анімацією/виходом із в'юпорту
+        const p = Math.min((now - start) / duration, 1);
+        const e = 1 - Math.pow(1 - p, 3); // easeOutCubic
+        renderTimer(
+            Math.round(target.days * e),
+            Math.round(target.hours * e),
+            Math.round(target.minutes * e),
+            Math.round(target.seconds * e)
+        );
+        if (p < 1) requestAnimationFrame(frame);
+        else if (myId === timerIntroId) { timerIntroId = 0; updateTimer(); }
+    }
+    requestAnimationFrame(frame);
+}
+
+(function () {
+    const actionSection = document.querySelector('.action');
+    if (!actionSection || typeof IntersectionObserver === 'undefined') {
+        timerInView = true;
+        updateTimer();
+        return;
+    }
+    const obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+            if (en.isIntersecting) {
+                timerInView = true;
+                playTimerIntro();               // щоразу заново набігає
+            } else {
+                timerInView = false;
+                timerIntroId = 0;               // скасувати поточну anim
+                renderTimer(0, 0, 0, 0);        // скинути в нуль для наступного набігання
+            }
+        });
+    }, { threshold: 0.35 });
+    obs.observe(actionSection);
+})();
 
 
 
@@ -279,6 +357,12 @@ let productSwiper = new Swiper(".product__slider", {
     slidesPerView: 3,
     centeredSlides: true,
     roundLengths: true,
+    grabCursor: true,
+    // свайп двома пальцями по тачпаду (горизонтальний wheel); вертикальний скрол не чіпаємо
+    mousewheel: {
+        forceToAxis: true,
+        releaseOnEdges: true,
+    },
     navigation: {
         nextEl: ".product__slider-next",
         prevEl: ".product__slider-prev",
@@ -337,27 +421,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-async function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
-        center: {
-            lat: 50.4436, // вул. Якова Гніздовського, 15 (приблизно; уточнити при підключенні API)
-            lng: 30.6613
-        },
-        zoom: 14
-    });
-    new google.maps.Marker({
-        position: {
-            lat: 50.4436,
-            lng: 30.6613
-        },
-        map: map,
-        icon: {
-            url: "../img/point.svg",
-            scaledSize: new google.maps.Size(80, 96)
-        }
-    });
-}
-window.initMap = initMap;
+// Карта: Leaflet + OpenStreetMap (безкоштовно, без API-ключа)
+document.addEventListener('DOMContentLoaded', function() {
+    const mapEl = document.getElementById('map');
+    if (!mapEl || typeof L === 'undefined') return;
+    // вул. Якова Гніздовського, Київ (координати з OSM/Nominatim)
+    const coords = [50.4542, 30.6402];
+    const map = L.map(mapEl, { scrollWheelZoom: false, attributionControl: false }).setView(coords, 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+    const marker = L.marker(coords, {
+        icon: L.icon({
+            iconUrl: 'img/point.svg',
+            iconSize: [80, 96],
+            iconAnchor: [40, 96],
+            popupAnchor: [0, -96]
+        })
+    }).addTo(map);
+    const gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + coords[0] + ',' + coords[1];
+    marker.bindPopup(
+        '<div class="map-popup">' +
+        '<strong>Hydrophob</strong><br>Київ, вул. Якова Гніздовського, 15<br>' +
+        '<a href="' + gmapsUrl + '" target="_blank" rel="noopener">Відкрити в Google Maps →</a>' +
+        '</div>'
+    );
+});
 
 
 
@@ -371,6 +461,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainSwiper = new Swiper('.popupPhoto__content-image', {
         spaceBetween: 24,
         slidesPerView: 1,
+        grabCursor: true,
+        mousewheel: {
+            forceToAxis: true,
+            releaseOnEdges: true,
+        },
         navigation: {
             nextEl: '.popupPhoto__content-next',
             prevEl: '.popupPhoto__content-prev',
@@ -406,6 +501,11 @@ document.addEventListener('DOMContentLoaded', function() {
         slidesPerView: 1,
         spaceBetween: 24,
         loop: false,
+        grabCursor: true,
+        mousewheel: {
+            forceToAxis: true,
+            releaseOnEdges: true,
+        },
         on: {
             init: function(swiper) {
                 updateCounter(swiper);
@@ -444,7 +544,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const bottoms = Array.from(cartSection.querySelectorAll('.cart-bottom'));
     cartOpenButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            cartSection.classList.add('active');
+            // відкриваємо лише коли в кошику є товари (кнопка "Купити" додає товар цим же кліком)
+            requestAnimationFrame(() => {
+                if (!window.hydroCartCount || window.hydroCartCount() > 0) {
+                    cartSection.classList.add('active');
+                }
+            });
         });
     });
     cartCloseButtons.forEach(btn => {
@@ -476,8 +581,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if (idx === -1) return;
             if (idx === bottoms.length - 1) {
-                cartInner.classList.add('hide-block');
-                cartThanks.classList.remove('hide-block');
+                if (window.hydroSubmitOrder) {
+                    window.hydroSubmitOrder(btn);
+                } else {
+                    cartInner.classList.add('hide-block');
+                    cartThanks.classList.remove('hide-block');
+                }
                 return;
             }
             contents[idx].classList.add('hide-block');
@@ -555,33 +664,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   validateCartData();
 
-  const cartOrder = document.querySelector('.cart__order');
-  const cartOrderInputs = cartOrder.querySelectorAll('input');
-  const cartOrderNextBtn = cartOrder.nextElementSibling.querySelector('.cart__next');
 
-  function validateCartOrder() {
-    let valid = true;
-
-    cartOrderInputs.forEach(input => {
-      if (input.value.trim() === '') {
-        valid = false;
-      }
-    });
-
-    if (valid) {
-      cartOrderNextBtn.removeAttribute('disabled');
-      cartOrderNextBtn.classList.remove('btn-disabled');
-    } else {
-      cartOrderNextBtn.setAttribute('disabled', 'disabled');
-      cartOrderNextBtn.classList.add('btn-disabled');
-    }
-  }
-
-  cartOrderInputs.forEach(input => {
-    input.addEventListener('input', validateCartOrder);
-  });
-
-  validateCartOrder();
 });
 
 
@@ -589,18 +672,15 @@ document.addEventListener("DOMContentLoaded", function() {
 document.addEventListener("DOMContentLoaded", function() {
     const deliverySelect = document.querySelector('select[name="delivery"]');
     const deliveryIcons = document.querySelectorAll('.cart__data-deivery--icon img');
+    if (!deliverySelect) return;
 
-    deliverySelect.addEventListener('change', () => {
-        const selected = deliverySelect.value;
-        deliveryIcons.forEach(img => img.classList.remove('active'));
-        if (selected === 'np') {
-            deliveryIcons[0].classList.add('active');
-        } else if (selected === 'Ukrposhta') {
-            deliveryIcons[1].classList.add('active');
-        } else if (selected === 'Meest') {
-            deliveryIcons[2].classList.add('active');
-        }
-    });
+    function syncIcons() {
+        deliveryIcons.forEach(img => {
+            img.classList.toggle('active', img.dataset.carrier === deliverySelect.value);
+        });
+    }
+    deliverySelect.addEventListener('change', syncIcons);
+    syncIcons();
 });
 
 /* ===== Анкорна навігація: точний скрол з урахуванням реальної висоти хедера ===== */
@@ -634,6 +714,40 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => scrollToSection(target), 100);
         }
     }
+
+    /* ===== Підсвітка активного пункту меню при скролі ===== */
+    // порядок у DOM не збігається з порядком пунктів меню — сортуємо за позицією секції
+    const menuLinks = Array.from(document.querySelectorAll('.header__menu ul li a[href^="#"]'))
+        .map(link => ({ link, section: document.getElementById(link.getAttribute('href').slice(1)) }))
+        .filter(item => item.section)
+        .sort((a, b) => a.section.getBoundingClientRect().top - b.section.getBoundingClientRect().top);
+    if (!menuLinks.length) return;
+
+    function setActive(activeLink) {
+        menuLinks.forEach(({ link }) => link.classList.toggle('active', link === activeLink));
+    }
+
+    function updateActive() {
+        const line = (header ? header.offsetHeight : 0) + HEADER_GAP + 1;
+        let current = menuLinks[0].link;
+        menuLinks.forEach(item => {
+            if (item.section.getBoundingClientRect().top <= line) current = item.link;
+        });
+        // низ сторінки — завжди останній пункт
+        if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) {
+            current = menuLinks[menuLinks.length - 1].link;
+        }
+        setActive(current);
+    }
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => { updateActive(); ticking = false; });
+    }, { passive: true });
+    window.addEventListener('resize', updateActive);
+    updateActive();
 });
 
 
@@ -703,7 +817,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     applyLang(currentLang);
-    fetch('strings.json')
+    fetch('data/strings.json')
         .then(r => r.json())
         .then(data => {
             STRINGS = data;
@@ -849,14 +963,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const totals = cartSection.querySelectorAll('.cart__products-bottom .cart__products-total p:last-child');
     const firstNextBtn = cartSection.querySelector('.cart-bottom .cart__next');
     const checkItems = cartSection.querySelectorAll('.cart__check-block:first-child .cart__check-descr');
+    const cartFab = document.querySelector('.cart-fab');
+    const cartFabCount = cartFab ? cartFab.querySelector('.cart-fab__count') : null;
 
     let PRODUCTS = [];
     let cart = [];
     try {
         cart = JSON.parse(localStorage.getItem('hydrophob_cart')) || [];
     } catch (e) { cart = []; }
+    updateCartFab();
 
-    fetch('products.json')
+    fetch('data/products.json')
         .then(r => r.json())
         .then(list => {
             PRODUCTS = list;
@@ -885,6 +1002,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveCart() {
         localStorage.setItem('hydrophob_cart', JSON.stringify(cart));
+    }
+
+    function updateCartFab() {
+        if (!cartFab) return;
+        const count = cart.reduce((sum, item) => sum + Math.max(Number(item.qty) || 0, 0), 0);
+        cartFab.hidden = count === 0;
+        cartFab.setAttribute('aria-label', count > 0 ? 'Відкрити кошик: ' + count : 'Відкрити кошик');
+        if (cartFabCount) {
+            cartFabCount.textContent = count > 99 ? '99+' : String(count);
+            cartFabCount.hidden = count <= 1;
+        }
     }
 
     function plural(n) {
@@ -965,6 +1093,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const count = cart.reduce((n, item) => n + item.qty, 0);
         productsNumber.textContent = count + ' ' + plural(count);
+        updateCartFab();
+        window.hydroCartCount = function () { return count; };
+        // порожній кошик — автоматично закриваємо (не показуємо пусту форму)
+        if (count === 0 && cartSection.classList.contains('active')) {
+            cartSection.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+        }
 
         const total = cartTotal();
         totals.forEach(el => { el.textContent = total + ' ' + t('cart.uahShort', 'грн'); });
@@ -1042,6 +1177,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.textContent = val(p.descr);
             } else if (part === 'subtitle') {
                 el.textContent = val(p.details && p.details.subtitle);
+            } else if (part === 'tabTitle') {
+                el.textContent = val(p.details && p.details.tabTitle);
             } else if (el.dataset.pBlock !== undefined) {
                 const block = p.details && p.details.blocks && p.details.blocks[el.dataset.pBlock];
                 if (!block) return;
@@ -1132,4 +1269,484 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('hydro:lang', function() {
         if (popup.classList.contains('active') && currentId) fillPopup(currentId);
     });
+});
+
+
+/* ===== Доставка (Нова пошта / Укрпошта) + відправка замовлення ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    const cartSection = document.querySelector('.cart');
+    if (!cartSection) return;
+    const deliverySelect = cartSection.querySelector('select[name="delivery"]');
+    const deliveryType = cartSection.querySelector('select[name="delivery-type"]');
+    const cityInput = cartSection.querySelector('input[name="delivery-city"]');
+    const branchInput = cartSection.querySelector('input[name="delivery-branch"]');
+    if (!deliverySelect || !cityInput || !branchInput) return;
+
+    const state = { cityRef: '', cityName: '', branchName: '' };
+    function isCourier() { return deliveryType && deliveryType.value === 'courier'; }
+
+    function t(key, fallback) {
+        const val = window.hydroT ? window.hydroT(key) : null;
+        return val !== null && val !== undefined ? val : fallback;
+    }
+    function provider() { return deliverySelect.value; }
+    // Перевізники, для яких API повернуло manual:true (нема токена) — тільки ручний ввід
+    const manualProviders = {};
+
+    function listOf(input) {
+        return input.closest('.cart__suggest').querySelector('.cart__suggest-list');
+    }
+    function hideList(input) {
+        listOf(input).classList.remove('active');
+    }
+    function showList(input, items, onPick) {
+        const ul = listOf(input);
+        ul.innerHTML = '';
+        if (!items.length) { ul.classList.remove('active'); return; }
+        items.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.name;
+            li.addEventListener('mousedown', (e) => { // mousedown — раніше за blur
+                e.preventDefault();
+                onPick(item);
+                ul.classList.remove('active');
+            });
+            ul.appendChild(li);
+        });
+        ul.classList.add('active');
+    }
+
+    let cityTimer = null, branchTimer = null;
+    function fetchItems(params, cb) {
+        params.provider = provider();
+        fetch('api/shipping.php?' + new URLSearchParams(params))
+            .then(r => r.json())
+            .then(d => {
+                if (d && d.manual) { manualProviders[params.provider] = true; }
+                cb(d && d.ok ? (d.items || []) : []);
+            })
+            .catch(() => cb([]));
+    }
+
+    cityInput.addEventListener('input', function() {
+        state.cityRef = ''; state.cityName = '';
+        if (manualProviders[provider()]) return; // нема автокомпліту -> ручний ввід
+        clearTimeout(cityTimer);
+        const q = cityInput.value.trim();
+        if (q.length < 2) { hideList(cityInput); return; }
+        cityTimer = setTimeout(() => {
+            fetchItems({ action: 'cities', search: q }, items => {
+                showList(cityInput, items, picked => {
+                    cityInput.value = picked.name;
+                    state.cityRef = picked.ref;
+                    state.cityName = picked.name;
+                    branchInput.value = '';
+                    cityInput.dispatchEvent(new Event('change'));
+                    branchInput.focus();
+                });
+            });
+        }, 300);
+    });
+
+    function loadBranches() {
+        if (!state.cityRef || manualProviders[provider()] || isCourier()) return; // кур'єр = ручна адреса
+        clearTimeout(branchTimer);
+        branchTimer = setTimeout(() => {
+            fetchItems({ action: 'warehouses', city_ref: state.cityRef, search: branchInput.value.trim() }, items => {
+                showList(branchInput, items, picked => {
+                    branchInput.value = picked.name;
+                    state.branchName = picked.name;
+                    branchInput.dispatchEvent(new Event('change'));
+                });
+            });
+        }, 250);
+    }
+    branchInput.addEventListener('input', loadBranches);
+    branchInput.addEventListener('focus', loadBranches);
+
+    [cityInput, branchInput].forEach(inp => {
+        inp.addEventListener('blur', () => setTimeout(() => hideList(inp), 150));
+    });
+
+    function applyDeliveryMode() {
+        let key, fallback;
+        if (isCourier()) {
+            key = 'cart.addressPlaceholder'; fallback = 'Адреса: вулиця, будинок, квартира';
+        } else if (manualProviders[provider()]) {
+            key = 'cart.branchManualPlaceholder'; fallback = 'Відділення або індекс';
+        } else {
+            key = 'cart.branchPlaceholder'; fallback = 'Відділення';
+        }
+        branchInput.setAttribute('placeholder', t(key, fallback));
+        branchInput.dataset.i18nPlaceholder = key;
+        hideList(cityInput); hideList(branchInput);
+    }
+    deliverySelect.addEventListener('change', applyDeliveryMode);
+    if (deliveryType) deliveryType.addEventListener('change', applyDeliveryMode);
+    window.addEventListener('hydro:lang', applyDeliveryMode);
+
+    // Зміна перевізника — скидаємо ВСІ поля доставки (місто + відділення/адреса)
+    deliverySelect.addEventListener('change', function() {
+        cityInput.value = '';
+        branchInput.value = '';
+        state.cityRef = '';
+        state.cityName = '';
+        state.branchName = '';
+        hideList(cityInput);
+        hideList(branchInput);
+    });
+    // Зміна типу доставки (відділення / кур'єр) — скидаємо лише поле відділення/адреси
+    if (deliveryType) deliveryType.addEventListener('change', function() {
+        branchInput.value = '';
+        state.branchName = '';
+        hideList(branchInput);
+    });
+
+    // Заповнення кроку "Перевірка даних" реальними значеннями
+    const checkBlocks = cartSection.querySelectorAll('.cart__check-block');
+    function fillCheck() {
+        if (checkBlocks.length < 3) return;
+        const nameInput = cartSection.querySelector('input[name="name"]');
+        const telInput = cartSection.querySelector('input[name="tel"]');
+        const emailInput = cartSection.querySelector('input[name="email"]');
+        const b2 = checkBlocks[1].querySelectorAll('.cart__check-descr');
+        if (b2.length >= 3) {
+            b2[0].textContent = nameInput.value || '—';
+            b2[1].textContent = cartSection.querySelector('input[name="tel-full"]').value || telInput.value || '—';
+            b2[2].textContent = emailInput.value || '—';
+        }
+        const b3 = checkBlocks[2].querySelectorAll('.cart__check-descr');
+        if (b3.length >= 4) {
+            b3[0].textContent = deliverySelect.options[deliverySelect.selectedIndex].text;
+            b3[1].textContent = branchInput.value || '—';
+            // Область: НП повертає її в описі міста після коми
+            const parts = cityInput.value.split(',');
+            b3[2].textContent = parts.length > 2 ? parts.slice(2).join(',').trim() : '—';
+            b3[3].textContent = parts[0] || '—';
+        }
+    }
+    cartSection.querySelectorAll('.cart__next').forEach(btn => {
+        btn.addEventListener('click', fillCheck);
+    });
+
+    // Відправка замовлення (останній крок майстра)
+    window.hydroSubmitOrder = function(btn) {
+        let items = [];
+        try { items = JSON.parse(localStorage.getItem('hydrophob_cart')) || []; } catch (e) {}
+        if (!items.length) { alert(t('cart.orderError', 'Кошик порожній')); return; }
+        if (window.hydroTrack) window.hydroTrack('begin_checkout', { items: items.length });
+        const payload = {
+            items: items,
+            contact: {
+                name: cartSection.querySelector('input[name="name"]').value.trim(),
+                phone: (cartSection.querySelector('input[name="tel-full"]').value || cartSection.querySelector('input[name="tel"]').value).trim(),
+                email: cartSection.querySelector('input[name="email"]').value.trim(),
+            },
+            delivery: {
+                method: deliverySelect.value,
+                type: deliveryType ? deliveryType.value : 'branch',
+                city: cityInput.value.trim(),
+                branch: branchInput.value.trim(),
+            },
+            payment: '',
+        };
+        btn.setAttribute('disabled', 'disabled');
+        btn.classList.add('btn-disabled');
+        fetch('api/order.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        })
+            .then(r => r.json())
+            .then(d => {
+                if (d && d.ok && d.token) {
+                    localStorage.removeItem('hydrophob_cart');
+                    window.location.href = 'success.php?token=' + d.token;
+                } else {
+                    throw new Error((d && d.error) || 'fail');
+                }
+            })
+            .catch(() => {
+                alert(t('cart.orderError', 'Не вдалося оформити замовлення. Спробуйте ще раз або зателефонуйте нам.'));
+                btn.removeAttribute('disabled');
+                btn.classList.remove('btn-disabled');
+            });
+    };
+});
+
+
+/* ===== Телефон з кодом країни та валідацією (патерн pprintdim) ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    const countrySelect = document.querySelector('.cart__phone-country');
+    const phoneInput = document.querySelector('.cart__phone input[name="tel"]');
+    const phoneFull = document.querySelector('.cart__phone input[name="tel-full"]');
+    if (!countrySelect || !phoneInput || !phoneFull) return;
+
+    // [iso, прапор, код, мін цифр, макс цифр]
+    const CTRY = [["UA","🇺🇦",380,9,9],["PL","🇵🇱",48,9,9],["DE","🇩🇪",49,10,11],["GB","🇬🇧",44,10,10],["US","🇺🇸",1,10,10],["CA","🇨🇦",1,10,10],["CZ","🇨🇿",420,9,9],["SK","🇸🇰",421,9,9],["FR","🇫🇷",33,9,9],["IT","🇮🇹",39,9,10],["ES","🇪🇸",34,9,9],["NL","🇳🇱",31,9,9],["AT","🇦🇹",43,10,11],["CH","🇨🇭",41,9,9],["SE","🇸🇪",46,9,9],["NO","🇳🇴",47,8,8],["DK","🇩🇰",45,8,8],["FI","🇫🇮",358,9,10],["LT","🇱🇹",370,8,8],["LV","🇱🇻",371,8,8],["EE","🇪🇪",372,7,8],["MD","🇲🇩",373,8,8],["RO","🇷🇴",40,9,9],["BG","🇧🇬",359,8,9],["TR","🇹🇷",90,10,10],["GE","🇬🇪",995,9,9],["IL","🇮🇱",972,9,9],["AE","🇦🇪",971,9,9],["KZ","🇰🇿",7,10,10],["AZ","🇦🇿",994,9,9]];
+
+    countrySelect.innerHTML = CTRY.map(c => '<option value="' + c[0] + '">' + c[1] + ' +' + c[2] + '</option>').join('');
+    const def = (countrySelect.dataset.defaultCountry || 'UA').toUpperCase();
+    countrySelect.value = CTRY.some(c => c[0] === def) ? def : 'UA';
+
+    function cur() {
+        return CTRY.find(c => c[0] === countrySelect.value) || CTRY[0];
+    }
+
+    function format() {
+        const c = cur();
+        let d = phoneInput.value.replace(/\D/g, '');
+        const code = String(c[2]);
+        if (d.indexOf(code) === 0 && d.length > c[4]) d = d.slice(code.length); // вставили з кодом
+        if (c[0] === 'UA' && d.charAt(0) === '0') d = d.slice(1);               // 067... -> 67...
+        d = d.slice(0, c[4]);
+        const groups = c[0] === 'UA' ? [2, 3, 2, 2] : [3, 3, 5];
+        let out = '', pos = 0;
+        for (let g = 0; g < groups.length && pos < d.length; g++) {
+            if (out) out += ' ';
+            out += d.slice(pos, pos + groups[g]);
+            pos += groups[g];
+        }
+        phoneInput.value = out;
+        const valid = d.length >= c[3] && d.length <= c[4];
+        // повний номер пишемо ЛИШЕ коли він коректний — інакше крок не пропустить далі
+        phoneFull.value = valid ? '+' + code + d : '';
+        phoneInput.classList.toggle('phone-invalid', d.length > 0 && !valid);
+        phoneFull.dispatchEvent(new Event('change')); // перезапустити валідатор кроку
+    }
+
+    phoneInput.addEventListener('input', format);
+    countrySelect.addEventListener('change', function() {
+        format();
+        phoneInput.focus();
+    });
+});
+
+
+/* ===== Посилання "Продукція" у футері: відкрити відповідну вкладку infoBlock ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('a[data-tab][href="#lineup"]').forEach(link => {
+        link.addEventListener('click', function() {
+            const tab = link.dataset.tab;
+            const btn = document.querySelector('.infoBlock__select-btn[data-infoBlock-btn="' + tab + '"]');
+            if (btn) setTimeout(() => btn.click(), 500); // після плавного скролу
+        });
+    });
+});
+
+
+/* ===== Попап "Про нас" (Читати далі) ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.querySelector('.popupAbout');
+    if (!popup) return;
+    const inner = popup.querySelector('.popupAbout__inner');
+    const closeBtn = popup.querySelector('.popupAbout__close');
+    function open() { popup.classList.add('active'); document.body.classList.add('no-scroll'); }
+    function close() { popup.classList.remove('active'); document.body.classList.remove('no-scroll'); }
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.about-more-open')) { e.preventDefault(); open(); }
+    });
+    closeBtn.addEventListener('click', close);
+    popup.addEventListener('click', function(e) { if (!inner.contains(e.target)) close(); });
+});
+
+
+/* ===== Гарантія: набір цифри 100% + поява іконок при скролі ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    const numEl = document.querySelector('.guarantee__item-middle--number');
+    const midBlock = document.querySelector('.guarantee__item-middle');
+    if (!numEl) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // текстовий вузол із числом (перед <span>%</span>)
+    const textNode = numEl.firstChild;
+    const target = parseInt((textNode.nodeValue || '').replace(/\D/g, ''), 10) || 100;
+
+    if (midBlock) midBlock.classList.add('guarantee-anim');
+
+    let countId = 0;
+    function countUp() {
+        if (reduce) { textNode.nodeValue = String(target); return; }
+        const duration = 1400, start = performance.now();
+        const myId = ++countId;
+        function step(now) {
+            if (myId !== countId) return; // перервано новим набіганням/виходом
+            const p = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+            textNode.nodeValue = String(Math.round(eased * target));
+            if (p < 1) requestAnimationFrame(step);
+        }
+        textNode.nodeValue = '0';
+        requestAnimationFrame(step);
+    }
+
+    // Набігає щоразу при заході секції у в'юпорт (не один раз)
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                if (midBlock) midBlock.classList.add('is-visible');
+                countUp();
+            } else {
+                countId++;               // скасувати поточну anim
+                if (midBlock) midBlock.classList.remove('is-visible');
+                if (!reduce) textNode.nodeValue = '0'; // скинути для наступного набігання
+            }
+        });
+    }, { threshold: 0.5 });
+    obs.observe(midBlock || numEl);
+});
+
+
+/* ===== SEO: оновлення title/description при клієнтській зміні мови ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    let SEO = null;
+    fetch('data/seo.json').then(r => r.json()).then(d => { SEO = d; apply(); }).catch(() => {});
+    function apply() {
+        if (!SEO) return;
+        const lang = window.hydroLang ? window.hydroLang() : 'UA';
+        const m = (SEO.meta && SEO.meta[lang]) || (SEO.meta && SEO.meta.UA);
+        if (!m) return;
+        document.title = m.title;
+        let desc = document.querySelector('meta[name="description"]');
+        if (desc) desc.setAttribute('content', m.description);
+        if (SEO.htmlLang && SEO.htmlLang[lang]) document.documentElement.lang = SEO.htmlLang[lang];
+    }
+    window.addEventListener('hydro:lang', apply);
+});
+
+
+/* ===== Доставка: поява логотипів при скролі ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    const block = document.querySelector('.delivery__block');
+    if (!block) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    block.classList.add('delivery-anim');
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => block.classList.toggle('is-revealed', e.isIntersecting));
+    }, { threshold: 0.3 });
+    obs.observe(block);
+});
+
+
+/* ===== Попап способу доставки (клік по логотипу в секції delivery) ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.querySelector('.popupDelivery');
+    if (!popup) return;
+    const inner = popup.querySelector('.popupAbout__inner');
+    const closeBtn = popup.querySelector('.popupAbout__close');
+    const titleEl = popup.querySelector('.popupDelivery__title');
+    const textEl = popup.querySelector('.popupDelivery__text');
+    let INFO = null;
+
+    fetch('data/strings.json').then(r => r.json()).then(d => { INFO = d.deliveryInfo || {}; }).catch(() => {});
+
+    function val(f) {
+        if (!f) return '';
+        const lang = window.hydroLang ? window.hydroLang() : 'UA';
+        return f[lang] !== undefined ? f[lang] : f.UA;
+    }
+    let currentKey = null;
+    function fill(key) {
+        if (!INFO || !INFO[key]) return false;
+        currentKey = key;
+        titleEl.textContent = val(INFO[key].title);
+        textEl.innerHTML = val(INFO[key].text);
+        return true;
+    }
+    function open(key) {
+        if (!fill(key)) return;
+        popup.classList.add('active');
+        document.body.classList.add('no-scroll');
+    }
+    function close() {
+        popup.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    }
+    document.addEventListener('click', function(e) {
+        const item = e.target.closest('.delivery-open[data-delivery]');
+        if (item) { e.preventDefault(); open(item.dataset.delivery); }
+    });
+    document.addEventListener('keydown', function(e) {
+        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement.classList.contains('delivery-open')) {
+            e.preventDefault(); open(document.activeElement.dataset.delivery);
+        }
+    });
+    closeBtn.addEventListener('click', close);
+    popup.addEventListener('click', function(e) { if (!inner.contains(e.target)) close(); });
+    window.addEventListener('hydro:lang', function() {
+        if (popup.classList.contains('active') && currentKey) fill(currentKey);
+    });
+});
+
+
+/* ===== Юзабіліті: Esc закриває будь-який відкритий попап ===== */
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    const active = document.querySelector('.popupProduct.active, .popupAbout.active, .popupDelivery.active, .popupVideo.active, .popupPhoto.active');
+    if (active) {
+        active.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    }
+    const cart = document.querySelector('.cart.active');
+    if (cart) cart.classList.remove('active');
+});
+
+
+/* ===== Аналітика GA4 + Cookie-згода ===== */
+document.addEventListener('DOMContentLoaded', function() {
+    const cfg = window.HYDRO_ANALYTICS || { mode: 'test', ga4: '' };
+    const CONSENT_KEY = 'hydro_cookie_consent';
+
+    // hydroTrack: у test — консоль; у production — gtag (лише після згоди)
+    window.hydroTrack = function(name, params) {
+        params = params || {};
+        if (cfg.mode !== 'production') {
+            console.log('%c[GA4 TEST]', 'color:#1D9CB2;font-weight:bold', name, params);
+            return;
+        }
+        if (localStorage.getItem(CONSENT_KEY) === 'granted' && typeof gtag === 'function') {
+            gtag('event', name, params);
+        }
+    };
+
+    function applyConsent(granted) {
+        if (cfg.mode === 'production' && typeof gtag === 'function') {
+            gtag('consent', 'update', {
+                analytics_storage: granted ? 'granted' : 'denied',
+                ad_storage: granted ? 'granted' : 'denied',
+                ad_user_data: granted ? 'granted' : 'denied',
+                ad_personalization: granted ? 'granted' : 'denied'
+            });
+        }
+        console.log('%c[Cookie]', 'color:#1D9CB2;font-weight:bold', granted ? 'analytics granted' : 'necessary only');
+    }
+
+    // Банер
+    const banner = document.getElementById('cookieBanner');
+    const stored = localStorage.getItem(CONSENT_KEY);
+    if (stored) {
+        applyConsent(stored === 'granted');
+    } else if (banner) {
+        banner.hidden = false;
+        requestAnimationFrame(() => banner.classList.add('is-visible'));
+    }
+    if (banner) {
+        banner.addEventListener('click', function(e) {
+            const btn = e.target.closest('[data-cookie]');
+            if (!btn) return;
+            const granted = btn.dataset.cookie === 'accept';
+            localStorage.setItem(CONSENT_KEY, granted ? 'granted' : 'denied');
+            applyConsent(granted);
+            banner.classList.remove('is-visible');
+            setTimeout(() => { banner.hidden = true; }, 400);
+        });
+    }
+
+    // Подія add_to_cart (кнопки "Купити")
+    document.addEventListener('click', function(e) {
+        const buy = e.target.closest('.cart-open[data-product-id]');
+        if (buy) window.hydroTrack('add_to_cart', { item_id: buy.dataset.productId });
+    });
+    // page_view у test-режимі (у production шле сам gtag config)
+    if (cfg.mode !== 'production') window.hydroTrack('page_view', { page: location.pathname });
 });

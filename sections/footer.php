@@ -4,7 +4,7 @@
         <div class="footer__inner">
             <div class="footer__box">
                 <a class="footer__logo" href="index.php">
-                    <img src="img/logo.svg" alt="">
+                    <img src="img/logo.svg" alt="Hydrophob" loading="lazy" decoding="async">
                 </a>
                 <div class="footer__block">
                     <p class="footer__descr" data-i18n-html="footer.addressHtml">Київ <br>вул. Якова Гніздовського, 15</p>
@@ -25,33 +25,38 @@
                         <li>
                             <a href="#contacts" data-i18n="footer.contacts">Контакти</a>
                         </li>
+                        <li>
+                            <a href="privacy" data-i18n="footer.privacy">Політика конфіденційності</a>
+                        </li>
+                        <li>
+                            <a href="returns" data-i18n="footer.returns">Умови повернення</a>
+                        </li>
+                        <li>
+                            <a href="offer" data-i18n="footer.offer">Публічна оферта</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="footer__box">
                     <h3 class="footer__name" data-i18n="footer.productsTitle">Продукція</h3>
                     <ul class="footer__menu">
                         <li>
-                            <a href="#catalog" data-i18n="footer.ceramics">Кераміка</a>
+                            <a href="#lineup" data-tab="Automobile" data-i18n="footer.ceramics">Для автомобіля</a>
                         </li>
                         <li>
-                            <a href="#catalog" data-i18n="footer.autochem">Автохімія</a>
+                            <a href="#lineup" data-tab="Industrial" data-i18n="footer.autochem">Для автомийок</a>
                         </li>
                         <li>
-                            <a href="#catalog" data-i18n="footer.clothes">Одяг та взуття</a>
+                            <a href="#lineup" data-tab="Textile" data-i18n="footer.clothes">Для одягу та взуття</a>
                         </li>
                     </ul>
                 </div>
                 <div class="footer__box">
                     <h3 class="footer__name" data-i18n="footer.socialsTitle">ми у соцмережах</h3>
                     <div class="footer__socials">
-                        <a href="#" target="_blank">
+                        <a href="https://www.tiktok.com/@hydrophob.ua" target="_blank" aria-label="TikTok">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <path d="M8.66211 0.5H23.3379C27.8381 0.5 31.5 4.16188 31.5 8.66211V23.3379C31.5 27.8379 27.8379 31.5 23.3379 31.5H8.66211C4.16188 31.5 0.5 27.8379 0.5 23.3379V8.66211C0.5 4.16188 4.16188 0.5 8.66211 0.5ZM22.54 16C22.54 19.6056 19.6058 22.54 16 22.54C12.3945 22.54 9.45996 19.6055 9.45996 16C9.45996 12.3942 12.3944 9.45996 16 9.45996C19.6058 9.45996 22.54 12.3942 22.54 16ZM24.959 3.64258C23.257 3.64258 21.874 5.02665 21.874 6.72852C21.8742 8.43033 23.2571 9.81348 24.959 9.81348C26.6608 9.81348 28.0448 8.43039 28.0449 6.72852C28.0449 5.02659 26.6609 3.64258 24.959 3.64258ZM23.54 16C23.54 11.8419 20.1581 8.45996 16 8.45996C11.8422 8.45996 8.45996 11.8419 8.45996 16C8.45996 20.1578 11.8422 23.54 16 23.54C20.1581 23.54 23.54 20.1578 23.54 16Z" stroke="#1D9CB2"/>
-                            </svg>
-                        </a>
-                        <a href="#" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <path d="M4.6875 0.5H27.3125C29.6208 0.5 31.5 2.37917 31.5 4.6875V27.3125C31.5 29.6208 29.6208 31.5 27.3125 31.5H20.25V21.1875H24.9238L24.9932 20.7695L25.9307 15.1445L26.0273 14.5625H20.25V11.75H25.9375V5.125H19.75C16.3721 5.125 13.625 7.87205 13.625 11.25V14.5625H9.875V21.1875H13.625V31.5H4.6875C2.37917 31.5 0.5 29.6208 0.5 27.3125V4.6875C0.5 2.37917 2.37917 0.5 4.6875 0.5Z" stroke="#1D9CB2"/>
+                                <rect x="0.5" y="0.5" width="31" height="31" rx="3.5" stroke="#1D9CB2"/>
+                                <path d="M23.59 10.69a4.83 4.83 0 0 1-3.77-4.25V6h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.3 0 .59.05.88.13v-3.5a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 9 24.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" fill="#1D9CB2"/>
                             </svg>
                         </a>
                         <a href="https://t.me/Hydrophob1" target="_blank">

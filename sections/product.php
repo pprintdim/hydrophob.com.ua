@@ -1,6 +1,6 @@
 
 <?php
-$products = json_decode(file_get_contents(__DIR__ . '/../products.json'), true);
+$products = json_decode(file_get_contents(__DIR__ . '/../data/products.json'), true);
 if (!is_array($products)) {
     $products = [];
 }
@@ -19,6 +19,7 @@ if (!is_array($products)) {
             <div class="product__slider">
                 <div class="swiper-wrapper">
 <?php foreach ($products as $product): ?>
+<?php if (($product['qty'] ?? 0) <= 0) { continue; } ?>
                     <div class="product__slide swiper-slide" data-product-id="<?= htmlspecialchars($product['id']) ?>">
                         <div class="product__slide-image">
                             <img src="<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['title']['UA']) ?>" loading="lazy">
