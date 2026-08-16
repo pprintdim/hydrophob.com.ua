@@ -18,3 +18,9 @@ api/storage/
 # Верстка-референс (окремий git worktree, гілка html)
 /html/
 /openCart3/
+
+# OpenCart runtime/секрети
+config.php
+admin/config.php
+system/storage/
+image/cache/
