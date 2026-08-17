@@ -422,6 +422,75 @@ $('#module-column-left, #module-column-right, #module-content-top, #module-conte
 });
 
 $('#module-column-left, #module-column-right, #module-content-top, #module-content-bottom').trigger('change');
+
+// Modules are ordered by dragging: sort_order follows the row order, so the
+// hidden inputs are rewritten after every move.
+(function () {
+  var tables = ['module-column-left', 'module-column-right', 'module-content-top', 'module-content-bottom'];
+
+  function renumber(body) {
+    body.querySelectorAll('tr').forEach(function (row, index) {
+      var field = row.querySelector('input[name*="[sort_order]"]');
+      if (field) { field.value = index; }
+    });
+  }
+
+  function attach(row) {
+    if (row.querySelector('.drag-handle')) { return; }
+
+    var cell = row.querySelector('td');
+    if (!cell) { return; }
+
+    var handle = document.createElement('span');
+    handle.className = 'drag-handle';
+    handle.title = 'Перетягніть, щоб змінити порядок';
+    handle.innerHTML = '<i class="fa fa-bars"></i>';
+    handle.style.cssText = 'cursor:move;color:#aaa;margin-right:8px;float:left;padding:7px 4px 0 0';
+    handle.draggable = true;
+    cell.insertBefore(handle, cell.firstChild);
+
+    handle.addEventListener('dragstart', function (event) {
+      row.classList.add('is-dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', '');
+    });
+
+    handle.addEventListener('dragend', function () {
+      row.classList.remove('is-dragging');
+      renumber(row.parentNode);
+    });
+  }
+
+  tables.forEach(function (id) {
+    var table = document.getElementById(id);
+    if (!table) { return; }
+
+    var body = table.querySelector('tbody');
+    if (!body) { return; }
+
+    body.querySelectorAll('tr').forEach(attach);
+
+    body.addEventListener('dragover', function (event) {
+      event.preventDefault();
+
+      var dragging = body.querySelector('.is-dragging');
+      if (!dragging) { return; }
+
+      var rows = [].slice.call(body.querySelectorAll('tr:not(.is-dragging)'));
+      var after = rows.find(function (row) {
+        var box = row.getBoundingClientRect();
+        return event.clientY < box.top + box.height / 2;
+      });
+
+      body.insertBefore(dragging, after || null);
+    });
+
+    // rows added through the "+" button need the handle too
+    new MutationObserver(function () {
+      body.querySelectorAll('tr').forEach(attach);
+    }).observe(body, { childList: true });
+  });
+})();
 //--></script> 
 </div>
 {{ footer }}
