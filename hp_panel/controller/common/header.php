@@ -42,6 +42,8 @@ class ControllerCommonHeader extends Controller {
 			$data['logout'] = $this->url->link('common/logout', 'user_token=' . $this->session->data['user_token'], true);
 			$data['profile'] = $this->url->link('common/profile', 'user_token=' . $this->session->data['user_token'], true);
 			$data['refresh_cache'] = $this->url->link('common/refresh', 'user_token=' . $this->session->data['user_token'] . '&what=cache', true);
+			$data['refresh_mod'] = $this->url->link('common/refresh', 'user_token=' . $this->session->data['user_token'] . '&what=mod', true);
+			$data['refresh_all'] = $this->url->link('common/refresh', 'user_token=' . $this->session->data['user_token'] . '&what=all', true);
 
 			$this->load->model('user/user');
 

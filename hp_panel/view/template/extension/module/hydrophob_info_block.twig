@@ -59,20 +59,18 @@
                   </select>
                 </div>
               </div>
-              <div class="col-sm-4">
-                <div class="form-group">
-                  <label>{{ entry_video }}</label><br/>
-                  <span class="video-pick"><a href="" data-toggle="video" data-video-input="input-row-{{ row.index }}-video" class="img-thumbnail video-pick__btn{% if row.video %} video-pick__btn--set{% endif %}" title="{{ row.video ?: 'Вибрати відео' }}"><i class="fa fa-film"></i></a><button type="button" class="video-pick__clear"{% if not row.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button><input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][video]" value="{{ row.video }}" id="input-row-{{ row.index }}-video" /></span>
-                </div>
-              </div>
+              
             </div>
             <div class="row">
               <div class="col-sm-3">
                 <label>{{ entry_poster }}</label><br/>
-                <a href="" id="thumb-row-{{ row.index }}-poster" data-toggle="image" class="img-thumbnail">
-                  <img src="{{ row.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="width:84px;height:84px;object-fit:cover;" />
-                </a>
-                <input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][poster]" value="{{ row.poster }}" id="input-row-{{ row.index }}-poster" />
+                <span class="media-tile">
+                  <a href="" id="thumb-row-{{ row.index }}-poster" data-toggle="image" class="img-thumbnail"><img src="{{ row.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" /></a>
+                  <input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][poster]" value="{{ row.poster }}" id="input-row-{{ row.index }}-poster" />
+                  <a href="" data-toggle="video" data-video-input="input-row-{{ row.index }}-video" class="media-tile__play {% if row.video %}media-tile__play--on{% else %}media-tile__play--off{% endif %}" title="{{ row.video ?: 'Прикріпити відео' }}"><i class="fa fa-play"></i></a>
+                  <button type="button" class="media-tile__clear-video"{% if not row.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
+                  <input type="hidden" data-role="video" name="module_hydrophob_info_block_rows[{{ row.index }}][video]" value="{{ row.video }}" id="input-row-{{ row.index }}-video" />
+                </span>
               </div>
             </div>
             </div>
@@ -155,22 +153,37 @@ document.getElementById('rows-list').addEventListener('change', function (e) {
 });
 
 // Відео-пікер (медіатека, filter_type=video)
-function syncVideoPick(wrap) {
-  var input = wrap.querySelector('input[type=hidden]');
-  var btn = wrap.querySelector('.video-pick__btn');
-  var clear = wrap.querySelector('.video-pick__clear');
+function syncMediaTile(tile) {
+  var input = tile.querySelector('input[data-role=video]');
+  var play = tile.querySelector('.media-tile__play');
+  var clear = tile.querySelector('.media-tile__clear-video');
   var has = !!input.value;
-  btn.classList.toggle('video-pick__btn--set', has);
-  btn.title = input.value || 'Вибрати відео';
-  clear.style.display = has ? '' : 'none';
+  play.classList.toggle('media-tile__play--on', has);
+  play.classList.toggle('media-tile__play--off', !has);
+  play.title = input.value || 'Прикріпити відео';
+  if (clear) clear.style.display = has ? '' : 'none';
 }
-$(document).on('click', '.video-pick__clear', function () {
-  var wrap = this.closest('.video-pick');
-  wrap.querySelector('input[type=hidden]').value = '';
-  syncVideoPick(wrap);
+$(document).on('click', '.media-tile__clear-video', function () {
+  var tile = this.closest('.media-tile');
+  tile.querySelector('input[data-role=video]').value = '';
+  syncMediaTile(tile);
 });
 $(document).on('hidden.bs.modal', '#modal-image', function () {
-  document.querySelectorAll('.video-pick').forEach(syncVideoPick);
+  document.querySelectorAll('.media-tile').forEach(function (tile) {
+    syncMediaTile(tile);
+    // Автопостер: якщо відео вибране, а постера нема — генеруємо кадр з відео (ffmpeg, детерміновано)
+    var vid = tile.querySelector('input[data-role=video]');
+    var posterInput = tile.querySelector('input[type=hidden]:not([data-role])');
+    var img = tile.querySelector('.img-thumbnail img');
+    if (vid.value && posterInput && !posterInput.value) {
+      $.getJSON('index.php?route=common/video_poster&user_token={{ user_token }}&video=' + encodeURIComponent(vid.value), function (r) {
+        if (r && r.poster) {
+          posterInput.value = r.poster;
+          if (img && r.thumb) img.src = r.thumb;
+        }
+      });
+    }
+  });
 });
 $(document).on('click', 'a[data-toggle="video"]', function (e) {
   e.preventDefault();
@@ -210,7 +223,7 @@ document.getElementById('btn-add-row').addEventListener('click', function() {
         {% endfor %}
         '</select></div></div>' +
         '<div class="col-sm-4"><div class="form-group"><label>{{ entry_product|escape('js') }}</label><select name="module_hydrophob_info_block_rows[' + idx + '][product_id]" class="form-control input-product" data-row="' + idx + '" data-selected=""><option value="">' + infoBlockTextSelect + '</option></select></div></div>' +
-        '<div class="col-sm-4"><div class="form-group"><label>{{ entry_video|escape('js') }}</label><br/><span class="video-pick"><a href="" data-toggle="video" data-video-input="input-row-' + idx + '-video" class="img-thumbnail video-pick__btn"><i class="fa fa-film"></i></a><button type="button" class="video-pick__clear" style="display:none;">&times;</button><input type="hidden" name="module_hydrophob_info_block_rows[' + idx + '][video]" value="" id="input-row-' + idx + '-video" /></span></div></div>' +
+        
       '</div>' +
       '<div class="row">' +
         '<div class="col-sm-3"><label>{{ entry_poster|escape('js') }}</label><br/><a href="" id="thumb-row-' + idx + '-poster" data-toggle="image" class="img-thumbnail"><img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" /></a><input type="hidden" name="module_hydrophob_info_block_rows[' + idx + '][poster]" value="" id="input-row-' + idx + '-poster" /></div>' +
@@ -236,12 +249,15 @@ document.getElementById('btn-add-row').addEventListener('click', function() {
 .hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hydro-row--collapsed .hydro-row__body { display: none; }
 .hydro-row--collapsed { padding-bottom: 8px; }
-.video-pick { display: inline-block; position: relative; }
-.video-pick__btn { align-items: center; background: #f7fafc; color: #b6c6d5; display: inline-flex; font-size: 20px; height: 84px; justify-content: center; overflow: hidden; padding: 0; position: relative; width: 84px; }
-.video-pick__btn video { height: 100%; object-fit: cover; width: 100%; }
-.video-pick__btn--set { border-color: #1D9CB2; }
-.video-pick__badge { background: rgba(18,18,18,.72); border-radius: 6px; bottom: 4px; color: #fff; font-size: 11px; left: 4px; line-height: 1; padding: 4px 6px; position: absolute; }
-.video-pick__clear { background: #fff; border: 1px solid #e3b3b3; border-radius: 50%; color: #c66; cursor: pointer; font-size: 13px; height: 22px; line-height: 1; padding: 0; position: absolute; right: -7px; top: -7px; width: 22px; z-index: 2; }
+.media-tile { display: inline-block; position: relative; }
+.media-tile .img-thumbnail { display: block; margin: 0; padding: 2px; }
+.media-tile .img-thumbnail img { display: block; height: 96px; object-fit: cover; width: 96px; }
+.media-tile__play { align-items: center; border-radius: 50%; color: #fff; cursor: pointer; display: flex; font-size: 13px; justify-content: center; position: absolute; z-index: 2; }
+.media-tile__play--off { background: rgba(18,18,18,.45); bottom: 7px; height: 24px; right: 7px; width: 24px; }
+.media-tile__play--on { background: rgba(18,18,18,.62); font-size: 18px; height: 40px; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 40px; }
+.media-tile__play--on:hover, .media-tile__play--off:hover { background: #1D9CB2; color: #fff; }
+.media-tile__play i { margin-left: 2px; }
+.media-tile__clear-video { background: #fff; border: 1px solid #e3b3b3; border-radius: 50%; color: #c66; cursor: pointer; font-size: 13px; height: 22px; line-height: 1; padding: 0; position: absolute; right: -7px; top: -7px; width: 22px; z-index: 3; }
 .hydro-row__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }
 </style>
 
