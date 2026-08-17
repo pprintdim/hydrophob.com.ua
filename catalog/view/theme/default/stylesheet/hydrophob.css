@@ -4140,6 +4140,12 @@ section[id]{
 .checkoutPage .cart__inner{
     margin: 0 auto;
 }
+.checkoutPage .cart__closed{
+    display: inline-block;
+    text-align: center;
+    color: #fff;
+    text-decoration: none;
+}
 @media (max-width: 767px){
     .checkoutPage{ padding: 120px 0 40px; }
 }
