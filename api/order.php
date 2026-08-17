@@ -122,7 +122,7 @@ $stmt = $db->prepare("INSERT INTO " . DB_PREFIX . "order SET
 $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '');
 $ua = mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);
 $dShipCode = 'hydro.' . $dMethod;
-$stmt->bind_param('ssssssssssssssssssdiss',
+$stmt->bind_param('sssssssssssssssssdiss',
     $firstname, $lastname, $email, $phone,
     $firstname, $lastname, $dBranch, $dCity, $paymentTitle, $payment,
     $firstname, $lastname, $dBranch, $dCity, $shippingTitle, $dShipCode,

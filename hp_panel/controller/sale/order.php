@@ -1869,4 +1869,32 @@ class ControllerSaleOrder extends Controller {
 
 		$this->response->setOutput($this->load->view('sale/order_shipping', $data));
 	}
+
+	/**
+	 * Ленд: додавання історії/зміна статусу напряму (стоковий шлях ішов через
+	 * catalog-API, який на цьому лендінгу вирізаний).
+	 */
+	public function addhistory() {
+		$this->load->language('sale/order');
+		$json = array();
+
+		if (!$this->user->hasPermission('modify', 'sale/order')) {
+			$json['error'] = $this->language->get('error_permission');
+		} else {
+			$order_id = (int)($this->request->get['order_id'] ?? 0);
+			$order_status_id = (int)($this->request->post['order_status_id'] ?? 0);
+			$comment = trim((string)($this->request->post['comment'] ?? ''));
+
+			if (!$order_id || !$order_status_id) {
+				$json['error'] = 'bad request';
+			} else {
+				$this->db->query("UPDATE `" . DB_PREFIX . "order` SET order_status_id = '" . $order_status_id . "', date_modified = NOW() WHERE order_id = '" . $order_id . "'");
+				$this->db->query("INSERT INTO " . DB_PREFIX . "order_history SET order_id = '" . $order_id . "', order_status_id = '" . $order_status_id . "', notify = 0, comment = '" . $this->db->escape($comment) . "', date_added = NOW()");
+				$json['success'] = $this->language->get('text_success');
+			}
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
 }
