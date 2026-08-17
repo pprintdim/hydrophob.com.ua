@@ -12,6 +12,21 @@ class ControllerExtensionModuleCatalogApi extends Controller {
 
 		$products = $this->model_catalog_product->getProducts(array('filter_status' => 1));
 
+		// Редакційний контент (details.tabTitle/subtitle/blocks, attrs), якого ще нема в схемі OpenCart —
+		// доповнюємо ним живі дані з БД зі старого data/products.json, за ключем model/id.
+		$staticById = array();
+		$staticFile = DIR_APPLICATION . '../data/products.json';
+		if (is_file($staticFile)) {
+			$staticProducts = json_decode(file_get_contents($staticFile), true);
+			if (is_array($staticProducts)) {
+				foreach ($staticProducts as $sp) {
+					if (isset($sp['id'])) {
+						$staticById[$sp['id']] = $sp;
+					}
+				}
+			}
+		}
+
 		$data = array();
 
 		foreach ($products as $product) {
@@ -21,6 +36,8 @@ class ControllerExtensionModuleCatalogApi extends Controller {
 					$categoryNames[] = $categories[$pc['category_id']];
 				}
 			}
+
+			$extra = $staticById[$product['model']] ?? array();
 
 			$data[] = array(
 				'id'          => $product['model'],
@@ -32,6 +49,8 @@ class ControllerExtensionModuleCatalogApi extends Controller {
 				'price'       => (float)$product['price'],
 				'image'       => $product['image'] ? 'image/' . $product['image'] : '',
 				'available'   => (bool)$product['status'] && $product['quantity'] > 0,
+				'details'     => $extra['details'] ?? null,
+				'attrs'       => $extra['attrs'] ?? array(),
 			);
 		}
 

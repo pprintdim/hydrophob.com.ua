@@ -1,0 +1,17 @@
+<svg width="258" height="180" viewBox="0 0 258 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="129" cy="96" rx="118" ry="78" fill="#E9EDFB"/>
+  <!-- кузов -->
+  <rect x="46" y="66" width="96" height="66" rx="8" fill="#8FD0DC"/>
+  <rect x="46" y="66" width="96" height="66" rx="8" stroke="#1D9CB2" stroke-width="4"/>
+  <path d="M60 90h68M60 108h68" stroke="#1D9CB2" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <!-- кабіна -->
+  <path d="M142 84h34l30 30v18a8 8 0 0 1-8 8h-56V84z" fill="#1D9CB2"/>
+  <path d="M150 92h20l20 20h-40V92z" fill="#BEEAF2"/>
+  <!-- колеса -->
+  <circle cx="84" cy="134" r="16" fill="#121212"/>
+  <circle cx="84" cy="134" r="6" fill="#F15A24"/>
+  <circle cx="178" cy="134" r="16" fill="#121212"/>
+  <circle cx="178" cy="134" r="6" fill="#F15A24"/>
+  <!-- лінії руху -->
+  <path d="M14 84h26M6 100h20M18 116h22" stroke="#1D9CB2" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+</svg>

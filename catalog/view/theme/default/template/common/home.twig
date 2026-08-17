@@ -1,14 +1,72 @@
-{{ header }}
-<div id="common-home" class="container">
-  <div class="row">{{ column_left }}
-    {% if column_left and column_right %}
-    {% set class = 'col-sm-6' %}
-    {% elseif column_left or column_right %}
-    {% set class = 'col-sm-9' %}
-    {% else %}
-    {% set class = 'col-sm-12' %}
-    {% endif %}
-    <div id="content" class="{{ class }}">{{ content_top }}{{ content_bottom }}</div>
-    {{ column_right }}</div>
-</div>
-{{ footer }}
+<!DOCTYPE html>
+<html lang="{{ html_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ meta.title }}</title>
+    <meta name="description" content="{{ meta.description }}">
+    <meta name="keywords" content="{{ meta.keywords }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ canonical }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="{{ og_locale }}">
+    <meta property="og:site_name" content="{{ site_name }}">
+    <meta property="og:title" content="{{ meta.title }}">
+    <meta property="og:description" content="{{ meta.description }}">
+    <meta property="og:url" content="{{ canonical }}">
+    <meta property="og:image" content="{{ og_image }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ meta.title }}">
+    <meta name="twitter:description" content="{{ meta.description }}">
+    <meta name="twitter:image" content="{{ og_image }}">
+
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="image/hydrophob/logo.svg">
+    <link rel="icon" type="image/png" href="image/hydrophob/favicon.png">
+    <link rel="apple-touch-icon" href="image/hydrophob/favicon.png">
+    <meta name="theme-color" content="#121212">
+
+    <script>window.HYDRO_ANALYTICS = { mode: "{{ analytics.mode }}", ga4: "{{ analytics.ga4 }}", ads: "{{ analytics.ads }}", adsLabel: "{{ analytics.adsLabel }}" };</script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="catalog/view/theme/default/stylesheet/hydrophob.css?v={{ asset_version }}">
+</head>
+<body class="body">
+    {{ header }}
+
+    <main class="main">
+        {{ hero }}
+        {{ popup_video }}
+        {{ popup_photo }}
+        {{ popup_product }}
+        {{ popup_about }}
+        {{ popup_delivery }}
+        {{ about }}
+        {{ action }}
+        {{ images_block }}
+        {{ product }}
+        {{ info_block }}
+        {{ reviews }}
+        {{ guarantee }}
+        {{ faq }}
+        {{ delivery }}
+        {{ contacts }}
+        {{ cart }}
+    </main>
+
+    {{ footer }}
+    {{ cookie }}
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="catalog/view/theme/default/javascript/hydrophob.js?v={{ asset_version }}"></script>
+</body>
+</html>

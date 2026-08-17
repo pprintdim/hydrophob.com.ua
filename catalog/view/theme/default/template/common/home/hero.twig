@@ -1,0 +1,11 @@
+<section class="hero" id="home">
+    <div class="container">
+        <div class="hero__inner">
+            <h1 class="hero__title" data-i18n-html="hero.titleHtml">Виходь сухим із води<span>Hydrophob</span></h1>
+        </div>
+        <div class="hero__video">
+            <img class="hero__video-image" src="{{ images.hero.poster|default('image/hydrophob/hero-poster.webp') }}" alt="{{ images.hero.alt|default('Hydrophob') }}" fetchpriority="high">
+            <button class="hero__video-play play-btn play-btn-open" data-video="{{ images.hero.video|default('video/hero.mp4') }}">Play reels</button>
+        </div>
+    </div>
+</section>
