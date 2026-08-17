@@ -21,7 +21,7 @@ api/storage/
 
 # OpenCart runtime/секрети
 config.php
-admin/config.php
+hp_panel/config.php
 system/storage/
 image/cache/
 backups/
