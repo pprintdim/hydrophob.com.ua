@@ -62,11 +62,7 @@
               <div class="col-sm-4">
                 <div class="form-group">
                   <label>{{ entry_video }}</label><br/>
-                  <span class="video-pick">
-                    <a href="" data-toggle="video" data-video-input="input-row-{{ row.index }}-video" class="img-thumbnail video-pick__btn{% if row.video %} video-pick__btn--set{% endif %}" title="{{ row.video ?: entry_video }}"><i class="fa fa-film"></i></a>
-                    <button type="button" class="video-pick__clear"{% if not row.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
-                    <input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][video]" value="{{ row.video }}" id="input-row-{{ row.index }}-video" />
-                  </span>
+                  <span class="video-pick"><a href="" data-toggle="video" data-video-input="input-row-{{ row.index }}-video" class="img-thumbnail video-pick__btn{% if row.video %} video-pick__btn--set{% endif %}" title="{{ row.video ?: 'Вибрати відео' }}">{% if row.video %}<video src="{{ (row.video starts with 'video/' or row.video starts with 'image/') ? '../' ~ row.video : '../image/' ~ row.video }}" preload="metadata" muted></video><span class="video-pick__badge"><i class="fa fa-film"></i></span>{% else %}<i class="fa fa-film"></i>{% endif %}</a><button type="button" class="video-pick__clear"{% if not row.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button><input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][video]" value="{{ row.video }}" id="input-row-{{ row.index }}-video" /></span>
                 </div>
               </div>
             </div>
@@ -159,13 +155,23 @@ document.getElementById('rows-list').addEventListener('change', function (e) {
 });
 
 // Відео-пікер (медіатека, filter_type=video)
+function hydroVideoUrl(v) {
+  if (!v) return '';
+  if (v.indexOf('http') === 0) return v;
+  if (v.indexOf('video/') === 0) return '../' + v;
+  if (v.indexOf('image/') === 0) return '../' + v;
+  return '../image/' + v;
+}
 function syncVideoPick(wrap) {
   var input = wrap.querySelector('input[type=hidden]');
   var btn = wrap.querySelector('.video-pick__btn');
   var clear = wrap.querySelector('.video-pick__clear');
   var has = !!input.value;
   btn.classList.toggle('video-pick__btn--set', has);
-  btn.title = input.value || btn.title;
+  btn.title = input.value || 'Вибрати відео';
+  btn.innerHTML = has
+    ? '<video src="' + hydroVideoUrl(input.value) + '" preload="metadata" muted></video><span class="video-pick__badge"><i class="fa fa-film"></i></span>'
+    : '<i class="fa fa-film"></i>';
   clear.style.display = has ? '' : 'none';
 }
 $(document).on('click', '.video-pick__clear', function () {
@@ -240,10 +246,12 @@ document.getElementById('btn-add-row').addEventListener('click', function() {
 .hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hydro-row--collapsed .hydro-row__body { display: none; }
 .hydro-row--collapsed { padding-bottom: 8px; }
-.video-pick { align-items: center; display: inline-flex; gap: 4px; }
-.video-pick__btn { align-items: center; color: #9fb2c4; display: inline-flex; font-size: 18px; height: 44px; justify-content: center; width: 44px; }
-.video-pick__btn--set { background: #eafcff; border-color: #1D9CB2; color: #1D9CB2; }
-.video-pick__clear { background: none; border: 0; color: #c66; font-size: 18px; line-height: 1; padding: 2px 4px; }
+.video-pick { display: inline-block; position: relative; }
+.video-pick__btn { align-items: center; background: #f7fafc; color: #b6c6d5; display: inline-flex; font-size: 26px; height: 110px; justify-content: center; overflow: hidden; padding: 0; position: relative; width: 110px; }
+.video-pick__btn video { height: 100%; object-fit: cover; width: 100%; }
+.video-pick__btn--set { border-color: #1D9CB2; }
+.video-pick__badge { background: rgba(18,18,18,.72); border-radius: 6px; bottom: 4px; color: #fff; font-size: 11px; left: 4px; line-height: 1; padding: 4px 6px; position: absolute; }
+.video-pick__clear { background: #fff; border: 1px solid #e3b3b3; border-radius: 50%; color: #c66; cursor: pointer; font-size: 13px; height: 22px; line-height: 1; padding: 0; position: absolute; right: -7px; top: -7px; width: 22px; z-index: 2; }
 .hydro-row__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }
 </style>
 

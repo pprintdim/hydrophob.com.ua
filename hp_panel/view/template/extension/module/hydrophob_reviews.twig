@@ -63,11 +63,7 @@
                       <img src="{{ item.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" />
                     </a>
                     <input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][poster]" value="{{ item.poster }}" id="input-review{{ i }}" />
-                    <div class="video-pick" style="margin-top:8px;">
-                      <a href="" data-toggle="video" data-video-input="input-review-video{{ i }}" class="img-thumbnail video-pick__btn{% if item.video %} video-pick__btn--set{% endif %}" title="{{ item.video ?: entry_video }}"><i class="fa fa-film"></i></a>
-                      <button type="button" class="video-pick__clear"{% if not item.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
-                      <input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][video]" value="{{ item.video }}" id="input-review-video{{ i }}" />
-                    </div>
+                    <div style="margin-top:8px;"><label>{{ entry_video }}</label><br/><span class="video-pick"><a href="" data-toggle="video" data-video-input="input-review-video{{ i }}" class="img-thumbnail video-pick__btn{% if item.video %} video-pick__btn--set{% endif %}" title="{{ item.video ?: 'Вибрати відео' }}">{% if item.video %}<video src="{{ (item.video starts with 'video/' or item.video starts with 'image/') ? '../' ~ item.video : '../image/' ~ item.video }}" preload="metadata" muted></video><span class="video-pick__badge"><i class="fa fa-film"></i></span>{% else %}<i class="fa fa-film"></i>{% endif %}</a><button type="button" class="video-pick__clear"{% if not item.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button><input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][video]" value="{{ item.video }}" id="input-review-video{{ i }}" /></span></div>
                   </div>
                   <div class="col-sm-9">
                     <div class="hydro-card">
@@ -159,13 +155,23 @@ document.getElementById('reviews-body').addEventListener('click', function (e) {
 
 
 // Стан відео-пікера: бірюзовий значок коли відео вибране, хрестик прибирає
+function hydroVideoUrl(v) {
+  if (!v) return '';
+  if (v.indexOf('http') === 0) return v;
+  if (v.indexOf('video/') === 0) return '../' + v;
+  if (v.indexOf('image/') === 0) return '../' + v;
+  return '../image/' + v;
+}
 function syncVideoPick(wrap) {
   var input = wrap.querySelector('input[type=hidden]');
   var btn = wrap.querySelector('.video-pick__btn');
   var clear = wrap.querySelector('.video-pick__clear');
   var has = !!input.value;
   btn.classList.toggle('video-pick__btn--set', has);
-  btn.title = input.value || btn.title;
+  btn.title = input.value || 'Вибрати відео';
+  btn.innerHTML = has
+    ? '<video src="' + hydroVideoUrl(input.value) + '" preload="metadata" muted></video><span class="video-pick__badge"><i class="fa fa-film"></i></span>'
+    : '<i class="fa fa-film"></i>';
   clear.style.display = has ? '' : 'none';
 }
 $(document).on('click', '.video-pick__clear', function () {
@@ -204,7 +210,7 @@ document.getElementById('btn-add-review').addEventListener('click', function() {
       '<div class="col-sm-3">' +
         '<a href="" id="thumb-review' + reviewRowIndex + '" data-toggle="image" class="img-thumbnail"><img src="' + reviewPlaceholder + '" alt="" data-placeholder="' + reviewPlaceholder + '" style="max-width:160px;" /></a>' +
         '<input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][poster]" value="" id="input-review' + reviewRowIndex + '" />' +
-        '<div class="video-pick" style="margin-top:8px;"><a href="" data-toggle="video" data-video-input="input-review-video' + reviewRowIndex + '" class="img-thumbnail video-pick__btn" title="{{ entry_video|escape('js') }}"><i class="fa fa-film"></i></a><button type="button" class="video-pick__clear" style="display:none;" title="Прибрати відео">&times;</button><input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][video]" id="input-review-video' + reviewRowIndex + '" value="" /></div>' +
+        '<div style="margin-top:8px;"><label>{{ entry_video|escape('js') }}</label><br/><span class="video-pick"><a href="" data-toggle="video" data-video-input="input-review-video' + reviewRowIndex + '" class="img-thumbnail video-pick__btn" title="Вибрати відео"><i class="fa fa-film"></i></a><button type="button" class="video-pick__clear" style="display:none;">&times;</button><input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][video]" id="input-review-video' + reviewRowIndex + '" value="" /></span></div>' +
       '</div>' +
       '<div class="col-sm-9">' +
         '<div class="hydro-card"><div class="hydro-card__title">{{ entry_message|escape('js') }}</div>' + reviewLangTabs('review' + reviewRowIndex + '-message', 'message') + '</div>' +
@@ -244,10 +250,12 @@ document.querySelectorAll('.btn-remove-review').forEach(function(btn) {
 
 
 <style>
-.video-pick { align-items: center; display: inline-flex; gap: 4px; }
-.video-pick__btn { align-items: center; color: #9fb2c4; display: inline-flex; font-size: 18px; height: 44px; justify-content: center; width: 44px; }
-.video-pick__btn--set { background: #eafcff; border-color: #1D9CB2; color: #1D9CB2; }
-.video-pick__clear { background: none; border: 0; color: #c66; font-size: 18px; line-height: 1; padding: 2px 4px; }
+.video-pick { display: inline-block; position: relative; }
+.video-pick__btn { align-items: center; background: #f7fafc; color: #b6c6d5; display: inline-flex; font-size: 26px; height: 110px; justify-content: center; overflow: hidden; padding: 0; position: relative; width: 110px; }
+.video-pick__btn video { height: 100%; object-fit: cover; width: 100%; }
+.video-pick__btn--set { border-color: #1D9CB2; }
+.video-pick__badge { background: rgba(18,18,18,.72); border-radius: 6px; bottom: 4px; color: #fff; font-size: 11px; left: 4px; line-height: 1; padding: 4px 6px; position: absolute; }
+.video-pick__clear { background: #fff; border: 1px solid #e3b3b3; border-radius: 50%; color: #c66; cursor: pointer; font-size: 13px; height: 22px; line-height: 1; padding: 0; position: absolute; right: -7px; top: -7px; width: 22px; z-index: 2; }
 .hydro-row__toggle { align-items: center; cursor: pointer; display: flex; gap: 10px; user-select: none; }
 .hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
 .hydro-row:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
