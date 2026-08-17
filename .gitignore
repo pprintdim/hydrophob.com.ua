@@ -24,3 +24,4 @@ config.php
 admin/config.php
 system/storage/
 image/cache/
+backups/
