@@ -125,6 +125,17 @@
                                         <span>Перевірка даних</span>
                                     </h3>
                                 </div>
+                                {% if payments|length %}
+                                <div class="cart__payment" id="checkout-payments">
+                                    <p class="cart__check-title" style="margin-bottom:10px;">Спосіб оплати</p>
+                                    {% for code, title in payments %}
+                                    <label class="cart__payment-option">
+                                        <input type="radio" name="payment_method" value="{{ code }}"{% if loop.first %} checked{% endif %} />
+                                        <span>{{ title }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                                 <div class="cart__check-content">
                                     <div class="cart__check-block">
                                         <div class="cart__check-item">

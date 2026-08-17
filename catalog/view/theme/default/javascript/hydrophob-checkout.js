@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 city: cityInput ? cityInput.value.trim() : '',
                 branch: branchInput ? branchInput.value.trim() : '',
             },
-            payment: '',
+            payment: (page.querySelector('input[name="payment_method"]:checked') || { value: 'cod' }).value,
         };
         btn.setAttribute('disabled', 'disabled');
         btn.classList.add('btn-disabled');
@@ -389,7 +389,26 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(function (r) { return r.json(); })
             .then(function (d) {
-                if (d && d.ok && d.token) {
+                if (d && d.ok && d.pay && d.pay.url) {
+                    // WayForPay: збираємо підписану форму і відправляємо покупця на сторінку оплати
+                    localStorage.removeItem('hydrophob_cart');
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = d.pay.url;
+                    form.acceptCharset = 'utf-8';
+                    Object.keys(d.pay.fields).forEach(function (key) {
+                        var val = d.pay.fields[key];
+                        (Array.isArray(val) ? val : [val]).forEach(function (v) {
+                            var inp = document.createElement('input');
+                            inp.type = 'hidden';
+                            inp.name = Array.isArray(val) ? key + '[]' : key;
+                            inp.value = v;
+                            form.appendChild(inp);
+                        });
+                    });
+                    document.body.appendChild(form);
+                    form.submit();
+                } else if (d && d.ok && d.token) {
                     localStorage.removeItem('hydrophob_cart');
                     window.location.href = (cfg.successUrl || 'index.php?route=checkout/hydro_success') + '&token=' + d.token;
                 } else {

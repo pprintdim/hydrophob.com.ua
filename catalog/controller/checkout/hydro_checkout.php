@@ -28,6 +28,26 @@ class ControllerCheckoutHydroCheckout extends Controller {
 		$data['header'] = $this->load->view('common/home/header', array());
 		$data['footer'] = $this->load->view('common/home/footer', array());
 		$data['carriers'] = $carriers;
+
+		// Активні способи оплати (список синхронний з api/order.php -> hydro_payment_methods)
+		$payments = array();
+		$defs = array(
+			'cod'           => array('title' => 'Накладений платіж', 'setting_title' => ''),
+			'wayforpay'     => array('title' => 'Оплата карткою онлайн', 'setting_title' => 'payment_wayforpay_title'),
+			'bank_transfer' => array('title' => 'Банківський переказ', 'setting_title' => ''),
+		);
+		$lang_id = (int)$this->config->get('config_language_id');
+		foreach ($defs as $code => $def) {
+			if (!$this->config->get('payment_' . $code . '_status')) {
+				continue;
+			}
+			$title = $def['title'];
+			if ($def['setting_title'] && $this->config->get($def['setting_title'] . $lang_id)) {
+				$title = $this->config->get($def['setting_title'] . $lang_id);
+			}
+			$payments[$code] = $title;
+		}
+		$data['payments'] = $payments;
 		$data['default_phone_country'] = $env['DEFAULT_PHONE_COUNTRY'] ?? 'UA';
 		$data['home_url'] = $this->url->link('common/home');
 		$data['success_url'] = $this->url->link('checkout/hydro_success');

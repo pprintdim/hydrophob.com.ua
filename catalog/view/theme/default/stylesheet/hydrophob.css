@@ -4158,3 +4158,10 @@ section[id]{
 @media (max-width: 767px){
     .checkoutPage{ padding: 120px 0 40px; }
 }
+
+/* Спосіб оплати на сторінці чекауту */
+.cart__payment{ display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+.cart__payment-option{ align-items: center; border: 1px solid #e2e2e2; border-radius: 14px; cursor: pointer; display: flex; font-size: 18px; gap: 12px; padding: 14px 18px; transition: border-color .15s ease; }
+.cart__payment-option:hover{ border-color: #1D9CB2; }
+.cart__payment-option input{ accent-color: #1D9CB2; height: 20px; width: 20px; }
+.cart__payment-option:has(input:checked){ border-color: #1D9CB2; box-shadow: 0 0 0 1px #1D9CB2 inset; }
