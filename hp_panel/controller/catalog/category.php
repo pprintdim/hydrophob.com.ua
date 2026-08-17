@@ -518,9 +518,8 @@ class ControllerCatalogCategory extends Controller {
 				$this->error['name'][$language_id] = $this->language->get('error_name');
 			}
 
-			if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {
-				$this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
-			}
+			// метатеги для категорій прибрані з форми (категорії існують лише в бекенді,
+			// фронтових сторінок нема) — meta_title підставляється з назви в моделі
 		}
 
 		if (isset($this->request->get['category_id']) && $this->request->post['parent_id']) {
