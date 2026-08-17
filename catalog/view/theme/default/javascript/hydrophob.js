@@ -530,18 +530,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+/* Попап кошика тепер показує ЛИШЕ список товарів (+ кнопка "Оформити замовлення",
+ * яка веде на окрему сторінку checkout/hydro_checkout — всі кроки оформлення винесені
+ * туди, catalog/view/theme/default/javascript/hydrophob-checkout.js). */
 document.addEventListener("DOMContentLoaded", function() {
     const cartSection = document.querySelector('.cart');
-    const cartThanks = cartSection.querySelector('.cart__thanks');
-    const cartInner = cartSection.querySelector('.cart__inner');
     const cartOpenButtons = document.querySelectorAll('.cart-open');
     const cartCloseButtons = cartSection.querySelectorAll('.cart-close-btn, .cart__closed');
-    const cartThanksBtn = cartSection.querySelector('.cart__thanks-btn');
-    const nextButtons = cartSection.querySelectorAll('.cart__next');
-    const backButtons = cartSection.querySelectorAll('.cart__back');
 
-    const contents = Array.from(cartSection.querySelectorAll('.cart-content'));
-    const bottoms = Array.from(cartSection.querySelectorAll('.cart-bottom'));
     cartOpenButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             // відкриваємо лише коли в кошику є товари (кнопка "Купити" додає товар цим же кліком)
@@ -555,9 +551,6 @@ document.addEventListener("DOMContentLoaded", function() {
     cartCloseButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             cartSection.classList.remove('active');
-            setTimeout(() => {
-                resetCart();
-            }, 200);
         });
     });
     document.addEventListener('click', (e) => {
@@ -565,123 +558,14 @@ document.addEventListener("DOMContentLoaded", function() {
             cartSection.classList.contains('active') &&
             e.target.isConnected &&
             !e.target.closest('.cart__inner') &&
-            !e.target.closest('.cart__thanks') &&
             !e.target.closest('.cart-open')
         ) {
             cartSection.classList.remove('active');
-            setTimeout(() => {
-                resetCart();
-            }, 200);
         }
     });
-    nextButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const currentBottom = btn.closest('.cart-bottom');
-            let idx = bottoms.findIndex(b => b === currentBottom);
-
-            if (idx === -1) return;
-            if (idx === bottoms.length - 1) {
-                if (window.hydroSubmitOrder) {
-                    window.hydroSubmitOrder(btn);
-                } else {
-                    cartInner.classList.add('hide-block');
-                    cartThanks.classList.remove('hide-block');
-                }
-                return;
-            }
-            contents[idx].classList.add('hide-block');
-            bottoms[idx].classList.add('hide-block');
-            contents[idx + 1].classList.remove('hide-block');
-            bottoms[idx + 1].classList.remove('hide-block');
-        });
-    });
-    backButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const currentBottom = btn.closest('.cart-bottom');
-            let idx = bottoms.findIndex(b => b === currentBottom);
-
-            if (idx === -1) return;
-            contents[idx].classList.add('hide-block');
-            bottoms[idx].classList.add('hide-block');
-            contents[idx - 1].classList.remove('hide-block');
-            bottoms[idx - 1].classList.remove('hide-block');
-        });
-    });
-    if (cartThanksBtn) {
-        cartThanksBtn.addEventListener('click', () => {
-            cartSection.classList.remove('active');
-            setTimeout(() => {
-                resetCart();
-            }, 200);
-        });
-    }
-
-    function resetCart() {
-        contents.forEach(c => c.classList.add('hide-block'));
-        bottoms.forEach(b => b.classList.add('hide-block'));
-        contents[0].classList.remove('hide-block');
-        bottoms[0].classList.remove('hide-block');
-        cartThanks.classList.add('hide-block');
-        cartInner.classList.remove('hide-block');
-    }
 });
 
 
-document.addEventListener("DOMContentLoaded", function() {
-
-  const cartData = document.querySelector('.cart__data');
-  const cartDataInputs = cartData.querySelectorAll('input, select');
-  const cartDataNextBtn = cartData.nextElementSibling.querySelector('.cart__next');
-
-  function validateCartData() {
-    let valid = true;
-
-    cartDataInputs.forEach(el => {
-      if (el.tagName.toLowerCase() === 'select') {
-        if (el.value === '') {
-          valid = false;
-        }
-      } else {
-        if (el.value.trim() === '') {
-          valid = false;
-        }
-      }
-    });
-
-    if (valid) {
-      cartDataNextBtn.removeAttribute('disabled');
-      cartDataNextBtn.classList.remove('btn-disabled');
-    } else {
-      cartDataNextBtn.setAttribute('disabled', 'disabled');
-      cartDataNextBtn.classList.add('btn-disabled');
-    }
-  }
-
-  cartDataInputs.forEach(el => {
-    el.addEventListener('input', validateCartData);
-    el.addEventListener('change', validateCartData);
-  });
-
-  validateCartData();
-
-
-});
-
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    const deliverySelect = document.querySelector('select[name="delivery"]');
-    const deliveryIcons = document.querySelectorAll('.cart__data-deivery--icon img');
-    if (!deliverySelect) return;
-
-    function syncIcons() {
-        deliveryIcons.forEach(img => {
-            img.classList.toggle('active', img.dataset.carrier === deliverySelect.value);
-        });
-    }
-    deliverySelect.addEventListener('change', syncIcons);
-    syncIcons();
-});
 
 /* ===== Анкорна навігація: точний скрол з урахуванням реальної висоти хедера ===== */
 document.addEventListener('DOMContentLoaded', function() {
@@ -1272,255 +1156,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-/* ===== Доставка (Нова пошта / Укрпошта) + відправка замовлення ===== */
-document.addEventListener('DOMContentLoaded', function() {
-    const cartSection = document.querySelector('.cart');
-    if (!cartSection) return;
-    const deliverySelect = cartSection.querySelector('select[name="delivery"]');
-    const deliveryType = cartSection.querySelector('select[name="delivery-type"]');
-    const cityInput = cartSection.querySelector('input[name="delivery-city"]');
-    const branchInput = cartSection.querySelector('input[name="delivery-branch"]');
-    if (!deliverySelect || !cityInput || !branchInput) return;
-
-    const state = { cityRef: '', cityName: '', branchName: '' };
-    function isCourier() { return deliveryType && deliveryType.value === 'courier'; }
-
-    function t(key, fallback) {
-        const val = window.hydroT ? window.hydroT(key) : null;
-        return val !== null && val !== undefined ? val : fallback;
-    }
-    function provider() { return deliverySelect.value; }
-    // Перевізники, для яких API повернуло manual:true (нема токена) — тільки ручний ввід
-    const manualProviders = {};
-
-    function listOf(input) {
-        return input.closest('.cart__suggest').querySelector('.cart__suggest-list');
-    }
-    function hideList(input) {
-        listOf(input).classList.remove('active');
-    }
-    function showList(input, items, onPick) {
-        const ul = listOf(input);
-        ul.innerHTML = '';
-        if (!items.length) { ul.classList.remove('active'); return; }
-        items.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item.name;
-            li.addEventListener('mousedown', (e) => { // mousedown — раніше за blur
-                e.preventDefault();
-                onPick(item);
-                ul.classList.remove('active');
-            });
-            ul.appendChild(li);
-        });
-        ul.classList.add('active');
-    }
-
-    let cityTimer = null, branchTimer = null;
-    function fetchItems(params, cb) {
-        params.provider = provider();
-        fetch('api/shipping.php?' + new URLSearchParams(params))
-            .then(r => r.json())
-            .then(d => {
-                if (d && d.manual) { manualProviders[params.provider] = true; }
-                cb(d && d.ok ? (d.items || []) : []);
-            })
-            .catch(() => cb([]));
-    }
-
-    cityInput.addEventListener('input', function() {
-        state.cityRef = ''; state.cityName = '';
-        if (manualProviders[provider()]) return; // нема автокомпліту -> ручний ввід
-        clearTimeout(cityTimer);
-        const q = cityInput.value.trim();
-        if (q.length < 2) { hideList(cityInput); return; }
-        cityTimer = setTimeout(() => {
-            fetchItems({ action: 'cities', search: q }, items => {
-                showList(cityInput, items, picked => {
-                    cityInput.value = picked.name;
-                    state.cityRef = picked.ref;
-                    state.cityName = picked.name;
-                    branchInput.value = '';
-                    cityInput.dispatchEvent(new Event('change'));
-                    branchInput.focus();
-                });
-            });
-        }, 300);
-    });
-
-    function loadBranches() {
-        if (!state.cityRef || manualProviders[provider()] || isCourier()) return; // кур'єр = ручна адреса
-        clearTimeout(branchTimer);
-        branchTimer = setTimeout(() => {
-            fetchItems({ action: 'warehouses', city_ref: state.cityRef, search: branchInput.value.trim() }, items => {
-                showList(branchInput, items, picked => {
-                    branchInput.value = picked.name;
-                    state.branchName = picked.name;
-                    branchInput.dispatchEvent(new Event('change'));
-                });
-            });
-        }, 250);
-    }
-    branchInput.addEventListener('input', loadBranches);
-    branchInput.addEventListener('focus', loadBranches);
-
-    [cityInput, branchInput].forEach(inp => {
-        inp.addEventListener('blur', () => setTimeout(() => hideList(inp), 150));
-    });
-
-    function applyDeliveryMode() {
-        let key, fallback;
-        if (isCourier()) {
-            key = 'cart.addressPlaceholder'; fallback = 'Адреса: вулиця, будинок, квартира';
-        } else if (manualProviders[provider()]) {
-            key = 'cart.branchManualPlaceholder'; fallback = 'Відділення або індекс';
-        } else {
-            key = 'cart.branchPlaceholder'; fallback = 'Відділення';
-        }
-        branchInput.setAttribute('placeholder', t(key, fallback));
-        branchInput.dataset.i18nPlaceholder = key;
-        hideList(cityInput); hideList(branchInput);
-    }
-    deliverySelect.addEventListener('change', applyDeliveryMode);
-    if (deliveryType) deliveryType.addEventListener('change', applyDeliveryMode);
-    window.addEventListener('hydro:lang', applyDeliveryMode);
-
-    // Зміна перевізника — скидаємо ВСІ поля доставки (місто + відділення/адреса)
-    deliverySelect.addEventListener('change', function() {
-        cityInput.value = '';
-        branchInput.value = '';
-        state.cityRef = '';
-        state.cityName = '';
-        state.branchName = '';
-        hideList(cityInput);
-        hideList(branchInput);
-    });
-    // Зміна типу доставки (відділення / кур'єр) — скидаємо лише поле відділення/адреси
-    if (deliveryType) deliveryType.addEventListener('change', function() {
-        branchInput.value = '';
-        state.branchName = '';
-        hideList(branchInput);
-    });
-
-    // Заповнення кроку "Перевірка даних" реальними значеннями
-    const checkBlocks = cartSection.querySelectorAll('.cart__check-block');
-    function fillCheck() {
-        if (checkBlocks.length < 3) return;
-        const nameInput = cartSection.querySelector('input[name="name"]');
-        const telInput = cartSection.querySelector('input[name="tel"]');
-        const emailInput = cartSection.querySelector('input[name="email"]');
-        const b2 = checkBlocks[1].querySelectorAll('.cart__check-descr');
-        if (b2.length >= 3) {
-            b2[0].textContent = nameInput.value || '—';
-            b2[1].textContent = cartSection.querySelector('input[name="tel-full"]').value || telInput.value || '—';
-            b2[2].textContent = emailInput.value || '—';
-        }
-        const b3 = checkBlocks[2].querySelectorAll('.cart__check-descr');
-        if (b3.length >= 4) {
-            b3[0].textContent = deliverySelect.options[deliverySelect.selectedIndex].text;
-            b3[1].textContent = branchInput.value || '—';
-            // Область: НП повертає її в описі міста після коми
-            const parts = cityInput.value.split(',');
-            b3[2].textContent = parts.length > 2 ? parts.slice(2).join(',').trim() : '—';
-            b3[3].textContent = parts[0] || '—';
-        }
-    }
-    cartSection.querySelectorAll('.cart__next').forEach(btn => {
-        btn.addEventListener('click', fillCheck);
-    });
-
-    // Відправка замовлення (останній крок майстра)
-    window.hydroSubmitOrder = function(btn) {
-        let items = [];
-        try { items = JSON.parse(localStorage.getItem('hydrophob_cart')) || []; } catch (e) {}
-        if (!items.length) { alert(t('cart.orderError', 'Кошик порожній')); return; }
-        if (window.hydroTrack) window.hydroTrack('begin_checkout', { items: items.length });
-        const payload = {
-            items: items,
-            contact: {
-                name: cartSection.querySelector('input[name="name"]').value.trim(),
-                phone: (cartSection.querySelector('input[name="tel-full"]').value || cartSection.querySelector('input[name="tel"]').value).trim(),
-                email: cartSection.querySelector('input[name="email"]').value.trim(),
-            },
-            delivery: {
-                method: deliverySelect.value,
-                type: deliveryType ? deliveryType.value : 'branch',
-                city: cityInput.value.trim(),
-                branch: branchInput.value.trim(),
-            },
-            payment: '',
-        };
-        btn.setAttribute('disabled', 'disabled');
-        btn.classList.add('btn-disabled');
-        fetch('api/order.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        })
-            .then(r => r.json())
-            .then(d => {
-                if (d && d.ok && d.token) {
-                    localStorage.removeItem('hydrophob_cart');
-                    window.location.href = 'success.php?token=' + d.token;
-                } else {
-                    throw new Error((d && d.error) || 'fail');
-                }
-            })
-            .catch(() => {
-                alert(t('cart.orderError', 'Не вдалося оформити замовлення. Спробуйте ще раз або зателефонуйте нам.'));
-                btn.removeAttribute('disabled');
-                btn.classList.remove('btn-disabled');
-            });
-    };
-});
-
-
-/* ===== Телефон з кодом країни та валідацією (патерн pprintdim) ===== */
-document.addEventListener('DOMContentLoaded', function() {
-    const countrySelect = document.querySelector('.cart__phone-country');
-    const phoneInput = document.querySelector('.cart__phone input[name="tel"]');
-    const phoneFull = document.querySelector('.cart__phone input[name="tel-full"]');
-    if (!countrySelect || !phoneInput || !phoneFull) return;
-
-    // [iso, прапор, код, мін цифр, макс цифр]
-    const CTRY = [["UA","🇺🇦",380,9,9],["PL","🇵🇱",48,9,9],["DE","🇩🇪",49,10,11],["GB","🇬🇧",44,10,10],["US","🇺🇸",1,10,10],["CA","🇨🇦",1,10,10],["CZ","🇨🇿",420,9,9],["SK","🇸🇰",421,9,9],["FR","🇫🇷",33,9,9],["IT","🇮🇹",39,9,10],["ES","🇪🇸",34,9,9],["NL","🇳🇱",31,9,9],["AT","🇦🇹",43,10,11],["CH","🇨🇭",41,9,9],["SE","🇸🇪",46,9,9],["NO","🇳🇴",47,8,8],["DK","🇩🇰",45,8,8],["FI","🇫🇮",358,9,10],["LT","🇱🇹",370,8,8],["LV","🇱🇻",371,8,8],["EE","🇪🇪",372,7,8],["MD","🇲🇩",373,8,8],["RO","🇷🇴",40,9,9],["BG","🇧🇬",359,8,9],["TR","🇹🇷",90,10,10],["GE","🇬🇪",995,9,9],["IL","🇮🇱",972,9,9],["AE","🇦🇪",971,9,9],["KZ","🇰🇿",7,10,10],["AZ","🇦🇿",994,9,9]];
-
-    countrySelect.innerHTML = CTRY.map(c => '<option value="' + c[0] + '">' + c[1] + ' +' + c[2] + '</option>').join('');
-    const def = (countrySelect.dataset.defaultCountry || 'UA').toUpperCase();
-    countrySelect.value = CTRY.some(c => c[0] === def) ? def : 'UA';
-
-    function cur() {
-        return CTRY.find(c => c[0] === countrySelect.value) || CTRY[0];
-    }
-
-    function format() {
-        const c = cur();
-        let d = phoneInput.value.replace(/\D/g, '');
-        const code = String(c[2]);
-        if (d.indexOf(code) === 0 && d.length > c[4]) d = d.slice(code.length); // вставили з кодом
-        if (c[0] === 'UA' && d.charAt(0) === '0') d = d.slice(1);               // 067... -> 67...
-        d = d.slice(0, c[4]);
-        const groups = c[0] === 'UA' ? [2, 3, 2, 2] : [3, 3, 5];
-        let out = '', pos = 0;
-        for (let g = 0; g < groups.length && pos < d.length; g++) {
-            if (out) out += ' ';
-            out += d.slice(pos, pos + groups[g]);
-            pos += groups[g];
-        }
-        phoneInput.value = out;
-        const valid = d.length >= c[3] && d.length <= c[4];
-        // повний номер пишемо ЛИШЕ коли він коректний — інакше крок не пропустить далі
-        phoneFull.value = valid ? '+' + code + d : '';
-        phoneInput.classList.toggle('phone-invalid', d.length > 0 && !valid);
-        phoneFull.dispatchEvent(new Event('change')); // перезапустити валідатор кроку
-    }
-
-    phoneInput.addEventListener('input', format);
-    countrySelect.addEventListener('change', function() {
-        format();
-        phoneInput.focus();
-    });
-});
+/* Доставка (НП/Meest/Укрпошта), контактні дані, перевірка й сабміт замовлення (window.hydroSubmitOrder,
+ * телефон з кодом країни) переїхали на окрему сторінку чекауту — див.
+ * catalog/controller/checkout/hydro_checkout.php + catalog/view/theme/default/javascript/hydrophob-checkout.js.
+ * Попап кошика на головній тепер показує лише список товарів. */
 
 
 /* ===== Посилання "Продукція" у футері: відкрити відповідну вкладку infoBlock ===== */

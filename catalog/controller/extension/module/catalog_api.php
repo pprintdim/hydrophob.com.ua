@@ -43,7 +43,7 @@ class ControllerExtensionModuleCatalogApi extends Controller {
 				'id'          => $product['model'],
 				'category'    => $categoryNames[0] ?? '',
 				'title'       => $product['name'],
-				'descr'       => strip_tags($product['description']),
+				'descr'       => $product['meta_description'] ?: mb_substr(strip_tags(html_entity_decode($product['description'], ENT_QUOTES, 'UTF-8')), 0, 200),
 				'descriptionHtml' => $product['description'],
 				'volume'      => $product['tag'],
 				'price'       => (float)$product['price'],

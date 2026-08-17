@@ -13,15 +13,9 @@
                 <path d="M10 32C8.4087 32 6.88258 31.3679 5.75736 30.2426C4.63214 29.1174 4 27.5913 4 26V10C4 8.4087 4.63214 6.88258 5.75736 5.75736C6.88258 4.63214 8.4087 4 10 4C10.5304 4 11.0391 3.78929 11.4142 3.41421C11.7893 3.03914 12 2.53043 12 2C12 1.46957 11.7893 0.960859 11.4142 0.585786C11.0391 0.210714 10.5304 0 10 0C7.34784 0 4.8043 1.05357 2.92893 2.92893C1.05357 4.8043 0 7.34784 0 10V26C0 28.6522 1.05357 31.1957 2.92893 33.0711C4.8043 34.9464 7.34784 36 10 36C10.5304 36 11.0391 35.7893 11.4142 35.4142C11.7893 35.0391 12 34.5304 12 34C12 33.4696 11.7893 32.9609 11.4142 32.5858C11.0391 32.2107 10.5304 32 10 32ZM25.42 25.42C25.6075 25.2341 25.7562 25.0129 25.8578 24.7692C25.9593 24.5254 26.0116 24.264 26.0116 24C26.0116 23.736 25.9593 23.4746 25.8578 23.2308C25.7562 22.9871 25.6075 22.7659 25.42 22.58L20.82 18L25.42 13.42C25.7966 13.0434 26.0082 12.5326 26.0082 12C26.0082 11.4674 25.7966 10.9566 25.42 10.58C25.0434 10.2034 24.5326 9.99182 24 9.99182C23.4674 9.99182 22.9566 10.2034 22.58 10.58L18 15.18L13.42 10.58C13.0434 10.2034 12.5326 9.99182 12 9.99182C11.4674 9.99182 10.9566 10.2034 10.58 10.58C10.2034 10.9566 9.99182 11.4674 9.99182 12C9.99182 12.5326 10.2034 13.0434 10.58 13.42L15.18 18L10.58 22.58C10.3925 22.7659 10.2438 22.9871 10.1422 23.2308C10.0407 23.4746 9.9884 23.736 9.9884 24C9.9884 24.264 10.0407 24.5254 10.1422 24.7692C10.2438 25.0129 10.3925 25.2341 10.58 25.42C10.7659 25.6075 10.9871 25.7562 11.2308 25.8578C11.4746 25.9593 11.736 26.0116 12 26.0116C12.264 26.0116 12.5254 25.9593 12.7692 25.8578C13.0129 25.7562 13.2341 25.6075 13.42 25.42L18 20.82L22.58 25.42C22.7659 25.6075 22.9871 25.7562 23.2308 25.8578C23.4746 25.9593 23.736 26.0116 24 26.0116C24.264 26.0116 24.5254 25.9593 24.7692 25.8578C25.0129 25.7562 25.2341 25.6075 25.42 25.42ZM26 0C25.4696 0 24.9609 0.210714 24.5858 0.585786C24.2107 0.960859 24 1.46957 24 2C24 2.53043 24.2107 3.03914 24.5858 3.41421C24.9609 3.78929 25.4696 4 26 4C27.5913 4 29.1174 4.63214 30.2426 5.75736C31.3679 6.88258 32 8.4087 32 10V26C32 27.5913 31.3679 29.1174 30.2426 30.2426C29.1174 31.3679 27.5913 32 26 32C25.4696 32 24.9609 32.2107 24.5858 32.5858C24.2107 32.9609 24 33.4696 24 34C24 34.5304 24.2107 35.0391 24.5858 35.4142C24.9609 35.7893 25.4696 36 26 36C28.6522 36 31.1957 34.9464 33.0711 33.0711C34.9464 31.1957 36 28.6522 36 26V10C36 7.34784 34.9464 4.8043 33.0711 2.92893C31.1957 1.05357 28.6522 0 26 0Z" fill="white"/>
             </svg>
         </button>
-        <div class="cart__thanks hide-block">
-            <p class="cart__thanks-name" data-i18n="cart.thanksName">Дякуємо</p>
-            <h3 class="cart__thanks-title" data-i18n="cart.thanksTitle">Ваше замовлення прийнято.</h3>
-            <p class="cart__thanks-descr" data-i18n="cart.thanksDescr">Номер замовлення №343304</p>
-            <button class="cart__thanks-btn btn" data-i18n="cart.toHome">На головну</button>
-        </div>
         <div class="cart__inner">
             <div class="cart__top">
-                <h2 class="cart__title" data-i18n="cart.title">Оформлення замовлення</h2>
+                <h2 class="cart__title" data-i18n="cart.title">Кошик</h2>
                 <div class="cart__content">
 
                     <div class="cart__products cart-content">
@@ -51,132 +45,8 @@
                     </div>
                     <div class="cart__bottom cart-bottom">
                         <button class="cart__closed cart-close-btn btn-2" data-i18n="cart.addProduct">Добавити товар</button>
-                        <button class="cart__next btn" data-i18n="cart.next">Продовжити</button>
+                        <a class="cart__next btn" id="cart-checkout-link" href="{{ checkout_url|default('checkout') }}" data-i18n="cart.toCheckout">Оформити замовлення</a>
                     </div>
-
-
-                    <div class="cart__data cart-content hide-block">
-                        <div class="cart__data-top cart-top">
-                            <h3 class="cart__data-title cart-name">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                                    <path d="M3.3335 28.3333V33.3333H16.6668V30.1833H6.50016V28.3333C6.50016 27.2667 11.7168 24.8333 16.6668 24.8333C18.2668 24.85 19.8502 25.0667 21.3835 25.4667L23.9168 22.9333C21.5835 22.15 19.1668 21.7167 16.6668 21.6667C12.2168 21.6667 3.3335 23.8833 3.3335 28.3333ZM16.6668 6.66666C12.9835 6.66666 10.0002 9.64999 10.0002 13.3333C10.0002 17.0167 12.9835 20 16.6668 20C20.3502 20 23.3335 17.0167 23.3335 13.3333C23.3335 9.64999 20.3502 6.66666 16.6668 6.66666ZM16.6668 16.6667C14.8335 16.6667 13.3335 15.1833 13.3335 13.3333C13.3335 11.4833 14.8335 9.99999 16.6668 9.99999C18.5002 9.99999 20.0002 11.5 20.0002 13.3333C20.0002 15.1667 18.5168 16.6667 16.6668 16.6667ZM36.1668 22.25L34.5002 23.9167L31.0835 20.5833L32.7502 18.9167C32.9215 18.7487 33.1519 18.6546 33.3918 18.6546C33.6318 18.6546 33.8621 18.7487 34.0335 18.9167L36.1668 21.05C36.5168 21.4 36.5168 21.9833 36.1668 22.3333M20.0002 31.5667L30.1002 21.4667L33.5168 24.8L23.5168 34.9167H20.0002V31.5667Z" fill="white"/>
-                                </svg>
-                                <span data-i18n="cart.contactData">Контактні дані</span>
-                            </h3>
-                        </div>
-                        <div class="cart__data-block">
-                            <input class="cart__data-input cart__data-fill" type="text" name="name" placeholder="ПІБ" data-i18n-placeholder="cart.namePlaceholder">
-                            <div class="cart__phone">
-                                <select class="cart__phone-country cart__data-select" name="tel-country" aria-label="Код країни" data-default-country="{{ env.DEFAULT_PHONE_COUNTRY|default('UA') }}"></select>
-                                <input class="cart__data-input" type="tel" name="tel" placeholder="Телефон" data-i18n-placeholder="cart.phonePlaceholder" autocomplete="tel">
-                                <input type="hidden" name="tel-full">
-                            </div>
-                            <input class="cart__data-input" type="email" name="email" placeholder="Email" data-i18n-placeholder="cart.emailPlaceholder">
-                        </div>
-                        <div class="cart__data-top cart-top">
-                            <h3 class="cart__data-title cart-name">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                                    <path d="M3.3335 28.3333V33.3333H16.6668V30.1833H6.50016V28.3333C6.50016 27.2667 11.7168 24.8333 16.6668 24.8333C18.2668 24.85 19.8502 25.0667 21.3835 25.4667L23.9168 22.9333C21.5835 22.15 19.1668 21.7167 16.6668 21.6667C12.2168 21.6667 3.3335 23.8833 3.3335 28.3333ZM16.6668 6.66666C12.9835 6.66666 10.0002 9.64999 10.0002 13.3333C10.0002 17.0167 12.9835 20 16.6668 20C20.3502 20 23.3335 17.0167 23.3335 13.3333C23.3335 9.64999 20.3502 6.66666 16.6668 6.66666ZM16.6668 16.6667C14.8335 16.6667 13.3335 15.1833 13.3335 13.3333C13.3335 11.4833 14.8335 9.99999 16.6668 9.99999C18.5002 9.99999 20.0002 11.5 20.0002 13.3333C20.0002 15.1667 18.5168 16.6667 16.6668 16.6667ZM36.1668 22.25L34.5002 23.9167L31.0835 20.5833L32.7502 18.9167C32.9215 18.7487 33.1519 18.6546 33.3918 18.6546C33.6318 18.6546 33.8621 18.7487 34.0335 18.9167L36.1668 21.05C36.5168 21.4 36.5168 21.9833 36.1668 22.3333M20.0002 31.5667L30.1002 21.4667L33.5168 24.8L23.5168 34.9167H20.0002V31.5667Z" fill="white"/>
-                                </svg>
-                                <span data-i18n="cart.productsName">Товари в кошику</span>
-                            </h3>
-                        </div>
-                        <div class="cart__data-block">
-                            <div class="cart__data-deivery cart__data-fill">
-                                <div class="cart__data-deivery--icon">
-{% for carrier in carriers %}
-                                    <img{{ loop.first ? ' class="active"' : '' }} src="{{ carrier.icon }}" data-carrier="{{ carrier.id }}" alt="{{ carrier.name }}" loading="lazy" decoding="async">
-{% endfor %}
-                                </div>
-                                <select name="delivery" class="cart__data-select">
-{% for carrier in carriers %}
-                                    <option value="{{ carrier.id }}"{{ loop.first ? ' selected' : '' }}>{{ carrier.name }}</option>
-{% endfor %}
-                                </select>
-                            </div>
-                            <select name="delivery-type" class="cart__data-select cart__data-fill">
-                                <option value="branch" selected data-i18n="cart.toBranch">У відділення</option>
-                                <option value="courier" data-i18n="cart.toCourier">Кур'єром на адресу</option>
-                            </select>
-                            <div class="cart__suggest cart__data-fill">
-                                <input class="cart__data-input" type="text" name="delivery-city" placeholder="Місто" autocomplete="off" data-i18n-placeholder="cart.cityPlaceholder">
-                                <ul class="cart__suggest-list"></ul>
-                            </div>
-                            <div class="cart__suggest cart__data-fill">
-                                <input class="cart__data-input" type="text" name="delivery-branch" placeholder="Відділення" autocomplete="off" data-i18n-placeholder="cart.branchPlaceholder">
-                                <ul class="cart__suggest-list"></ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cart__bottom cart-bottom hide-block">
-                        <button class="cart__back btn-2" data-i18n="cart.back">Назад</button>
-                        <button class="cart__next btn" data-i18n="cart.next">Продовжити</button>
-                    </div>
-
-
-                    <div class="cart__check cart-content hide-block">
-                        <div class="cart__check-top cart-top">
-                            <h3 class="cart__check-title cart-name">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                                    <path d="M5.8335 9.16667L8.3335 11.6667L12.5002 7.5M5.8335 19.1667L8.3335 21.6667L12.5002 17.5M5.8335 29.1667L8.3335 31.6667L12.5002 27.5M18.3335 10H33.3335M18.3335 20H33.3335M18.3335 30H33.3335" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <span data-i18n="cart.checkTitle">Перевірка даних</span>
-                            </h3>
-                        </div>
-                        <div class="cart__check-content">
-                            <div class="cart__check-block">
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkProduct">Товар</p>
-                                    <p class="cart__check-descr">Hydrophob Automobile</p>
-                                </div>
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkQty">Кількість</p>
-                                    <p class="cart__check-descr">1</p>
-                                </div>
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkTotal">До оплати</p>
-                                    <p class="cart__check-descr">800 грн</p>
-                                </div>
-                            </div>
-                            <div class="cart__check-block">
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkReceiver">Отримувач</p>
-                                    <p class="cart__check-descr">Іванов Іван Іванович</p>
-                                </div>
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkPhone">Номер телефону</p>
-                                    <p class="cart__check-descr">+38067 777 66 99</p>
-                                </div>
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkEmail">Email</p>
-                                    <p class="cart__check-descr">ivanov@gmail.com</p>
-                                </div>
-                            </div>
-                            <div class="cart__check-block">
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkDelivery">Спосіб доставки</p>
-                                    <p class="cart__check-descr">Нова Почта</p>
-                                </div>
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkDepartment">Відділення</p>
-                                    <p class="cart__check-descr">№3</p>
-                                </div>
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkRegion">Область</p>
-                                    <p class="cart__check-descr">Київська</p>
-                                </div>
-                                <div class="cart__check-item">
-                                    <p class="cart__check-title" data-i18n="cart.checkCity">Місто</p>
-                                    <p class="cart__check-descr">Київ</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cart__bottom cart-bottom hide-block">
-                        <button class="cart__back btn-2" data-i18n="cart.back">Назад</button>
-                        <button class="cart__next btn" data-i18n="cart.next">Продовжити</button>
-                    </div>
-
 
                 </div>
             </div>

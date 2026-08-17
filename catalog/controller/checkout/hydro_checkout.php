@@ -1,0 +1,75 @@
+<?php
+/**
+ * Окрема сторінка чекауту hydrophob.net.ua (route: checkout/hydro_checkout).
+ * Кошик (localStorage) + усі етапи оформлення (контактні дані, доставка НП/Meest/Укрпошта
+ * через api/shipping.php, підтвердження) — раніше все це було всередині попапу кошика
+ * (common/home/cart.twig), тепер попап показує лише список товарів і веде сюди.
+ * Сабміт лишається на api/order.php (бекенд не змінюється), редірект — на checkout/hydro_success.
+ */
+class ControllerCheckoutHydroCheckout extends Controller {
+	public function index() {
+		$root = DIR_APPLICATION . '../';
+
+		$deliveries = $this->readJson($root . 'data/deliveries.json');
+		$carriers = array();
+		foreach (($deliveries['carriers'] ?? array()) as $carrier) {
+			$carriers[] = array(
+				'id'   => $carrier['id'] ?? '',
+				'icon' => 'image/hydrophob/' . ltrim(str_replace('img/', '', $carrier['icon'] ?? ''), '/'),
+				'name' => $this->uaValue($carrier['name'] ?? ''),
+			);
+		}
+
+		$env = $this->readEnv($root . '.env');
+
+		$this->document->setTitle('Оформлення замовлення — Hydrophob');
+		$this->document->setDescription('Оформлення замовлення в інтернет-магазині Hydrophob.');
+
+		$data['header'] = $this->load->view('common/home/header', array());
+		$data['footer'] = $this->load->view('common/home/footer', array());
+		$data['carriers'] = $carriers;
+		$data['default_phone_country'] = $env['DEFAULT_PHONE_COUNTRY'] ?? 'UA';
+		$data['home_url'] = $this->url->link('common/home');
+		$data['success_url'] = $this->url->link('checkout/hydro_success');
+		$data['products_url'] = $this->url->link('extension/module/catalog_api/products');
+		$data['shipping_url'] = 'api/shipping.php';
+		$data['order_url'] = 'api/order.php';
+		$data['asset_version'] = (string)@filemtime($root . 'catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
+
+		$this->response->setOutput($this->load->view('checkout/hydro_checkout', $data));
+	}
+
+	private function uaValue($field) {
+		if (is_array($field)) {
+			return $field['UA'] ?? '';
+		}
+		return (string)$field;
+	}
+
+	private function readJson($file) {
+		if (!is_file($file)) {
+			return array();
+		}
+		$data = json_decode(file_get_contents($file), true);
+		return is_array($data) ? $data : array();
+	}
+
+	private function readEnv($file) {
+		$env = array();
+		if (is_file($file)) {
+			foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+				$line = trim($line);
+				if ($line === '' || $line[0] === '#' || strpos($line, '=') === false) {
+					continue;
+				}
+				list($k, $v) = explode('=', $line, 2);
+				$v = trim($v);
+				if ($v !== '' && ($v[0] === '"' || $v[0] === "'")) {
+					$v = trim($v, $v[0]);
+				}
+				$env[trim($k)] = $v;
+			}
+		}
+		return $env;
+	}
+}

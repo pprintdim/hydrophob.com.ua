@@ -1,29 +1,21 @@
 <?php
 /**
- * Порт лендінгу hydrophob.net.ua у OpenCart 3.
- * Рендерить головну сторінку одним набором twig-партиалів (catalog/view/theme/default/template/common/home/*.twig),
- * зібраних докупи в catalog/view/theme/default/template/common/home.twig.
+ * Головна сторінка hydrophob.net.ua у OpenCart 3.
  *
- * Джерела контенту:
- *  - data/*.json (страва зі старого статичного лендінгу, скопійована 1:1) — тексти, seo, зображення, доставка;
- *  - каталог товарів OpenCart (oc_product) — id/назва/опис/ціна/наявність/фото для секції "product" та "infoBlock";
- *  - .env — таймер акції, код країни за замовчуванням для телефону (як у старому api/bootstrap.php).
+ * Контентні секції (hero, about, action, images_block, product, info_block,
+ * reviews, guarantee, faq, delivery, contacts) винесені в окремі content_top
+ * модулі — catalog/controller/extension/module/hydrophob_<section>.php,
+ * підключені штатним механізмом Design → Layout (oc_layout_module,
+ * position=content_top, route common/home) і рендеряться через
+ * common/content_top.php (див. layout.sql).
  *
- * Багатомовність (RU/EN) свідомо відкладена: увесь SSR-контент віддається українською (UA),
- * так само якklient-side i18n у catalog/view/theme/default/javascript/hydrophob.js бере UA як фолбек.
+ * Тут лишаються тільки глобальні для сторінки partial-и, які НЕ модулі
+ * layout'а: header, попапи (video/photo/product/about/delivery), cart
+ * (попап кошика) і cookie-банер.
  */
 class ControllerCommonHome extends Controller {
-	/** @var string корінь проєкту (openCart3/) */
-	private $root;
-
 	public function index() {
-		$this->root = DIR_APPLICATION . '../';
-
 		$seo = $this->readJson('data/seo.json');
-		$strings = $this->readJson('data/strings.json');
-		$images = $this->fixImagePaths($this->readJson('data/images.json'));
-		$deliveries = $this->readJson('data/deliveries.json');
-		$staticProducts = $this->readJson('data/products.json');
 		$env = $this->readEnv('.env');
 
 		$lang = 'UA';
@@ -33,17 +25,11 @@ class ControllerCommonHome extends Controller {
 		$this->document->setDescription($meta['description']);
 		$this->document->setKeywords($meta['keywords']);
 
-		// ---- Живий каталог із БД (замінює старий data/products.json для секцій product/infoBlock) ----
-		$products = $this->getLiveProducts($staticProducts);
-		$productsById = array();
-		foreach ($products as $p) {
-			$productsById[$p['id']] = $p;
-		}
+		// ---- Попап-галерея фото (popup_photo.twig) — ті самі кадри, що й imagesBlock ----
+		$images = $this->fixImagePaths($this->readJson('data/images.json'));
 
-		// ---- Акційний таймер (як у sections/action.php, дані з .env) ----
-		$actionTimer = $this->buildActionTimer($env);
-
-		// ---- Перевізники доставки (cart.twig) ----
+		// ---- Кошик (cart.twig): перевізники + дефолтний код країни для телефону ----
+		$deliveries = $this->readJson('data/deliveries.json');
 		$carriers = array();
 		foreach (($deliveries['carriers'] ?? array()) as $carrier) {
 			$carriers[] = array(
@@ -53,28 +39,21 @@ class ControllerCommonHome extends Controller {
 			);
 		}
 
-		// ---- Вкладки блоку "лінійка продукції" (info_block.twig) ----
-		$infoTabs = $this->buildInfoTabs($productsById);
-
-		// ---- Спільні дані для всіх секцій ----
 		$shared = array(
-			'images'     => $images,
-			'strings'    => $strings,
-			'products'   => $products,
-			'carriers'   => $carriers,
-			'info_tabs'  => $infoTabs,
-			'env'        => array_merge($env, $actionTimer),
+			'images'        => $images,
+			'carriers'      => $carriers,
+			'env'           => $env,
+			'checkout_url'  => $this->url->link('checkout/hydro_checkout'),
 		);
 
+		$partials = array('header', 'popup_video', 'popup_photo', 'popup_product', 'popup_about', 'popup_delivery', 'cart', 'footer', 'cookie');
 		$sections = array();
-		$sectionFiles = array(
-			'header', 'hero', 'popup_video', 'popup_photo', 'popup_product', 'popup_about', 'popup_delivery',
-			'about', 'action', 'images_block', 'product', 'info_block', 'reviews', 'guarantee', 'faq',
-			'delivery', 'contacts', 'cart', 'footer', 'cookie',
-		);
-		foreach ($sectionFiles as $section) {
+		foreach ($partials as $section) {
 			$sections[$section] = $this->load->view('common/home/' . $section, $shared);
 		}
+
+		// ---- Контентні секції content_top (hero...contacts) — штатний layout-механізм ----
+		$sections['content_top'] = $this->load->controller('common/content_top');
 
 		$org = $seo['org'] ?? array();
 		$baseUrl = rtrim($seo['url'] ?? '', '/') . '/';
@@ -92,111 +71,9 @@ class ControllerCommonHome extends Controller {
 			'ads'      => $env['GOOGLE_ADS_ID'] ?? '',
 			'adsLabel' => $env['GOOGLE_ADS_PURCHASE_LABEL'] ?? '',
 		);
-		$data['asset_version'] = (string)@filemtime($this->root . 'catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
+		$data['asset_version'] = (string)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
 
 		$this->response->setOutput($this->load->view('common/home', $data));
-	}
-
-	/**
-	 * Товари з БД (live) доповнені редакційним контентом (details/attrs), якого ще нема в схемі OpenCart —
-	 * той самий підхід, що й у extension/module/catalog_api.php.
-	 */
-	private function getLiveProducts($staticProducts) {
-		$this->load->model('catalog/product');
-
-		$staticById = array();
-		foreach ((array)$staticProducts as $sp) {
-			if (isset($sp['id'])) {
-				$staticById[$sp['id']] = $sp;
-			}
-		}
-
-		$dbProducts = $this->model_catalog_product->getProducts(array('filter_status' => 1));
-
-		$products = array();
-		foreach ($dbProducts as $product) {
-			if (!$product['status'] || (int)$product['quantity'] <= 0) {
-				continue;
-			}
-			$extra = $staticById[$product['model']] ?? array();
-			$products[] = array(
-				'id'              => $product['model'],
-				'title'           => $product['name'],
-				'descr'           => strip_tags($product['description']),
-				'descriptionHtml' => $product['description'],
-				'volume'          => $product['tag'],
-				'price'           => (float)$product['price'],
-				'image'           => $product['image'] ? 'image/' . $product['image'] : '',
-				'details'         => $extra['details'] ?? null,
-				'attrs'           => $extra['attrs'] ?? array(),
-			);
-		}
-
-		return $products;
-	}
-
-	/**
-	 * Вкладки infoBlock: три конкретні товари (Automobile/Textile/Industrial), як у sections/info-block.php.
-	 * tabTitle/subtitle/blocks — редакційний контент, якого нема в БД, тому береться зі статичного products.json.
-	 */
-	private function buildInfoTabs($productsById) {
-		$tabDefs = array(
-			'Automobile' => 'p2524537265',
-			'Textile'    => 'p2523866690',
-			'Industrial' => 'p2524531368',
-		);
-
-		$images = $this->fixImagePaths($this->readJson('data/images.json'));
-
-		$tabs = array();
-		foreach ($tabDefs as $tabKey => $pid) {
-			$product = $productsById[$pid] ?? null;
-			if (!$product) {
-				continue;
-			}
-			$details = $product['details'] ?? array();
-			$blocks = array();
-			foreach (($details['blocks'] ?? array()) as $block) {
-				$blocks[] = array(
-					'title' => $this->uaValue($block['title'] ?? ''),
-					'html'  => $this->uaValue($block['html'] ?? ''),
-				);
-			}
-			$tabs[] = array(
-				'key'      => $tabKey,
-				'id'       => $pid,
-				'product'  => $product,
-				'tabTitle' => $this->uaValue($details['tabTitle'] ?? ('Hydrophob ' . $tabKey)),
-				'subtitle' => $this->uaValue($details['subtitle'] ?? ''),
-				'blocks'   => $blocks,
-				'media'    => array(
-					'poster' => $images['infoBlock'][$tabKey]['poster'] ?? '',
-					'video'  => $images['infoBlock'][$tabKey]['video'] ?? '',
-					'alt'    => $images['infoBlock'][$tabKey]['alt'] ?? '',
-				),
-			);
-		}
-
-		return $tabs;
-	}
-
-	/** Таймер акції (data-timer-start/end, ISO 8601) — як у sections/action.php. */
-	private function buildActionTimer($env) {
-		$start = $env['ACTION_TIMER_START'] ?? '2026-07-15 00:00:00';
-		$end = $env['ACTION_TIMER_END'] ?? '2027-07-15 18:30:00';
-		$tz = $env['ACTION_TIMER_TIMEZONE'] ?? 'Europe/Kyiv';
-
-		try {
-			$timezone = new DateTimeZone($tz);
-			$timerStart = new DateTimeImmutable($start, $timezone);
-			$timerEnd = new DateTimeImmutable($end, $timezone);
-			return array(
-				'ACTION_TIMER_START_ISO' => $timerStart->format(DATE_ATOM),
-				'ACTION_TIMER_END_ISO'   => $timerEnd->format(DATE_ATOM),
-			);
-		} catch (Throwable $e) {
-			return array('ACTION_TIMER_START_ISO' => '', 'ACTION_TIMER_END_ISO' => '');
-		}
 	}
 
 	/** Мультимовне поле {UA,RU,EN} чи звичайний рядок -> UA (поточна SSR-мова). */
@@ -222,7 +99,7 @@ class ControllerCommonHome extends Controller {
 	}
 
 	private function readJson($relativePath) {
-		$file = $this->root . $relativePath;
+		$file = DIR_APPLICATION . '../' . $relativePath;
 		if (!is_file($file)) {
 			return array();
 		}
@@ -231,7 +108,7 @@ class ControllerCommonHome extends Controller {
 	}
 
 	private function readEnv($relativePath) {
-		$file = $this->root . $relativePath;
+		$file = DIR_APPLICATION . '../' . $relativePath;
 		$env = array();
 		if (is_file($file)) {
 			foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {

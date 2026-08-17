@@ -1,0 +1,39 @@
+<section class="infoBlock" id="lineup">
+    <div class="container">
+        <div class="infoBlock__inner">
+            <div class="infoBlock__select">
+{% for tab in info_tabs %}
+                <button class="infoBlock__select-btn{{ loop.first ? ' active' : '' }}" data-infoBlock-btn="{{ tab.key }}" data-p-id="{{ tab.id }}" data-p-part="tabTitle">{{ tab.tabTitle }}</button>
+{% endfor %}
+            </div>
+            <div class="infoBlock__result">
+{% for tab in info_tabs %}
+                <div class="infoBlock__result-content{{ loop.first ? ' active' : '' }}" data-infoBlock-result="{{ tab.key }}">
+                    <div class="infoBlock__left">
+                        <div class="infoBlock__video">
+                            <img class="infoBlock__video-image" src="{{ tab.media.poster }}" alt="{{ tab.media.alt }}" loading="lazy" decoding="async">
+                            <button class="infoBlock__video-play play-btn play-btn-open" data-video="{{ tab.media.video }}">Play reels</button>
+                        </div>
+                    </div>
+                    <div class="infoBlock__content">
+                        <h3 class="infoBlock__title"><span data-p-id="{{ tab.id }}" data-p-part="title">{{ tab.product.title }}</span> <span data-p-id="{{ tab.id }}" data-p-part="subtitle">{{ tab.subtitle }}</span></h3>
+                        <div class="infoBlock__block">
+                            <p class="infoBlock__volume"><span data-i18n="product.volumeLabel">Об'єм</span> {{ tab.product.volume is not empty ? tab.product.volume : '—' }}</p>
+                            <p class="infoBlock__price">{{ tab.product.price }} <span data-i18n="product.uah">грн.</span></p>
+                            <button class="infoBlock__btn btn cart-open" data-product-id="{{ tab.id }}" data-i18n="product.buy">Купити</button>
+                        </div>
+                        <div class="infoBlock__more">
+{% for block in tab.blocks %}
+                            <div class="infoBlock__more-item">
+                                <h3 class="infoBlock__more-title" data-p-id="{{ tab.id }}" data-p-block="{{ loop.index0 }}" data-p-part="title"> {{ block.title }}</h3>
+                                <div class="infoBlock__more-content" data-p-id="{{ tab.id }}" data-p-block="{{ loop.index0 }}" data-p-part="html">{{ block.html }}</div>
+                            </div>
+{% endfor %}
+                        </div>
+                    </div>
+                </div>
+{% endfor %}
+            </div>
+        </div>
+    </div>
+</section>

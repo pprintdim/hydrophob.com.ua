@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} — Hydrophob</title>
+    <meta name="description" content="{{ title }} інтернет-магазину Hydrophob.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ canonical }}">
+    <link rel="icon" type="image/svg+xml" href="image/hydrophob/logo.svg">
+    <link rel="icon" type="image/png" href="image/hydrophob/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="catalog/view/theme/default/stylesheet/hydrophob.css?v={{ asset_version }}">
+</head>
+<body class="body">
+    {{ header }}
+
+    <main class="main">
+        <section class="legal">
+            <div class="container">
+                <a class="legal__back" href="{{ home }}">← На головну</a>
+                <h1 class="legal__title">{{ title }}</h1>
+                <div class="legal__content">{{ content|raw }}</div>
+            </div>
+        </section>
+    </main>
+
+    {{ footer }}
+    <script src="catalog/view/theme/default/javascript/hydrophob.js?v={{ asset_version }}"></script>
+</body>
+</html>

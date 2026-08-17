@@ -4131,3 +4131,15 @@ section[id]{
 @media (max-width: 767px){
     .legal{ padding: 120px 0 60px; }
 }
+
+/* Окрема сторінка чекауту (checkout/hydro_checkout) — той самий "cart__inner" картковий
+   компонент, що й у попапі кошика, але у звичайному потоці сторінки (не fixed-оверлей). */
+.checkoutPage{
+    padding: 160px 0 80px;
+}
+.checkoutPage .cart__inner{
+    margin: 0 auto;
+}
+@media (max-width: 767px){
+    .checkoutPage{ padding: 120px 0 40px; }
+}
