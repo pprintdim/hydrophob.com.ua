@@ -4,7 +4,8 @@
     <div class="container-fluid">
       <div class="pull-right">
         <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
-        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
       <h1>{{ heading_title }}</h1>
       <ul class="breadcrumb">
         {% for breadcrumb in breadcrumbs %}
@@ -25,23 +26,65 @@
       </div>
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+
+          {% for field in ['name', 'title', 'read_more'] %}
+          <div class="hydro-card">
+            <div class="hydro-card__title">{{ attribute(_context, 'entry_' ~ field) }}</div>
+            <ul class="nav nav-tabs hydro-tabs">
+              {% for language in languages %}
+              <li{% if loop.first %} class="active"{% endif %}><a href="#about-{{ field }}{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+              {% endfor %}
+            </ul>
+            <div class="tab-content hydro-tab-content">
+              {% for language in languages %}
+              <div class="tab-pane{% if loop.first %} active{% endif %}" id="about-{{ field }}{{ language.language_id }}">
+                <input type="text" name="module_hydrophob_about_{{ field }}[{{ language.language_id }}]" value="{{ attribute(_context, field)[language.language_id] is defined ? attribute(_context, field)[language.language_id] : '' }}" class="form-control" />
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+
+          <div class="hydro-card">
+            <div class="hydro-card__title">{{ entry_descr }}</div>
+            <ul class="nav nav-tabs hydro-tabs">
+              {% for language in languages %}
+              <li{% if loop.first %} class="active"{% endif %}><a href="#about-descr{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+              {% endfor %}
+            </ul>
+            <div class="tab-content hydro-tab-content">
+              {% for language in languages %}
+              <div class="tab-pane{% if loop.first %} active{% endif %}" id="about-descr{{ language.language_id }}">
+                <textarea name="module_hydrophob_about_descr[{{ language.language_id }}]" rows="5" class="form-control">{{ descr[language.language_id] is defined ? descr[language.language_id] : '' }}</textarea>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
             <div class="col-sm-10">
               <select name="module_hydrophob_about_status" id="input-status" class="form-control">
-                {% if module_hydrophob_about_status %}
-                <option value="1" selected="selected">{{ text_enabled }}</option>
-                <option value="0">{{ text_disabled }}</option>
-                {% else %}
-                <option value="1">{{ text_enabled }}</option>
-                <option value="0" selected="selected">{{ text_disabled }}</option>
-                {% endif %}
+                <option value="1" {% if status %}selected="selected"{% endif %}>{{ text_enabled }}</option>
+                <option value="0" {% if not status %}selected="selected"{% endif %}>{{ text_disabled }}</option>
               </select>
             </div>
           </div>
+
         </form>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+.hydro-card { background: linear-gradient(180deg, #fff 0%, #f8fbff 100%); border: 1px solid #dfe6f1; border-radius: 10px; margin-bottom: 14px; padding: 14px; }
+.hydro-card__title { color: #36506b; font-size: 12px; font-weight: 700; letter-spacing: .04em; margin-bottom: 9px; text-transform: uppercase; }
+.hydro-tabs { border-bottom: 0; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.hydro-tabs > li { float: none; margin: 0; }
+.hydro-tabs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
+.hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
+.hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
+</style>
+
 {{ footer }}

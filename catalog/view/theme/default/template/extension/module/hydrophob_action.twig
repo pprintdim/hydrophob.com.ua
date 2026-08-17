@@ -6,9 +6,9 @@
     <div class="container">
         <div class="action__inner">
             <div class="action__content">
-                <h2 class="action__title" data-i18n="action.title">Акція</h2>
-                <p class="action__name" data-i18n="action.name">"Безкоштовна доставка"</p>
-                <p class="action__descr" data-i18n="action.descr">При оформленні замовлення сьогодні - доставка за наш рахунок *</p>
+                <h2 class="action__title" data-i18n="action.title">{{ title }}</h2>
+                <p class="action__name" data-i18n="action.name">{{ name }}</p>
+                <p class="action__descr" data-i18n="action.descr">{{ descr }}</p>
             </div>
             <div class="action__block">
                 <div class="action__item">
@@ -23,7 +23,7 @@
                         <span class="pointer"></span>
                         <div class="number" id="days-number">00</div>
                     </div>
-                    <p class="action__item-name" data-i18n="action.days">День</p>
+                    <p class="action__item-name" data-i18n="action.days">{{ days }}</p>
                 </div>
                 <div class="action__item">
                     <div class="action__item-circle" id="hours">
@@ -37,7 +37,7 @@
                         <span class="pointer"></span>
                         <div class="number" id="hours-number">00</div>
                     </div>
-                    <p class="action__item-name" data-i18n="action.hours">Години</p>
+                    <p class="action__item-name" data-i18n="action.hours">{{ hours }}</p>
                 </div>
                 <div class="action__item">
                     <div class="action__item-circle" id="minutes">
@@ -51,7 +51,7 @@
                         <span class="pointer"></span>
                         <div class="number" id="minutes-number">00</div>
                     </div>
-                    <p class="action__item-name" data-i18n="action.minutes">Хвилини</p>
+                    <p class="action__item-name" data-i18n="action.minutes">{{ minutes }}</p>
                 </div>
                 <div class="action__item">
                     <div class="action__item-circle" id="seconds">
@@ -66,7 +66,7 @@
                         <div class="number" id="seconds-number">00</div>
                     </div>
 
-                    <p class="action__item-name" data-i18n="action.seconds">Секунди</p>
+                    <p class="action__item-name" data-i18n="action.seconds">{{ seconds }}</p>
                 </div>
             </div>
         </div>

@@ -1,12 +1,19 @@
 <?php
 /**
  * Секція "product" (слайдер каталогу) головної сторінки — content_top модуль.
- * Дані: живий каталог OpenCart (oc_product), тільки активні товари з наявністю.
+ * Товари — з живого каталогу OpenCart (oc_product). Заголовок блоку — oc_setting (module_hydrophob_product_name).
  */
 class ControllerExtensionModuleHydrophobProduct extends Controller {
+	private $code = 'module_hydrophob_product';
+
 	public function index($setting = array()) {
 		$this->load->language('extension/module/hydrophob_product');
 		$this->load->model('catalog/product');
+
+		$lang_id = (int)$this->config->get('config_language_id');
+
+		$name_setting = $this->config->get($this->code . '_name');
+		$data['name'] = (is_array($name_setting) && !empty($name_setting[$lang_id])) ? $name_setting[$lang_id] : 'Hydrophob';
 
 		$products = array();
 
