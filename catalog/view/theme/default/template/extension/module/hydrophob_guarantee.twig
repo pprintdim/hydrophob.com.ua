@@ -1,14 +1,14 @@
 <section class="guarantee" id="guarantee">
     <div class="container">
         <div class="guarantee__inner">
-            <h2 class="guarantee__title" data-i18n="guarantee.title">гарантуємо</h2>
+            <h2 class="guarantee__title" data-i18n="guarantee.title">{{ title }}</h2>
             <div class="guarantee__block">
                 <div class="guarantee__item">
                     <div class="guarantee__item-top">
                         <p class="guarantee__item-num">01</p>
-                        <h3 class="guarantee__item-title" data-i18n="guarantee.item1">Гарантія якості</h3>
+                        <h3 class="guarantee__item-title" data-i18n="guarantee.item1">{{ items[1].title }}</h3>
                     </div>
-                    <p class="guarantee__item-message" data-i18n="guarantee.message1">Всі засоби Hydrophob проходять контроль якості. Якщо покриття не дає заявленого ефекту при дотриманні інструкції — ми замінимо товар або повернемо кошти.</p>
+                    <p class="guarantee__item-message" data-i18n="guarantee.message1">{{ items[1].message }}</p>
                 </div>
                 <div class="guarantee__item-middle">
                     <p class="guarantee__item-middle--number">100<span>%</span></p>
@@ -28,23 +28,23 @@
                 <div class="guarantee__item">
                     <div class="guarantee__item-top">
                         <p class="guarantee__item-num">02</p>
-                        <h3 class="guarantee__item-title" data-i18n-html="guarantee.item2Html">Швидка та надійна <br>доставка</h3>
+                        <h3 class="guarantee__item-title" data-i18n-html="guarantee.item2Html">{{ items[2].title|raw }}</h3>
                     </div>
-                    <p class="guarantee__item-message" data-i18n="guarantee.message2">Відправляємо замовлення щодня Новою поштою, Укрпоштою або Meest. Більшість посилок їде 1–2 дні по Україні, номер ТТН надсилаємо одразу після відправки.</p>
+                    <p class="guarantee__item-message" data-i18n="guarantee.message2">{{ items[2].message }}</p>
                 </div>
                 <div class="guarantee__item">
                     <div class="guarantee__item-top">
                         <p class="guarantee__item-num">03</p>
-                        <h3 class="guarantee__item-title" data-i18n="guarantee.item3">Повернення грошей протягом 14 днів</h3>
+                        <h3 class="guarantee__item-title" data-i18n="guarantee.item3">{{ items[3].title }}</h3>
                     </div>
-                    <p class="guarantee__item-message" data-i18n="guarantee.message3">Не підійшов товар? Протягом 14 днів з моменту отримання можна повернути його без пояснення причин — за умови збереження товарного вигляду.</p>
+                    <p class="guarantee__item-message" data-i18n="guarantee.message3">{{ items[3].message }}</p>
                 </div>
                 <div class="guarantee__item">
                     <div class="guarantee__item-top">
                         <p class="guarantee__item-num">04</p>
-                        <h3 class="guarantee__item-title" data-i18n="guarantee.item4">Оплата при отриманні</h3>
+                        <h3 class="guarantee__item-title" data-i18n="guarantee.item4">{{ items[4].title }}</h3>
                     </div>
-                    <p class="guarantee__item-message" data-i18n="guarantee.message4">Платіть як зручно: карткою онлайн або накладеним платежем при отриманні у відділенні. Перевірте товар перед оплатою — це нормально.</p>
+                    <p class="guarantee__item-message" data-i18n="guarantee.message4">{{ items[4].message }}</p>
                 </div>
             </div>
         </div>

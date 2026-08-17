@@ -1,10 +1,14 @@
 <?php
 /**
  * Секція "infoBlock" (лінійка продукції, 3 вкладки) головної сторінки — content_top модуль.
- * Живий товар з БД (id/назва/ціна) доповнений редакційним контентом (details.blocks/tabTitle/subtitle)
- * з data/products.json, якого ще нема в схемі OpenCart — так само, як робив старий common/home.php.
+ * Товар (id/назва/ціна) — з живого каталогу OpenCart. Редакційний контент вкладки (tabTitle,
+ * subtitle, медіа, блоки опису) — oc_setting (module_hydrophob_info_block_*), фолбек —
+ * data/products.json (details.*) + data/images.json (infoBlock.*), як у попередній версії.
  */
 class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
+	private $code = 'module_hydrophob_info_block';
+
+	/** Фіксовані ключі вкладок -> id товару (як на фронті data-infoBlock-btn). Не редагується адміном. */
 	private $tabDefs = array(
 		'Automobile' => 'p2524537265',
 		'Textile'    => 'p2523866690',
@@ -14,6 +18,8 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 	public function index($setting = array()) {
 		$this->load->language('extension/module/hydrophob_info_block');
 		$this->load->model('catalog/product');
+
+		$lang_id = (int)$this->config->get('config_language_id');
 
 		$staticById = array();
 		foreach ((array)$this->readJson('data/products.json') as $sp) {
@@ -38,6 +44,7 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 		}
 
 		$images = $this->fixImagePaths($this->readJson('data/images.json'));
+		$tabsSetting = $this->config->get($this->code . '_tabs');
 
 		$tabs = array();
 		foreach ($this->tabDefs as $tabKey => $pid) {
@@ -46,27 +53,53 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 				continue;
 			}
 
-			$details = $product['details'] ?? array();
+			$legacyDetails = $product['details'] ?? array();
+			$tabSetting = $tabsSetting[$tabKey] ?? array();
+
+			$tabTitle = $this->localizedFromArray($tabSetting['tab_title'] ?? array(), $lang_id);
+			if ($tabTitle === '') {
+				$tabTitle = $this->uaLike($legacyDetails['tabTitle'] ?? ('Hydrophob ' . $tabKey), $lang_id);
+			}
+
+			$subtitle = $this->localizedFromArray($tabSetting['subtitle'] ?? array(), $lang_id);
+			if ($subtitle === '') {
+				$subtitle = $this->uaLike($legacyDetails['subtitle'] ?? '', $lang_id);
+			}
+
+			$blocksSetting = $tabSetting['blocks'] ?? null;
 			$blocks = array();
-			foreach (($details['blocks'] ?? array()) as $block) {
-				$blocks[] = array(
-					'title' => $this->uaValue($block['title'] ?? ''),
-					'html'  => $this->uaValue($block['html'] ?? ''),
-				);
+			if (is_array($blocksSetting) && !empty($blocksSetting)) {
+				foreach ($blocksSetting as $block) {
+					$blocks[] = array(
+						'title' => $this->localizedFromArray($block['title'] ?? array(), $lang_id),
+						'html'  => $this->localizedFromArray($block['html'] ?? array(), $lang_id),
+					);
+				}
+			} else {
+				foreach (($legacyDetails['blocks'] ?? array()) as $block) {
+					$blocks[] = array(
+						'title' => $this->uaLike($block['title'] ?? '', $lang_id),
+						'html'  => $this->uaLike($block['html'] ?? '', $lang_id),
+					);
+				}
+			}
+
+			$posterSetting = $tabSetting['poster'] ?? '';
+			$poster = $posterSetting ? 'image/' . $posterSetting : ($images['infoBlock'][$tabKey]['poster'] ?? '');
+			$video = !empty($tabSetting['video']) ? $tabSetting['video'] : ($images['infoBlock'][$tabKey]['video'] ?? '');
+			$alt = $this->localizedFromArray($tabSetting['alt'] ?? array(), $lang_id);
+			if ($alt === '') {
+				$alt = $images['infoBlock'][$tabKey]['alt'] ?? '';
 			}
 
 			$tabs[] = array(
 				'key'      => $tabKey,
 				'id'       => $pid,
 				'product'  => $product,
-				'tabTitle' => $this->uaValue($details['tabTitle'] ?? ('Hydrophob ' . $tabKey)),
-				'subtitle' => $this->uaValue($details['subtitle'] ?? ''),
+				'tabTitle' => $tabTitle,
+				'subtitle' => $subtitle,
 				'blocks'   => $blocks,
-				'media'    => array(
-					'poster' => $images['infoBlock'][$tabKey]['poster'] ?? '',
-					'video'  => $images['infoBlock'][$tabKey]['video'] ?? '',
-					'alt'    => $images['infoBlock'][$tabKey]['alt'] ?? '',
-				),
+				'media'    => array('poster' => $poster, 'video' => $video, 'alt' => $alt),
 			);
 		}
 
@@ -75,12 +108,31 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 		return $this->load->view('extension/module/hydrophob_info_block', $data);
 	}
 
-	/** Мультимовне поле {UA,RU,EN} чи звичайний рядок -> UA (поточна SSR-мова). */
-	private function uaValue($field) {
+	private function localizedFromArray($values, $language_id) {
+		if (is_array($values) && isset($values[$language_id]) && $values[$language_id] !== '') {
+			return $values[$language_id];
+		}
+		return '';
+	}
+
+	/** Мультимовне поле {UA,RU,EN} чи звичайний рядок зі старого data/products.json -> поточна мова. */
+	private function uaLike($field, $language_id) {
 		if (is_array($field)) {
-			return $field['UA'] ?? '';
+			$key = $this->legacyLangKey();
+			return $field[$key] ?? ($field['UA'] ?? '');
 		}
 		return (string)$field;
+	}
+
+	private function legacyLangKey() {
+		$code = $this->session->data['language'] ?? 'uk-ua';
+		if ($code === 'ru-ru') {
+			return 'RU';
+		}
+		if ($code === 'en-gb') {
+			return 'EN';
+		}
+		return 'UA';
 	}
 
 	private function readJson($relativePath) {

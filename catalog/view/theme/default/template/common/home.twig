@@ -31,6 +31,8 @@
     <meta name="theme-color" content="#121212">
 
     <script>window.HYDRO_ANALYTICS = { mode: "{{ analytics.mode }}", ga4: "{{ analytics.ga4 }}", ads: "{{ analytics.ads }}", adsLabel: "{{ analytics.adsLabel }}" };</script>
+    <script>window.HYDRO_STRINGS_OVERRIDES = {{ hydro_strings_overrides_json|raw }};</script>
+    <script>window.HYDRO_CONTACTS = {{ hydro_contacts_json|raw }};</script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

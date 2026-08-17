@@ -4,7 +4,8 @@
     <div class="container-fluid">
       <div class="pull-right">
         <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
-        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
       <h1>{{ heading_title }}</h1>
       <ul class="breadcrumb">
         {% for breadcrumb in breadcrumbs %}
@@ -25,23 +26,173 @@
       </div>
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+
+          <div class="hydro-card">
+            <div class="hydro-card__title">{{ entry_title_html }}</div>
+            <ul class="nav nav-tabs hydro-tabs">
+              {% for language in languages %}
+              <li{% if loop.first %} class="active"{% endif %}><a href="#reviews-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+              {% endfor %}
+            </ul>
+            <div class="tab-content hydro-tab-content">
+              {% for language in languages %}
+              <div class="tab-pane{% if loop.first %} active{% endif %}" id="reviews-title{{ language.language_id }}">
+                <input type="text" name="module_hydrophob_reviews_title_html[{{ language.language_id }}]" value="{{ title_html[language.language_id] is defined ? title_html[language.language_id] : '' }}" class="form-control" />
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="hydro-repeater">
+            <div class="hydro-repeater__head">
+              <h4>{{ entry_items }}</h4>
+              <button type="button" id="btn-add-review" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> {{ entry_add }}</button>
+            </div>
+            <div id="reviews-body">
+              {% for i, item in items %}
+              <div class="hydro-row" id="review-row{{ i }}">
+                <div class="hydro-row__head">
+                  <strong>{{ entry_item }} {{ i + 1 }}</strong>
+                  <button type="button" class="btn btn-danger btn-sm btn-remove-review"><i class="fa fa-minus-circle"></i></button>
+                </div>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <a href="" id="thumb-review{{ i }}" data-toggle="image" class="img-thumbnail">
+                      <img src="{{ item.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" />
+                    </a>
+                    <input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][poster]" value="{{ item.poster }}" id="input-review{{ i }}" />
+                    <div class="form-group" style="margin-top:8px;">
+                      <label>{{ entry_video }}</label>
+                      <input type="text" name="module_hydrophob_reviews_items[{{ i }}][video]" value="{{ item.video }}" class="form-control input-sm" />
+                    </div>
+                  </div>
+                  <div class="col-sm-9">
+                    <div class="hydro-card">
+                      <div class="hydro-card__title">{{ entry_message }}</div>
+                      <ul class="nav nav-tabs hydro-tabs">
+                        {% for language in languages %}
+                        <li{% if loop.first %} class="active"{% endif %}><a href="#review{{ i }}-message{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                      <div class="tab-content hydro-tab-content">
+                        {% for language in languages %}
+                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="review{{ i }}-message{{ language.language_id }}">
+                          <textarea name="module_hydrophob_reviews_items[{{ i }}][message][{{ language.language_id }}]" rows="3" class="form-control">{{ item.message[language.language_id] is defined ? item.message[language.language_id] : '' }}</textarea>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div class="hydro-card">
+                      <div class="hydro-card__title">{{ entry_alt }}</div>
+                      <ul class="nav nav-tabs hydro-tabs">
+                        {% for language in languages %}
+                        <li{% if loop.first %} class="active"{% endif %}><a href="#review{{ i }}-alt{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                      <div class="tab-content hydro-tab-content">
+                        {% for language in languages %}
+                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="review{{ i }}-alt{{ language.language_id }}">
+                          <input type="text" name="module_hydrophob_reviews_items[{{ i }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" class="form-control" />
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
             <div class="col-sm-10">
               <select name="module_hydrophob_reviews_status" id="input-status" class="form-control">
-                {% if module_hydrophob_reviews_status %}
-                <option value="1" selected="selected">{{ text_enabled }}</option>
-                <option value="0">{{ text_disabled }}</option>
-                {% else %}
-                <option value="1">{{ text_enabled }}</option>
-                <option value="0" selected="selected">{{ text_disabled }}</option>
-                {% endif %}
+                <option value="1" {% if status %}selected="selected"{% endif %}>{{ text_enabled }}</option>
+                <option value="0" {% if not status %}selected="selected"{% endif %}>{{ text_disabled }}</option>
               </select>
             </div>
           </div>
+
         </form>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+var reviewRowIndex = {{ next_index }};
+var reviewLangs = [
+{% for language in languages %}
+  { id: {{ language.language_id }}, name: '{{ language.name|escape('js') }}' }{% if not loop.last %},{% endif %}
+{% endfor %}
+];
+var reviewPlaceholder = '{{ placeholder|escape('js') }}';
+
+function reviewLangTabs(prefix, kind) {
+  var tabsHtml = '<ul class="nav nav-tabs hydro-tabs">';
+  var contentHtml = '<div class="tab-content hydro-tab-content">';
+  for (var i = 0; i < reviewLangs.length; i++) {
+    var active = i === 0 ? ' active' : '';
+    tabsHtml += '<li class="' + active.trim() + '"><a href="#' + prefix + reviewLangs[i].id + '" data-toggle="tab">' + reviewLangs[i].name + '</a></li>';
+    var field = kind === 'message'
+      ? '<textarea name="module_hydrophob_reviews_items[' + reviewRowIndex + '][message][' + reviewLangs[i].id + ']" rows="3" class="form-control"></textarea>'
+      : '<input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][alt][' + reviewLangs[i].id + ']" class="form-control" />';
+    contentHtml += '<div class="tab-pane' + active + '" id="' + prefix + reviewLangs[i].id + '">' + field + '</div>';
+  }
+  tabsHtml += '</ul>';
+  contentHtml += '</div>';
+  return tabsHtml + contentHtml;
+}
+
+document.getElementById('btn-add-review').addEventListener('click', function() {
+  var list = document.getElementById('reviews-body');
+  var row = document.createElement('div');
+  row.className = 'hydro-row';
+  row.id = 'review-row' + reviewRowIndex;
+
+  row.innerHTML =
+    '<div class="hydro-row__head"><strong>{{ entry_item|escape('js') }} ' + (reviewRowIndex + 1) + '</strong><button type="button" class="btn btn-danger btn-sm btn-remove-review"><i class="fa fa-minus-circle"></i></button></div>' +
+    '<div class="row">' +
+      '<div class="col-sm-3">' +
+        '<a href="" id="thumb-review' + reviewRowIndex + '" data-toggle="image" class="img-thumbnail"><img src="' + reviewPlaceholder + '" alt="" data-placeholder="' + reviewPlaceholder + '" style="max-width:160px;" /></a>' +
+        '<input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][poster]" value="" id="input-review' + reviewRowIndex + '" />' +
+        '<div class="form-group" style="margin-top:8px;"><label>{{ entry_video|escape('js') }}</label><input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][video]" class="form-control input-sm" /></div>' +
+      '</div>' +
+      '<div class="col-sm-9">' +
+        '<div class="hydro-card"><div class="hydro-card__title">{{ entry_message|escape('js') }}</div>' + reviewLangTabs('review' + reviewRowIndex + '-message', 'message') + '</div>' +
+        '<div class="hydro-card"><div class="hydro-card__title">{{ entry_alt|escape('js') }}</div>' + reviewLangTabs('review' + reviewRowIndex + '-alt', 'alt') + '</div>' +
+      '</div>' +
+    '</div>';
+
+  list.appendChild(row);
+  reviewRowIndex++;
+
+  row.querySelector('.btn-remove-review').addEventListener('click', function() {
+    row.parentNode.removeChild(row);
+  });
+});
+
+document.querySelectorAll('.btn-remove-review').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    btn.closest('.hydro-row').remove();
+  });
+});
+</script>
+
+<style>
+.hydro-card { background: linear-gradient(180deg, #fff 0%, #f8fbff 100%); border: 1px solid #dfe6f1; border-radius: 10px; margin-bottom: 14px; padding: 14px; }
+.hydro-card__title { color: #36506b; font-size: 12px; font-weight: 700; letter-spacing: .04em; margin-bottom: 9px; text-transform: uppercase; }
+.hydro-tabs { border-bottom: 0; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.hydro-tabs > li { float: none; margin: 0; }
+.hydro-tabs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
+.hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
+.hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
+.hydro-repeater { background: #f7f9fc; border: 1px solid #dfe6f1; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.hydro-repeater__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }
+.hydro-repeater__head h4 { margin: 0; }
+.hydro-row { background: #fff; border: 1px solid #e4eaf3; border-radius: 8px; margin-bottom: 10px; padding: 12px; }
+.hydro-row__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }
+</style>
+
 {{ footer }}

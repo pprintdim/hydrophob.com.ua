@@ -1,32 +1,87 @@
 <?php
 /**
  * Секція "reviews" (слайдер відгуків) головної сторінки — content_top модуль.
- * Дані: data/images.json -> reviews[] (постер/відео) + data/strings.json -> reviews.message<N>.UA (текст).
+ * Повторюваний список: постер (зображення) + відео + текст відгуку (мультимовно).
+ * Дані: oc_setting (module_hydrophob_reviews_*), фолбек — data/images.json + data/strings.json.
  */
 class ControllerExtensionModuleHydrophobReviews extends Controller {
+	private $code = 'module_hydrophob_reviews';
+
 	public function index($setting = array()) {
 		$this->load->language('extension/module/hydrophob_reviews');
 
-		$images = $this->fixImagePaths($this->readJson('data/images.json'));
+		$lang_id = (int)$this->config->get('config_language_id');
 		$strings = $this->readJson('data/strings.json');
 
-		$items = array();
-		$index = 0;
+		$data['title_html'] = $this->localized('title_html', $lang_id, $strings['reviews']['titleHtml'] ?? array());
 
-		foreach (($images['reviews'] ?? array()) as $reviewItem) {
-			$index++;
-			$items[] = array(
-				'poster'  => $reviewItem['poster'] ?? '',
-				'alt'     => $reviewItem['alt'] ?? 'Відгук про Hydrophob',
-				'video'   => $reviewItem['video'] ?? '',
-				'index'   => $index,
-				'message' => $strings['reviews']['message' . $index]['UA'] ?? '',
-			);
+		$itemsSetting = $this->config->get($this->code . '_items');
+		$items = array();
+
+		if (is_array($itemsSetting) && !empty($itemsSetting)) {
+			$index = 0;
+			foreach ($itemsSetting as $item) {
+				$index++;
+				$poster = $item['poster'] ?? '';
+				$items[] = array(
+					'poster'  => $poster ? 'image/' . $poster : '',
+					'alt'     => $this->localizedFromArray($item['alt'] ?? array(), $lang_id),
+					'video'   => $item['video'] ?? '',
+					'index'   => $index,
+					'message' => $this->localizedFromArray($item['message'] ?? array(), $lang_id),
+				);
+			}
+		} else {
+			// Фолбек на старий формат data/images.json (reviews[]) + data/strings.json (reviews.messageN).
+			$images = $this->fixImagePaths($this->readJson('data/images.json'));
+			$index = 0;
+			foreach (($images['reviews'] ?? array()) as $reviewItem) {
+				$index++;
+				$items[] = array(
+					'poster'  => $reviewItem['poster'] ?? '',
+					'alt'     => $reviewItem['alt'] ?? 'Відгук про Hydrophob',
+					'video'   => $reviewItem['video'] ?? '',
+					'index'   => $index,
+					'message' => $this->localized('legacy_message' . $index, $lang_id, $strings['reviews']['message' . $index] ?? array()),
+				);
+			}
 		}
 
 		$data['items'] = $items;
 
 		return $this->load->view('extension/module/hydrophob_reviews', $data);
+	}
+
+	private function localizedFromArray($values, $language_id) {
+		if (is_array($values) && isset($values[$language_id]) && $values[$language_id] !== '') {
+			return $values[$language_id];
+		}
+		return is_array($values) && !empty($values) ? reset($values) : '';
+	}
+
+	private function localized($field, $language_id, $legacy_fallback) {
+		$values = $this->config->get($this->code . '_' . $field);
+		if (is_array($values) && isset($values[$language_id]) && $values[$language_id] !== '') {
+			return $values[$language_id];
+		}
+
+		$key = $this->legacyLangKey();
+		if (is_array($legacy_fallback) && !empty($legacy_fallback[$key])) {
+			return $legacy_fallback[$key];
+		}
+
+		return $legacy_fallback['UA'] ?? '';
+	}
+
+	private function legacyLangKey() {
+		$code = $this->session->data['language'] ?? 'uk-ua';
+		if ($code === 'ru-ru') {
+			return 'RU';
+		}
+		if ($code === 'en-gb') {
+			return 'EN';
+		}
+		return 'UA';
 	}
 
 	private function readJson($relativePath) {

@@ -425,8 +425,10 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const mapEl = document.getElementById('map');
     if (!mapEl || typeof L === 'undefined') return;
-    // вул. Якова Гніздовського, Київ (координати з OSM/Nominatim)
-    const coords = [50.4542, 30.6402];
+    // вул. Якова Гніздовського, Київ (координати з OSM/Nominatim) — можна змінити в адмінці (модуль "Контакти")
+    const hydroContacts = window.HYDRO_CONTACTS || {};
+    const coords = (hydroContacts.lat && hydroContacts.lng) ? [parseFloat(hydroContacts.lat), parseFloat(hydroContacts.lng)] : [50.4542, 30.6402];
+    const mapAddress = hydroContacts.address || 'Київ, вул. Якова Гніздовського, 15';
     const map = L.map(mapEl, { scrollWheelZoom: false, attributionControl: false }).setView(coords, 15);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         subdomains: 'abcd',
@@ -443,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + coords[0] + ',' + coords[1];
     marker.bindPopup(
         '<div class="map-popup">' +
-        '<strong>Hydrophob</strong><br>Київ, вул. Якова Гніздовського, 15<br>' +
+        '<strong>Hydrophob</strong><br>' + mapAddress + '<br>' +
         '<a href="' + gmapsUrl + '" target="_blank" rel="noopener">Відкрити в Google Maps →</a>' +
         '</div>'
     );
@@ -700,11 +702,26 @@ document.addEventListener('DOMContentLoaded', function() {
         applyLang(link.textContent.trim());
     });
 
+    // Правки з адмін-модулів (Hydrophob → Розширення → модулі) виграють над data/strings.json
+    // у всіх мовах — щоб контент не "розʼїжджався" при перемиканні UA/RU/EN після SSR-редагування.
+    function applyStringsOverrides(data) {
+        var overrides = window.HYDRO_STRINGS_OVERRIDES || {};
+        Object.keys(overrides).forEach(function(dotted) {
+            var idx = dotted.indexOf('.');
+            if (idx === -1) return;
+            var section = dotted.slice(0, idx);
+            var key = dotted.slice(idx + 1);
+            if (!data[section]) data[section] = {};
+            data[section][key] = Object.assign({}, data[section][key] || {}, overrides[dotted]);
+        });
+        return data;
+    }
+
     applyLang(currentLang);
     fetch('data/strings.json')
         .then(r => r.json())
         .then(data => {
-            STRINGS = data;
+            STRINGS = applyStringsOverrides(data);
             applyLang(currentLang);
         })
         .catch(() => {});

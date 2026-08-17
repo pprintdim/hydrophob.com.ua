@@ -73,7 +73,123 @@ class ControllerCommonHome extends Controller {
 		);
 		$data['asset_version'] = (string)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
 
+		// ---- Правки з адмін-модулів (data-i18n на сторінці) мають виграти в JS-перемикачі мов ----
+		$data['hydro_strings_overrides_json'] = json_encode($this->buildStringsOverrides(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		$data['hydro_contacts_json'] = json_encode(array(
+			'lat'     => $this->config->get('module_hydrophob_contacts_lat'),
+			'lng'     => $this->config->get('module_hydrophob_contacts_lng'),
+			'address' => $this->localizedContactAddress(),
+		), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
 		$this->response->setOutput($this->load->view('common/home', $data));
+	}
+
+	/**
+	 * Значення полів, редагованих у content_top модулях, які мають data-i18n у розмітці —
+	 * щоб клієнтський switcher (hydrophob.js, fetch data/strings.json) не перезаписував
+	 * SSR-контент старими текстами з JSON після зміни адмінки.
+	 * Формат: 'секція.ключ' => {UA:..., RU:..., EN:...} (як у data/strings.json).
+	 */
+	private function buildStringsOverrides() {
+		$this->load->model('localisation/language');
+		$langs = $this->model_localisation_language->getLanguages();
+		$ukId = $langs['uk-ua']['language_id'] ?? 0;
+		$ruId = $langs['ru-ru']['language_id'] ?? 0;
+		$enId = $langs['en-gb']['language_id'] ?? 0;
+
+		$ml3 = function($code, $field) use ($ukId, $ruId, $enId) {
+			$v = $this->config->get($code . '_' . $field);
+			if (!is_array($v)) {
+				return null;
+			}
+			return array('UA' => $v[$ukId] ?? '', 'RU' => $v[$ruId] ?? '', 'EN' => $v[$enId] ?? '');
+		};
+
+		$overrides = array();
+
+		// hero
+		if (($v = $ml3('module_hydrophob_hero', 'title_html')) !== null) $overrides['hero.titleHtml'] = $v;
+
+		// about
+		foreach (array('name' => 'about.name', 'title' => 'about.title', 'descr' => 'about.descr', 'read_more' => 'about.readMore') as $field => $dotKey) {
+			if (($v = $ml3('module_hydrophob_about', $field)) !== null) $overrides[$dotKey] = $v;
+		}
+
+		// action
+		foreach (array('title', 'name', 'descr', 'days', 'hours', 'minutes', 'seconds') as $field) {
+			if (($v = $ml3('module_hydrophob_action', $field)) !== null) $overrides['action.' . $field] = $v;
+		}
+
+		// guarantee
+		$gMap = array('title' => 'guarantee.title', 'item1_title' => 'guarantee.item1', 'item2_title' => 'guarantee.item2Html', 'item3_title' => 'guarantee.item3', 'item4_title' => 'guarantee.item4',
+			'item1_message' => 'guarantee.message1', 'item2_message' => 'guarantee.message2', 'item3_message' => 'guarantee.message3', 'item4_message' => 'guarantee.message4');
+		foreach ($gMap as $field => $dotKey) {
+			if (($v = $ml3('module_hydrophob_guarantee', $field)) !== null) $overrides[$dotKey] = $v;
+		}
+
+		// faq
+		if (($v = $ml3('module_hydrophob_faq', 'title_html')) !== null) $overrides['faq.titleHtml'] = $v;
+		$faqItems = $this->config->get('module_hydrophob_faq_items');
+		if (is_array($faqItems)) {
+			$i = 0;
+			foreach ($faqItems as $item) {
+				$i++;
+				if (isset($item['question']) && is_array($item['question'])) {
+					$overrides['faq.q' . $i] = array('UA' => $item['question'][$ukId] ?? '', 'RU' => $item['question'][$ruId] ?? '', 'EN' => $item['question'][$enId] ?? '');
+				}
+				if (isset($item['answer']) && is_array($item['answer'])) {
+					$overrides['faq.a' . $i] = array('UA' => $item['answer'][$ukId] ?? '', 'RU' => $item['answer'][$ruId] ?? '', 'EN' => $item['answer'][$enId] ?? '');
+				}
+			}
+		}
+
+		// delivery
+		if (($v = $ml3('module_hydrophob_delivery', 'title_html')) !== null) $overrides['delivery.titleHtml'] = $v;
+		if (($v = $ml3('module_hydrophob_delivery', 'descr')) !== null) $overrides['delivery.descr'] = $v;
+		$carriers = $this->config->get('module_hydrophob_delivery_carriers');
+		$carrierDotKeys = array('np' => 'delivery.np', 'ukrposhta' => 'delivery.ukr', 'meest' => 'delivery.meest', 'other' => 'delivery.other', 'pickup' => 'delivery.pickup', 'courier' => 'delivery.courier');
+		if (is_array($carriers)) {
+			foreach ($carrierDotKeys as $key => $dotKey) {
+				$name = $carriers[$key]['name'] ?? null;
+				if (is_array($name)) {
+					$overrides[$dotKey] = array('UA' => $name[$ukId] ?? '', 'RU' => $name[$ruId] ?? '', 'EN' => $name[$enId] ?? '');
+				}
+			}
+		}
+
+		// contacts
+		foreach (array('title' => 'contacts.title', 'address' => 'contacts.address', 'time' => 'contacts.time') as $field => $dotKey) {
+			if (($v = $ml3('module_hydrophob_contacts', $field)) !== null) $overrides[$dotKey] = $v;
+		}
+
+		// reviews
+		if (($v = $ml3('module_hydrophob_reviews', 'title_html')) !== null) $overrides['reviews.titleHtml'] = $v;
+		$reviewItems = $this->config->get('module_hydrophob_reviews_items');
+		if (is_array($reviewItems)) {
+			$i = 0;
+			foreach ($reviewItems as $item) {
+				$i++;
+				if (isset($item['message']) && is_array($item['message'])) {
+					$overrides['reviews.message' . $i] = array('UA' => $item['message'][$ukId] ?? '', 'RU' => $item['message'][$ruId] ?? '', 'EN' => $item['message'][$enId] ?? '');
+				}
+			}
+		}
+
+		return $overrides;
+	}
+
+	/** Адреса контактів (для попапу мапи в JS) поточною SSR-мовою (UA, як і решта home.php). */
+	private function localizedContactAddress() {
+		$v = $this->config->get('module_hydrophob_contacts_address');
+		if (is_array($v)) {
+			$this->load->model('localisation/language');
+			$langs = $this->model_localisation_language->getLanguages();
+			$ukId = $langs['uk-ua']['language_id'] ?? 0;
+			if (!empty($v[$ukId])) {
+				return $v[$ukId];
+			}
+		}
+		return 'Київ, вул. Якова Гніздовського, 15';
 	}
 
 	/** Мультимовне поле {UA,RU,EN} чи звичайний рядок -> UA (поточна SSR-мова). */
