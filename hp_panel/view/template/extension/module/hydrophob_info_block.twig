@@ -62,7 +62,7 @@
               <div class="col-sm-4">
                 <div class="form-group">
                   <label>{{ entry_video }}</label><br/>
-                  <span class="video-pick"><a href="" data-toggle="video" data-video-input="input-row-{{ row.index }}-video" class="img-thumbnail video-pick__btn{% if row.video %} video-pick__btn--set{% endif %}" title="{{ row.video ?: 'Вибрати відео' }}">{% if row.video %}<video src="{{ (row.video starts with 'video/' or row.video starts with 'image/') ? '../' ~ row.video : '../image/' ~ row.video }}" preload="metadata" muted></video><span class="video-pick__badge"><i class="fa fa-film"></i></span>{% else %}<i class="fa fa-film"></i>{% endif %}</a><button type="button" class="video-pick__clear"{% if not row.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button><input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][video]" value="{{ row.video }}" id="input-row-{{ row.index }}-video" /></span>
+                  <span class="video-pick"><a href="" data-toggle="video" data-video-input="input-row-{{ row.index }}-video" class="img-thumbnail video-pick__btn{% if row.video %} video-pick__btn--set{% endif %}" title="{{ row.video ?: 'Вибрати відео' }}"><i class="fa fa-film"></i></a><button type="button" class="video-pick__clear"{% if not row.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button><input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][video]" value="{{ row.video }}" id="input-row-{{ row.index }}-video" /></span>
                 </div>
               </div>
             </div>
@@ -155,13 +155,6 @@ document.getElementById('rows-list').addEventListener('change', function (e) {
 });
 
 // Відео-пікер (медіатека, filter_type=video)
-function hydroVideoUrl(v) {
-  if (!v) return '';
-  if (v.indexOf('http') === 0) return v;
-  if (v.indexOf('video/') === 0) return '../' + v;
-  if (v.indexOf('image/') === 0) return '../' + v;
-  return '../image/' + v;
-}
 function syncVideoPick(wrap) {
   var input = wrap.querySelector('input[type=hidden]');
   var btn = wrap.querySelector('.video-pick__btn');
@@ -169,9 +162,6 @@ function syncVideoPick(wrap) {
   var has = !!input.value;
   btn.classList.toggle('video-pick__btn--set', has);
   btn.title = input.value || 'Вибрати відео';
-  btn.innerHTML = has
-    ? '<video src="' + hydroVideoUrl(input.value) + '" preload="metadata" muted></video><span class="video-pick__badge"><i class="fa fa-film"></i></span>'
-    : '<i class="fa fa-film"></i>';
   clear.style.display = has ? '' : 'none';
 }
 $(document).on('click', '.video-pick__clear', function () {
