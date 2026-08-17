@@ -3763,6 +3763,12 @@ section[id]{
 .popupProduct__specs-list li span{
     opacity: .6;
 }
+.popupProduct__specs-list li a.category-open{
+    color: #1D9CB2;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
 .popupProduct__descr-content{
     max-height: 320px;
     overflow: auto;
@@ -3942,6 +3948,9 @@ section[id]{
         border-radius: 24px;
     }
 }
+
+/* Попап опису категорії (клік по назві категорії в специфікаціях товару) —
+   повністю перевикористовує вигляд .popupAbout, окремих правил не треба. */
 
 /* Анімація блоку гарантії (цифра + іконки) */
 .guarantee-anim .guarantee__item-icon{

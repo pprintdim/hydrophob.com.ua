@@ -593,6 +593,17 @@ class ControllerCatalogProduct extends Controller {
 			$data['product_description'] = array();
 		}
 
+		// Ленд-контент (закладка "Ленд" -> oc_product_details): tab_title/subtitle + повторювані блоки.
+		if (isset($this->request->post['product_land'])) {
+			$data['product_land'] = $this->request->post['product_land'];
+		} elseif (isset($this->request->get['product_id'])) {
+			$data['product_land'] = $this->model_catalog_product->getProductDetails($this->request->get['product_id']);
+		} else {
+			$data['product_land'] = array('tab_title' => array(), 'subtitle' => array(), 'blocks' => array());
+		}
+
+		$data['product_land_next_block'] = isset($data['product_land']['blocks']) ? count($data['product_land']['blocks']) : 0;
+
 		if (isset($this->request->post['model'])) {
 			$data['model'] = $this->request->post['model'];
 		} elseif (!empty($product_info)) {

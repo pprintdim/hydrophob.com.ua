@@ -46,7 +46,7 @@ class ControllerCommonHome extends Controller {
 			'checkout_url'  => $this->url->link('checkout/hydro_checkout'),
 		);
 
-		$partials = array('header', 'popup_video', 'popup_photo', 'popup_product', 'popup_about', 'popup_delivery', 'cart', 'footer', 'cookie');
+		$partials = array('header', 'popup_video', 'popup_photo', 'popup_product', 'popup_about', 'popup_category', 'popup_delivery', 'cart', 'footer', 'cookie');
 		$sections = array();
 		foreach ($partials as $section) {
 			$sections[$section] = $this->load->view('common/home/' . $section, $shared);

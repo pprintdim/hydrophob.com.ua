@@ -21,218 +21,230 @@
     </div>
     {% endif %}
 
-    <ul class="nav nav-tabs" id="info-block-tab-select">
-      {% for tabKey, tab in tabs %}
-      <li{% if loop.first %} class="active"{% endif %}><a href="#pane-{{ tabKey }}" data-toggle="tab">{{ tab.label }}</a></li>
-      {% endfor %}
-    </ul>
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_help }}</div>
 
-    <div class="tab-content" style="padding-top:15px;">
-      <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module">
-        {% for tabKey, tab in tabs %}
-        <div class="tab-pane{% if loop.first %} active{% endif %}" id="pane-{{ tabKey }}">
-          <div class="panel panel-default">
-            <div class="panel-heading"><h3 class="panel-title">{{ tab.label }}</h3></div>
-            <div class="panel-body">
-
-              <div class="hydro-card">
-                <div class="hydro-card__title">{{ entry_tab_title }}</div>
-                <ul class="nav nav-tabs hydro-tabs">
-                  {% for language in languages %}
-                  <li{% if loop.first %} class="active"{% endif %}><a href="#{{ tabKey }}-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                  {% endfor %}
-                </ul>
-                <div class="tab-content hydro-tab-content">
-                  {% for language in languages %}
-                  <div class="tab-pane{% if loop.first %} active{% endif %}" id="{{ tabKey }}-title{{ language.language_id }}">
-                    <input type="text" name="module_hydrophob_info_block_tabs[{{ tabKey }}][tab_title][{{ language.language_id }}]" value="{{ tab.tab_title[language.language_id] is defined ? tab.tab_title[language.language_id] : '' }}" class="form-control" />
-                  </div>
-                  {% endfor %}
+    <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module">
+      <div class="hydro-repeater">
+        <div class="hydro-repeater__head">
+          <h4>{{ entry_rows }}</h4>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-add-row"><i class="fa fa-plus-circle"></i> {{ entry_add_row }}</button>
+        </div>
+        <div id="rows-list">
+          {% for row in rows %}
+          <div class="hydro-row hydro-row--collapsed" id="row-{{ row.index }}">
+            <div class="hydro-row__head hydro-row__toggle">
+              <i class="fa fa-chevron-right hydro-row__chevron"></i>
+              <strong>{{ entry_row }} #{{ loop.index }}</strong>
+              <span class="hydro-row__preview">{{ row.product_name|default('') }}</span>
+              <button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus-circle"></i></button>
+            </div>
+            <div class="hydro-row__body">
+            <div class="row">
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label>{{ entry_category }}</label>
+                  <select name="module_hydrophob_info_block_rows[{{ row.index }}][category_id]" class="form-control input-category" data-row="{{ row.index }}">
+                    <option value="">{{ text_select }}</option>
+                    {% for category in categories %}
+                    <option value="{{ category.category_id }}"{% if category.category_id == row.category_id %} selected="selected"{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
-
-              <div class="hydro-card">
-                <div class="hydro-card__title">{{ entry_subtitle }}</div>
-                <ul class="nav nav-tabs hydro-tabs">
-                  {% for language in languages %}
-                  <li{% if loop.first %} class="active"{% endif %}><a href="#{{ tabKey }}-subtitle{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                  {% endfor %}
-                </ul>
-                <div class="tab-content hydro-tab-content">
-                  {% for language in languages %}
-                  <div class="tab-pane{% if loop.first %} active{% endif %}" id="{{ tabKey }}-subtitle{{ language.language_id }}">
-                    <input type="text" name="module_hydrophob_info_block_tabs[{{ tabKey }}][subtitle][{{ language.language_id }}]" value="{{ tab.subtitle[language.language_id] is defined ? tab.subtitle[language.language_id] : '' }}" class="form-control" />
-                  </div>
-                  {% endfor %}
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label>{{ entry_product }}</label>
+                  <select name="module_hydrophob_info_block_rows[{{ row.index }}][product_id]" class="form-control input-product" data-row="{{ row.index }}" data-selected="{{ row.product_id }}">
+                    <option value="">{{ text_select }}</option>
+                  </select>
                 </div>
               </div>
-
-              <div class="hydro-card">
-                <div class="hydro-card__title">{{ entry_media }}</div>
-                <div class="row">
-                  <div class="col-sm-3">
-                    <a href="" id="thumb-{{ tabKey }}-poster" data-toggle="image" class="img-thumbnail">
-                      <img src="{{ tab.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" />
-                    </a>
-                    <input type="hidden" name="module_hydrophob_info_block_tabs[{{ tabKey }}][poster]" value="{{ tab.poster }}" id="input-{{ tabKey }}-poster" />
-                  </div>
-                  <div class="col-sm-9">
-                    <div class="form-group">
-                      <label>{{ entry_video }}</label>
-                      <input type="text" name="module_hydrophob_info_block_tabs[{{ tabKey }}][video]" value="{{ tab.video }}" class="form-control" />
-                    </div>
-                    <label>{{ entry_alt }}</label>
-                    <ul class="nav nav-tabs hydro-tabs">
-                      {% for language in languages %}
-                      <li{% if loop.first %} class="active"{% endif %}><a href="#{{ tabKey }}-alt{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                      {% endfor %}
-                    </ul>
-                    <div class="tab-content hydro-tab-content">
-                      {% for language in languages %}
-                      <div class="tab-pane{% if loop.first %} active{% endif %}" id="{{ tabKey }}-alt{{ language.language_id }}">
-                        <input type="text" name="module_hydrophob_info_block_tabs[{{ tabKey }}][alt][{{ language.language_id }}]" value="{{ tab.alt[language.language_id] is defined ? tab.alt[language.language_id] : '' }}" class="form-control" />
-                      </div>
-                      {% endfor %}
-                    </div>
-                  </div>
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label>{{ entry_video }}</label><br/>
+                  <span class="video-pick">
+                    <a href="" data-toggle="video" data-video-input="input-row-{{ row.index }}-video" class="img-thumbnail video-pick__btn{% if row.video %} video-pick__btn--set{% endif %}" title="{{ row.video ?: entry_video }}"><i class="fa fa-film"></i></a>
+                    <button type="button" class="video-pick__clear"{% if not row.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
+                    <input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][video]" value="{{ row.video }}" id="input-row-{{ row.index }}-video" />
+                  </span>
                 </div>
               </div>
-
-              <div class="hydro-repeater">
-                <div class="hydro-repeater__head">
-                  <h4>{{ entry_blocks }}</h4>
-                  <button type="button" class="btn btn-primary btn-sm btn-add-block" data-tab="{{ tabKey }}" data-next="{{ tab.next_block_index }}"><i class="fa fa-plus-circle"></i> {{ entry_add_block }}</button>
-                </div>
-                <div id="blocks-{{ tabKey }}">
-                  {% for bKey, block in tab.blocks %}
-                  <div class="hydro-row" id="block-{{ tabKey }}-{{ bKey }}">
-                    <div class="hydro-row__head">
-                      <strong>{{ entry_block }}</strong>
-                      <button type="button" class="btn btn-danger btn-sm btn-remove-block"><i class="fa fa-minus-circle"></i></button>
-                    </div>
-                    <div class="hydro-card">
-                      <div class="hydro-card__title">{{ entry_block_title }}</div>
-                      <ul class="nav nav-tabs hydro-tabs">
-                        {% for language in languages %}
-                        <li{% if loop.first %} class="active"{% endif %}><a href="#{{ tabKey }}-b{{ bKey }}-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                        {% endfor %}
-                      </ul>
-                      <div class="tab-content hydro-tab-content">
-                        {% for language in languages %}
-                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="{{ tabKey }}-b{{ bKey }}-title{{ language.language_id }}">
-                          <input type="text" name="module_hydrophob_info_block_tabs[{{ tabKey }}][blocks][{{ bKey }}][title][{{ language.language_id }}]" value="{{ block.title[language.language_id] is defined ? block.title[language.language_id] : '' }}" class="form-control" />
-                        </div>
-                        {% endfor %}
-                      </div>
-                    </div>
-                    <div class="hydro-card">
-                      <div class="hydro-card__title">{{ entry_block_html }}</div>
-                      <ul class="nav nav-tabs hydro-tabs">
-                        {% for language in languages %}
-                        <li{% if loop.first %} class="active"{% endif %}><a href="#{{ tabKey }}-b{{ bKey }}-html{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                        {% endfor %}
-                      </ul>
-                      <div class="tab-content hydro-tab-content">
-                        {% for language in languages %}
-                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="{{ tabKey }}-b{{ bKey }}-html{{ language.language_id }}">
-                          <textarea name="module_hydrophob_info_block_tabs[{{ tabKey }}][blocks][{{ bKey }}][html][{{ language.language_id }}]" rows="5" data-toggle="summernote" class="form-control">{{ block.html[language.language_id] is defined ? block.html[language.language_id] : '' }}</textarea>
-                        </div>
-                        {% endfor %}
-                      </div>
-                    </div>
-                  </div>
-                  {% endfor %}
-                </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                <label>{{ entry_poster }}</label><br/>
+                <a href="" id="thumb-row-{{ row.index }}-poster" data-toggle="image" class="img-thumbnail">
+                  <img src="{{ row.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:110px;" />
+                </a>
+                <input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][poster]" value="{{ row.poster }}" id="input-row-{{ row.index }}-poster" />
               </div>
-
+            </div>
             </div>
           </div>
+          {% endfor %}
         </div>
-        {% endfor %}
+      </div>
 
-        <div class="form-group">
-          <label for="input-status">{{ entry_status }}</label>
-          <select name="module_hydrophob_info_block_status" id="input-status" class="form-control" style="width:auto;display:inline-block;">
-            <option value="1" {% if status %}selected="selected"{% endif %}>{{ text_enabled }}</option>
-            <option value="0" {% if not status %}selected="selected"{% endif %}>{{ text_disabled }}</option>
-          </select>
-        </div>
-      </form>
-    </div>
+      <div class="form-group">
+        <label for="input-status">{{ entry_status }}</label>
+        <select name="module_hydrophob_info_block_status" id="input-status" class="form-control" style="width:auto;display:inline-block;">
+          <option value="1" {% if status %}selected="selected"{% endif %}>{{ text_enabled }}</option>
+          <option value="0" {% if not status %}selected="selected"{% endif %}>{{ text_disabled }}</option>
+        </select>
+      </div>
+    </form>
   </div>
 </div>
 
 <script>
-var infoBlockLangs = [
-{% for language in languages %}
-  { id: {{ language.language_id }}, name: '{{ language.name|escape('js') }}' }{% if not loop.last %},{% endif %}
-{% endfor %}
-];
+var infoBlockProductsByCategory = {{ products_by_category_json|raw }};
+var infoBlockRowNext = {{ next_row_index }};
+var infoBlockTextSelect = '{{ text_select|escape('js') }}';
 
-function infoBlockLangTabs(prefix, tabKey, idx, kind) {
-  var tabsHtml = '<ul class="nav nav-tabs hydro-tabs">';
-  var contentHtml = '<div class="tab-content hydro-tab-content">';
-  for (var i = 0; i < infoBlockLangs.length; i++) {
-    var active = i === 0 ? ' active' : '';
-    tabsHtml += '<li class="' + active.trim() + '"><a href="#' + prefix + infoBlockLangs[i].id + '" data-toggle="tab">' + infoBlockLangs[i].name + '</a></li>';
-    var field = kind === 'html'
-      ? '<textarea name="module_hydrophob_info_block_tabs[' + tabKey + '][blocks][' + idx + '][html][' + infoBlockLangs[i].id + ']" rows="5" class="form-control"></textarea>'
-      : '<input type="text" name="module_hydrophob_info_block_tabs[' + tabKey + '][blocks][' + idx + '][title][' + infoBlockLangs[i].id + ']" class="form-control" />';
-    contentHtml += '<div class="tab-pane' + active + '" id="' + prefix + infoBlockLangs[i].id + '">' + field + '</div>';
-  }
-  tabsHtml += '</ul>';
-  contentHtml += '</div>';
-  return tabsHtml + contentHtml;
+function infoBlockFillProductSelect(select, categoryId, selectedId) {
+  select.innerHTML = '';
+  var optNone = document.createElement('option');
+  optNone.value = '';
+  optNone.textContent = infoBlockTextSelect;
+  select.appendChild(optNone);
+
+  var list = infoBlockProductsByCategory[categoryId] || [];
+  list.forEach(function(p) {
+    var opt = document.createElement('option');
+    opt.value = p.product_id;
+    opt.textContent = p.name;
+    if (String(p.product_id) === String(selectedId)) {
+      opt.selected = true;
+    }
+    select.appendChild(opt);
+  });
 }
 
-document.querySelectorAll('.btn-add-block').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    var tabKey = btn.dataset.tab;
-    var idx = parseInt(btn.dataset.next, 10);
-    var list = document.getElementById('blocks-' + tabKey);
-    var row = document.createElement('div');
-    row.className = 'hydro-row';
-    row.id = 'block-' + tabKey + '-' + idx;
+function infoBlockInitRow(row) {
+  var categorySelect = row.querySelector('.input-category');
+  var productSelect = row.querySelector('.input-product');
+  if (!categorySelect || !productSelect) return;
 
-    row.innerHTML =
-      '<div class="hydro-row__head"><strong>{{ entry_block|escape('js') }}</strong><button type="button" class="btn btn-danger btn-sm btn-remove-block"><i class="fa fa-minus-circle"></i></button></div>' +
-      '<div class="hydro-card"><div class="hydro-card__title">{{ entry_block_title|escape('js') }}</div>' + infoBlockLangTabs(tabKey + '-b' + idx + '-title', tabKey, idx, 'title') + '</div>' +
-      '<div class="hydro-card"><div class="hydro-card__title">{{ entry_block_html|escape('js') }}</div>' + infoBlockLangTabs(tabKey + '-b' + idx + '-html', tabKey, idx, 'html') + '</div>';
+  var selected = productSelect.dataset.selected || '';
+  infoBlockFillProductSelect(productSelect, categorySelect.value, selected);
 
-    list.appendChild(row);
-    btn.dataset.next = idx + 1;
+  categorySelect.addEventListener('change', function() {
+    infoBlockFillProductSelect(productSelect, categorySelect.value, '');
+  });
 
-    row.querySelector('.btn-remove-block').addEventListener('click', function() {
+  var removeBtn = row.querySelector('.btn-remove-row');
+  if (removeBtn) {
+    removeBtn.addEventListener('click', function() {
       row.parentNode.removeChild(row);
     });
+  }
+}
+
+document.querySelectorAll('#rows-list .hydro-row').forEach(infoBlockInitRow);
+
+// Акордеон рядів
+document.getElementById('rows-list').addEventListener('click', function (e) {
+  if (e.target.closest('.btn-remove-row') || e.target.closest('a[data-toggle]') || e.target.closest('select')) return;
+  var head = e.target.closest('.hydro-row__toggle');
+  if (!head) return;
+  head.closest('.hydro-row').classList.toggle('hydro-row--collapsed');
+});
+
+// Прев'ю в шапці = вибраний товар
+document.getElementById('rows-list').addEventListener('change', function (e) {
+  var sel = e.target.closest('.input-product');
+  if (!sel) return;
+  var prev = sel.closest('.hydro-row').querySelector('.hydro-row__preview');
+  if (prev) prev.textContent = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : '';
+});
+
+// Відео-пікер (медіатека, filter_type=video)
+function syncVideoPick(wrap) {
+  var input = wrap.querySelector('input[type=hidden]');
+  var btn = wrap.querySelector('.video-pick__btn');
+  var clear = wrap.querySelector('.video-pick__clear');
+  var has = !!input.value;
+  btn.classList.toggle('video-pick__btn--set', has);
+  btn.title = input.value || btn.title;
+  clear.style.display = has ? '' : 'none';
+}
+$(document).on('click', '.video-pick__clear', function () {
+  var wrap = this.closest('.video-pick');
+  wrap.querySelector('input[type=hidden]').value = '';
+  syncVideoPick(wrap);
+});
+$(document).on('hidden.bs.modal', '#modal-image', function () {
+  document.querySelectorAll('.video-pick').forEach(syncVideoPick);
+});
+$(document).on('click', 'a[data-toggle="video"]', function (e) {
+  e.preventDefault();
+  var targetId = $(this).data('video-input');
+  $('#modal-image').remove();
+  $.ajax({
+    url: 'index.php?route=common/filemanager&user_token={{ user_token }}&target=' + targetId + '&filter_type=video',
+    dataType: 'html',
+    success: function (html) {
+      $('body').append('<div id="modal-image" class="modal">' + html + '</div>');
+      $('#modal-image').modal('show');
+    }
   });
 });
 
-document.querySelectorAll('.btn-remove-block').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    btn.closest('.hydro-row').remove();
+// заповнити прев'ю при завантаженні
+setTimeout(function () {
+  document.querySelectorAll('#rows-list .hydro-row').forEach(function (row) {
+    var sel = row.querySelector('.input-product');
+    var prev = row.querySelector('.hydro-row__preview');
+    if (sel && prev && sel.selectedIndex > 0) prev.textContent = sel.options[sel.selectedIndex].text;
   });
+}, 300);
+
+
+document.getElementById('btn-add-row').addEventListener('click', function() {
+  var idx = infoBlockRowNext++;
+  var wrap = document.createElement('div');
+  wrap.innerHTML =
+    '<div class="hydro-row" id="row-' + idx + '">' +
+      '<div class="hydro-row__head hydro-row__toggle"><i class="fa fa-chevron-down hydro-row__chevron"></i><strong>{{ entry_row|escape('js') }}</strong><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus-circle"></i></button></div>' +
+      '<div class="hydro-row__body">' +
+      '<div class="row">' +
+        '<div class="col-sm-4"><div class="form-group"><label>{{ entry_category|escape('js') }}</label><select name="module_hydrophob_info_block_rows[' + idx + '][category_id]" class="form-control input-category" data-row="' + idx + '"><option value="">' + infoBlockTextSelect + '</option>' +
+        {% for category in categories %}
+        '<option value="{{ category.category_id }}">{{ category.name|escape('js') }}</option>' +
+        {% endfor %}
+        '</select></div></div>' +
+        '<div class="col-sm-4"><div class="form-group"><label>{{ entry_product|escape('js') }}</label><select name="module_hydrophob_info_block_rows[' + idx + '][product_id]" class="form-control input-product" data-row="' + idx + '" data-selected=""><option value="">' + infoBlockTextSelect + '</option></select></div></div>' +
+        '<div class="col-sm-4"><div class="form-group"><label>{{ entry_video|escape('js') }}</label><br/><span class="video-pick"><a href="" data-toggle="video" data-video-input="input-row-' + idx + '-video" class="img-thumbnail video-pick__btn"><i class="fa fa-film"></i></a><button type="button" class="video-pick__clear" style="display:none;">&times;</button><input type="hidden" name="module_hydrophob_info_block_rows[' + idx + '][video]" value="" id="input-row-' + idx + '-video" /></span></div></div>' +
+      '</div>' +
+      '<div class="row">' +
+        '<div class="col-sm-3"><label>{{ entry_poster|escape('js') }}</label><br/><a href="" id="thumb-row-' + idx + '-poster" data-toggle="image" class="img-thumbnail"><img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" /></a><input type="hidden" name="module_hydrophob_info_block_rows[' + idx + '][poster]" value="" id="input-row-' + idx + '-poster" /></div>' +
+      '</div>' +
+    '</div>' +
+    '</div>';
+
+  var row = wrap.firstElementChild;
+  document.getElementById('rows-list').appendChild(row);
+  infoBlockInitRow(row);
 });
 </script>
 
 <style>
-.hydro-card { background: linear-gradient(180deg, #fff 0%, #f8fbff 100%); border: 1px solid #dfe6f1; border-radius: 10px; margin-bottom: 14px; padding: 14px; }
-.hydro-card__title { color: #36506b; font-size: 12px; font-weight: 700; letter-spacing: .04em; margin-bottom: 9px; text-transform: uppercase; }
-.hydro-tabs { border-bottom: 0; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-.hydro-tabs > li { float: none; margin: 0; }
-.hydro-tabs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
-.hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
-.hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
 .hydro-repeater { background: #f7f9fc; border: 1px solid #dfe6f1; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
 .hydro-repeater__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }
 .hydro-repeater__head h4 { margin: 0; }
 .hydro-row { background: #fff; border: 1px solid #e4eaf3; border-radius: 8px; margin-bottom: 10px; padding: 12px; }
+.hydro-row__toggle { cursor: pointer; gap: 10px; user-select: none; }
+.hydro-row__toggle .btn-remove-row { margin-left: auto; }
+.hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
+.hydro-row:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
+.hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hydro-row--collapsed .hydro-row__body { display: none; }
+.hydro-row--collapsed { padding-bottom: 8px; }
+.video-pick { align-items: center; display: inline-flex; gap: 4px; }
+.video-pick__btn { align-items: center; color: #9fb2c4; display: inline-flex; font-size: 18px; height: 44px; justify-content: center; width: 44px; }
+.video-pick__btn--set { background: #eafcff; border-color: #1D9CB2; color: #1D9CB2; }
+.video-pick__clear { background: none; border: 0; color: #c66; font-size: 18px; line-height: 1; padding: 2px 4px; }
 .hydro-row__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }
 </style>
-
-<script type="text/javascript" src="view/javascript/summernote/summernote.min.js"></script>
-<link href="view/javascript/summernote/summernote.min.css" rel="stylesheet" />
-<script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
-<script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 {{ footer }}

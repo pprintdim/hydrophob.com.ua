@@ -13,6 +13,8 @@ class ModelCatalogProduct extends Model {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "product_description SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "', description = '" . $this->db->escape($value['description']) . "', tag = '" . $this->db->escape($value['tag']) . "', meta_title = '" . $this->db->escape($value['meta_title']) . "', meta_description = '" . $this->db->escape($value['meta_description']) . "', meta_keyword = '" . $this->db->escape($value['meta_keyword']) . "'");
 		}
 
+		$this->editProductDetails($product_id, $data);
+
 		if (isset($data['product_store'])) {
 			foreach ($data['product_store'] as $store_id) {
 				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_store SET product_id = '" . (int)$product_id . "', store_id = '" . (int)$store_id . "'");
@@ -151,6 +153,8 @@ class ModelCatalogProduct extends Model {
 		foreach ($data['product_description'] as $language_id => $value) {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "product_description SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "', description = '" . $this->db->escape($value['description']) . "', tag = '" . $this->db->escape($value['tag']) . "', meta_title = '" . $this->db->escape($value['meta_title']) . "', meta_description = '" . $this->db->escape($value['meta_description']) . "', meta_keyword = '" . $this->db->escape($value['meta_keyword']) . "'");
 		}
+
+		$this->editProductDetails($product_id, $data);
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_store WHERE product_id = '" . (int)$product_id . "'");
 
@@ -337,6 +341,9 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_attribute WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_description WHERE product_id = '" . (int)$product_id . "'");
+		if ($this->productDetailsTableExists()) {
+			$this->db->query("DELETE FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
+		}
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_discount WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_image WHERE product_id = '" . (int)$product_id . "'");
@@ -450,6 +457,136 @@ class ModelCatalogProduct extends Model {
 		}
 
 		return $product_description_data;
+	}
+
+	private $productDetailsTableReady = null;
+
+	/**
+	 * true, якщо таблиця oc_product_details вже створена (SQL — product_details.sql — виконують
+	 * окремо, на підтвердження). Поки її нема, getProductDetails/editProductDetails тихо
+	 * нічого не роблять, щоб форма товару не валилась фаталом на "Unknown table".
+	 */
+	private function productDetailsTableExists() {
+		if ($this->productDetailsTableReady === null) {
+			try {
+				$query = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "product_details'");
+				$this->productDetailsTableReady = (bool)$query->num_rows;
+			} catch (\Exception $e) {
+				$this->productDetailsTableReady = false;
+			}
+		}
+
+		return $this->productDetailsTableReady;
+	}
+
+	/**
+	 * Ленд-контент товару (oc_product_details, hydrophob.net.ua): tab_title/subtitle/blocks по
+	 * мовах, у формі, сумісній з полями форми product_land[tab_title|subtitle|blocks][...].
+	 */
+	public function getProductDetails($product_id) {
+		$tab_title = array();
+		$subtitle  = array();
+		$blocksByLang = array();
+
+		if (!$this->productDetailsTableExists()) {
+			return array('tab_title' => $tab_title, 'subtitle' => $subtitle, 'blocks' => array());
+		}
+
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
+
+		foreach ($query->rows as $row) {
+			$tab_title[$row['language_id']] = $row['tab_title'];
+			$subtitle[$row['language_id']]  = $row['subtitle'];
+			$blocksByLang[$row['language_id']] = json_decode($row['blocks'], true) ?: array();
+		}
+
+		$max_blocks = 0;
+		foreach ($blocksByLang as $lang_blocks) {
+			$max_blocks = max($max_blocks, count($lang_blocks));
+		}
+
+		$blocks = array();
+		for ($i = 0; $i < $max_blocks; $i++) {
+			$title = array();
+			$html  = array();
+			foreach ($blocksByLang as $language_id => $lang_blocks) {
+				$title[$language_id] = isset($lang_blocks[$i]['title']) ? $lang_blocks[$i]['title'] : '';
+				$html[$language_id]  = isset($lang_blocks[$i]['html']) ? $lang_blocks[$i]['html'] : '';
+			}
+			$blocks[] = array('title' => $title, 'html' => $html);
+		}
+
+		return array(
+			'tab_title' => $tab_title,
+			'subtitle'  => $subtitle,
+			'blocks'    => $blocks,
+		);
+	}
+
+	/**
+	 * Зберігає $data['product_land'] (форма закладки "Ленд") у oc_product_details — по одному рядку
+	 * на мову. Викликається з addProduct/editProduct; порожні рядки (без title/subtitle/блоків) не
+	 * зберігаються.
+	 */
+	public function editProductDetails($product_id, $data) {
+		if (!$this->productDetailsTableExists()) {
+			return;
+		}
+
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
+
+		$land = isset($data['product_land']) && is_array($data['product_land']) ? $data['product_land'] : array();
+
+		if (empty($land['tab_title']) && empty($land['subtitle']) && empty($land['blocks'])) {
+			return;
+		}
+
+		$language_ids = array();
+
+		foreach (array('tab_title', 'subtitle') as $field) {
+			if (!empty($land[$field]) && is_array($land[$field])) {
+				foreach (array_keys($land[$field]) as $language_id) {
+					$language_ids[$language_id] = true;
+				}
+			}
+		}
+
+		if (!empty($land['blocks']) && is_array($land['blocks'])) {
+			foreach ($land['blocks'] as $block) {
+				foreach (array('title', 'html') as $field) {
+					if (!empty($block[$field]) && is_array($block[$field])) {
+						foreach (array_keys($block[$field]) as $language_id) {
+							$language_ids[$language_id] = true;
+						}
+					}
+				}
+			}
+		}
+
+		foreach (array_keys($language_ids) as $language_id) {
+			$tab_title = isset($land['tab_title'][$language_id]) ? (string)$land['tab_title'][$language_id] : '';
+			$subtitle  = isset($land['subtitle'][$language_id]) ? (string)$land['subtitle'][$language_id] : '';
+
+			$blocks = array();
+			if (!empty($land['blocks']) && is_array($land['blocks'])) {
+				foreach ($land['blocks'] as $block) {
+					$title = isset($block['title'][$language_id]) ? (string)$block['title'][$language_id] : '';
+					$html  = isset($block['html'][$language_id]) ? (string)$block['html'][$language_id] : '';
+
+					if ($title === '' && $html === '') {
+						continue;
+					}
+
+					$blocks[] = array('title' => $title, 'html' => $html);
+				}
+			}
+
+			if ($tab_title === '' && $subtitle === '' && !$blocks) {
+				continue;
+			}
+
+			$this->db->query("INSERT INTO " . DB_PREFIX . "product_details SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', tab_title = '" . $this->db->escape($tab_title) . "', subtitle = '" . $this->db->escape($subtitle) . "', blocks = '" . $this->db->escape(json_encode($blocks, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . "'");
+		}
 	}
 
 	public function getProductCategories($product_id) {

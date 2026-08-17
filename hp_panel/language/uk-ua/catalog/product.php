@@ -83,6 +83,16 @@ $_['entry_reward']           = 'Бонусні бали';
 $_['entry_layout']           = 'Перевизначення макета';
 $_['entry_recurring']        = 'Профіль періодичних платежів';
 
+// Ленд (закладка "Ленд" -> oc_product_details)
+$_['tab_land']               = 'Ленд';
+$_['entry_land_tab_title']   = 'Назва вкладки (кнопка перемикача на головній)';
+$_['entry_land_subtitle']    = 'Підзаголовок товару';
+$_['entry_land_blocks']      = 'Блоки опису';
+$_['entry_land_block']       = 'Блок';
+$_['entry_land_add_block']   = 'Додати блок';
+$_['entry_land_block_title'] = 'Заголовок блоку';
+$_['entry_land_block_html']  = 'Контент блоку (HTML)';
+
 // Підказки
 $_['help_sku']               = 'Одиниця складського обліку';
 $_['help_upc']               = 'Універсальний код товару';

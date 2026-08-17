@@ -1,14 +1,22 @@
 <?php
 /**
- * Секція "infoBlock" (лінійка продукції, 3 вкладки) головної сторінки — content_top модуль.
- * Товар (id/назва/ціна) — з живого каталогу OpenCart. Редакційний контент вкладки (tabTitle,
- * subtitle, медіа, блоки опису) — oc_setting (module_hydrophob_info_block_*), фолбек —
+ * Секція "infoBlock" (лінійка продукції) головної сторінки — content_top модуль.
+ * Ряди адмінюються як "категорія -> товар" (module_hydrophob_info_block_rows, повторюваний
+ * список: category_id/product_id/video/poster). Товар (id/назва/ціна/об'єм) — з живого каталогу
+ * OpenCart, ленд-контент вкладки (tabTitle/subtitle/blocks) — з oc_product_details поточною
+ * мовою (getLocalizedValue-фолбек на UA), медіа — з налаштувань ряду.
+ *
+ * Фолбек: якщо module_hydrophob_info_block_rows порожній (модуль ще не перенастроєний) —
+ * стара логіка з 3 фіксованими вкладками (Automobile/Textile/Industrial), джерело даних —
  * data/products.json (details.*) + data/images.json (infoBlock.*), як у попередній версії.
+ *
+ * Розмітка twig НЕ змінюється — структура масиву info_tabs (key/id/product/tabTitle/subtitle/
+ * blocks/media) лишається такою самою.
  */
 class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 	private $code = 'module_hydrophob_info_block';
 
-	/** Фіксовані ключі вкладок -> id товару (як на фронті data-infoBlock-btn). Не редагується адміном. */
+	/** Фіксовані ключі вкладок фолбек-режиму -> id товару (як на фронті data-infoBlock-btn). */
 	private $tabDefs = array(
 		'Automobile' => 'p2524537265',
 		'Textile'    => 'p2523866690',
@@ -21,6 +29,90 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 
 		$lang_id = (int)$this->config->get('config_language_id');
 
+		$rowsSetting = $this->config->get($this->code . '_rows');
+
+		$tabs = array();
+		if (is_array($rowsSetting) && !empty($rowsSetting)) {
+			$tabs = $this->buildRowsTabs($rowsSetting, $lang_id);
+		}
+
+		if (!$tabs) {
+			$tabs = $this->buildLegacyTabs($lang_id);
+		}
+
+		$data['info_tabs'] = $tabs;
+
+		return $this->load->view('extension/module/hydrophob_info_block', $data);
+	}
+
+	/** Новий режим: ряди [{category_id, product_id, video, poster}, ...] з адмінки. */
+	private function buildRowsTabs($rowsSetting, $lang_id) {
+		$tabs = array();
+
+		foreach ($rowsSetting as $key => $row) {
+			$product_id = isset($row['product_id']) ? (int)$row['product_id'] : 0;
+			if (!$product_id) {
+				continue;
+			}
+
+			$product = $this->model_catalog_product->getProduct($product_id);
+			if (!$product || !$product['status'] || (int)$product['quantity'] <= 0) {
+				continue;
+			}
+
+			$details = $this->model_catalog_product->getProductDetailsLocalized($product_id, $lang_id);
+
+			if ($details) {
+				$tabTitle = $details['tab_title'];
+				$subtitle = $details['subtitle'];
+				$blocks   = $details['blocks'];
+			} else {
+				// Фолбек на легасі data/products.json для товарів без oc_product_details.
+				$extra  = $this->staticProductByModel($product['model']);
+				$legacy = $extra['details'] ?? array();
+
+				$tabTitle = $this->uaLike($legacy['tabTitle'] ?? $product['name'], $lang_id);
+				$subtitle = $this->uaLike($legacy['subtitle'] ?? '', $lang_id);
+
+				$blocks = array();
+				foreach (($legacy['blocks'] ?? array()) as $block) {
+					$blocks[] = array(
+						'title' => $this->uaLike($block['title'] ?? '', $lang_id),
+						'html'  => $this->uaLike($block['html'] ?? '', $lang_id),
+					);
+				}
+			}
+
+			$volume = $this->model_catalog_product->getProductAttributeValue($product_id, "Об'єм", $lang_id);
+			if ($volume === null || $volume === '') {
+				$volume = $product['tag'];
+			}
+
+			$posterSetting = $row['poster'] ?? '';
+			$poster = $posterSetting ? 'image/' . $posterSetting : '';
+			$video = $row['video'] ?? '';
+
+			$tabs[] = array(
+				'key'      => 'row' . $key,
+				'id'       => $product['model'],
+				'product'  => array(
+					'id'     => $product['model'],
+					'title'  => $product['name'],
+					'volume' => $volume,
+					'price'  => (float)$product['price'],
+				),
+				'tabTitle' => $tabTitle,
+				'subtitle' => $subtitle,
+				'blocks'   => $blocks,
+				'media'    => array('poster' => $poster, 'video' => $video, 'alt' => $product['name']),
+			);
+		}
+
+		return $tabs;
+	}
+
+	/** Старий фолбек-режим: 3 фіксовані вкладки з data/products.json + data/images.json. */
+	private function buildLegacyTabs($lang_id) {
 		$staticById = array();
 		foreach ((array)$this->readJson('data/products.json') as $sp) {
 			if (isset($sp['id'])) {
@@ -103,9 +195,16 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 			);
 		}
 
-		$data['info_tabs'] = $tabs;
+		return $tabs;
+	}
 
-		return $this->load->view('extension/module/hydrophob_info_block', $data);
+	private function staticProductByModel($model) {
+		foreach ((array)$this->readJson('data/products.json') as $sp) {
+			if (($sp['id'] ?? null) === $model) {
+				return $sp;
+			}
+		}
+		return array();
 	}
 
 	private function localizedFromArray($values, $language_id) {

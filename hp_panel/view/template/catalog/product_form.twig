@@ -31,6 +31,7 @@
             <li><a href="#tab-attribute" data-toggle="tab">{{ tab_attribute }}</a></li>
             <li><a href="#tab-image" data-toggle="tab">{{ tab_image }}</a></li>
             <li><a href="#tab-seo" data-toggle="tab">{{ tab_seo }}</a></li>
+            <li><a href="#tab-land" data-toggle="tab">{{ tab_land }}</a></li>
           </ul>
           <div class="tab-content">
             <div class="tab-pane active" id="tab-general">
@@ -513,7 +514,92 @@
                 </table>
               </div>
             </div>
-            
+
+            <div class="tab-pane" id="tab-land">
+              <div class="hydro-card">
+                <div class="hydro-card__title">{{ entry_land_tab_title }}</div>
+                <ul class="nav nav-tabs hydro-tabs">
+                  {% for language in languages %}
+                  <li{% if loop.first %} class="active"{% endif %}><a href="#land-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                  {% endfor %}
+                </ul>
+                <div class="tab-content hydro-tab-content">
+                  {% for language in languages %}
+                  <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-title{{ language.language_id }}">
+                    <input type="text" name="product_land[tab_title][{{ language.language_id }}]" value="{{ product_land.tab_title[language.language_id] is defined ? product_land.tab_title[language.language_id] : '' }}" class="form-control" />
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="hydro-card">
+                <div class="hydro-card__title">{{ entry_land_subtitle }}</div>
+                <ul class="nav nav-tabs hydro-tabs">
+                  {% for language in languages %}
+                  <li{% if loop.first %} class="active"{% endif %}><a href="#land-subtitle{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                  {% endfor %}
+                </ul>
+                <div class="tab-content hydro-tab-content">
+                  {% for language in languages %}
+                  <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-subtitle{{ language.language_id }}">
+                    <input type="text" name="product_land[subtitle][{{ language.language_id }}]" value="{{ product_land.subtitle[language.language_id] is defined ? product_land.subtitle[language.language_id] : '' }}" class="form-control" />
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="hydro-repeater">
+                <div class="hydro-repeater__head">
+                  <h4>{{ entry_land_blocks }}</h4>
+                  <button type="button" class="btn btn-primary btn-sm" id="btn-add-land-block" data-next="{{ product_land_next_block }}"><i class="fa fa-plus-circle"></i> {{ entry_land_add_block }}</button>
+                </div>
+                <div id="land-blocks-list">
+                  {% for bKey, block in product_land.blocks %}
+                  <div class="hydro-row hydro-row--collapsed" id="land-block-{{ bKey }}">
+                    <div class="hydro-row__head hydro-row__toggle">
+                      <i class="fa fa-chevron-right hydro-row__chevron"></i>
+                      <strong>{{ entry_land_block }}</strong>
+                      <span class="hydro-row__preview">{{ block.title[2] is defined ? block.title[2] : '' }}</span>
+                      <button type="button" class="btn btn-danger btn-sm btn-remove-land-block"><i class="fa fa-minus-circle"></i></button>
+                    </div>
+                    <div class="hydro-row__body">
+                    <div class="hydro-card">
+                      <div class="hydro-card__title">{{ entry_land_block_title }}</div>
+                      <ul class="nav nav-tabs hydro-tabs">
+                        {% for language in languages %}
+                        <li{% if loop.first %} class="active"{% endif %}><a href="#land-b{{ bKey }}-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                      <div class="tab-content hydro-tab-content">
+                        {% for language in languages %}
+                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-b{{ bKey }}-title{{ language.language_id }}">
+                          <input type="text" name="product_land[blocks][{{ bKey }}][title][{{ language.language_id }}]" value="{{ block.title[language.language_id] is defined ? block.title[language.language_id] : '' }}" class="form-control" />
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div class="hydro-card">
+                      <div class="hydro-card__title">{{ entry_land_block_html }}</div>
+                      <ul class="nav nav-tabs hydro-tabs">
+                        {% for language in languages %}
+                        <li{% if loop.first %} class="active"{% endif %}><a href="#land-b{{ bKey }}-html{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                      <div class="tab-content hydro-tab-content">
+                        {% for language in languages %}
+                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-b{{ bKey }}-html{{ language.language_id }}">
+                          <textarea name="product_land[blocks][{{ bKey }}][html][{{ language.language_id }}]" rows="5" data-toggle="summernote" class="form-control">{{ block.html[language.language_id] is defined ? block.html[language.language_id] : '' }}</textarea>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
           </div>
         </form>
       </div>
@@ -1026,5 +1112,88 @@
   $('#language a:first').tab('show');
   $('#option a:first').tab('show');
   //--></script>
+
+  <script type="text/javascript">
+  var productLandLangs = [
+  {% for language in languages %}
+    { id: {{ language.language_id }}, name: '{{ language.name|escape('js') }}' }{% if not loop.last %},{% endif %}
+  {% endfor %}
+  ];
+
+  function productLandTabs(prefix, idx, kind) {
+    var tabsHtml = '<ul class="nav nav-tabs hydro-tabs">';
+    var contentHtml = '<div class="tab-content hydro-tab-content">';
+    for (var i = 0; i < productLandLangs.length; i++) {
+      var active = i === 0 ? ' active' : '';
+      tabsHtml += '<li class="' + active.trim() + '"><a href="#' + prefix + productLandLangs[i].id + '" data-toggle="tab">' + productLandLangs[i].name + '</a></li>';
+      var field = kind === 'html'
+        ? '<textarea name="product_land[blocks][' + idx + '][html][' + productLandLangs[i].id + ']" rows="5" class="form-control"></textarea>'
+        : '<input type="text" name="product_land[blocks][' + idx + '][title][' + productLandLangs[i].id + ']" class="form-control" />';
+      contentHtml += '<div class="tab-pane' + active + '" id="' + prefix + productLandLangs[i].id + '">' + field + '</div>';
+    }
+    tabsHtml += '</ul>';
+    contentHtml += '</div>';
+    return tabsHtml + contentHtml;
+  }
+
+  document.getElementById('btn-add-land-block').addEventListener('click', function() {
+    var btn = this;
+    var idx = parseInt(btn.dataset.next, 10);
+    var list = document.getElementById('land-blocks-list');
+    var row = document.createElement('div');
+    row.className = 'hydro-row';
+    row.id = 'land-block-' + idx;
+
+    row.innerHTML =
+      '<div class="hydro-row__head"><strong>{{ entry_land_block|escape('js') }}</strong><button type="button" class="btn btn-danger btn-sm btn-remove-land-block"><i class="fa fa-minus-circle"></i></button></div>' +
+      '<div class="hydro-card"><div class="hydro-card__title">{{ entry_land_block_title|escape('js') }}</div>' + productLandTabs('land-b' + idx + '-title', idx, 'title') + '</div>' +
+      '<div class="hydro-card"><div class="hydro-card__title">{{ entry_land_block_html|escape('js') }}</div>' + productLandTabs('land-b' + idx + '-html', idx, 'html') + '</div>';
+
+    list.appendChild(row);
+    btn.dataset.next = idx + 1;
+
+    row.querySelector('.btn-remove-land-block').addEventListener('click', function() {
+      row.parentNode.removeChild(row);
+    });
+  });
+
+  document.querySelectorAll('.btn-remove-land-block').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      btn.closest('.hydro-row').remove();
+    });
+  });
+  </script>
+
+  <style>
+  .hydro-card { background: linear-gradient(180deg, #fff 0%, #f8fbff 100%); border: 1px solid #dfe6f1; border-radius: 10px; margin-bottom: 14px; padding: 14px; }
+  .hydro-card__title { color: #36506b; font-size: 12px; font-weight: 700; letter-spacing: .04em; margin-bottom: 9px; text-transform: uppercase; }
+  .hydro-tabs { border-bottom: 0; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .hydro-tabs > li { float: none; margin: 0; }
+  .hydro-tabs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
+  .hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
+  .hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
+  .hydro-repeater { background: #f7f9fc; border: 1px solid #dfe6f1; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+  .hydro-repeater__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .hydro-repeater__head h4 { margin: 0; }
+  .hydro-row { background: #fff; border: 1px solid #e4eaf3; border-radius: 8px; margin-bottom: 10px; padding: 12px; }
+  .hydro-row__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }
+  </style>
 </div>
+
+<script type="text/javascript"><!--
+document.getElementById('land-blocks-list').addEventListener('click', function (e) {
+  if (e.target.closest('.btn-remove-land-block') || e.target.closest('a[data-toggle]') || e.target.closest('.note-editor')) return;
+  var head = e.target.closest('.hydro-row__toggle');
+  if (!head) return;
+  head.closest('.hydro-row').classList.toggle('hydro-row--collapsed');
+});
+//--></script>
+<style>
+#tab-land .hydro-row__toggle { cursor: pointer; display: flex; align-items: center; gap: 10px; user-select: none; }
+#tab-land .hydro-row__toggle .btn-remove-land-block { margin-left: auto; }
+#tab-land .hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
+#tab-land .hydro-row:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
+#tab-land .hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#tab-land .hydro-row--collapsed .hydro-row__body { display: none; }
+</style>
 {{ footer }} 

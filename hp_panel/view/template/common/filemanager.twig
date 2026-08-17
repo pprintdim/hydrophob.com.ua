@@ -75,6 +75,15 @@ $('a.thumbnail').not('.video-thumbnail, .document-thumbnail').on('click', functi
 	$('#modal-image').modal('hide');
 });
 
+// Ховер — програємо прев'ю відео просто в сітці менеджера
+$('a.video-thumbnail').on('mouseenter', function() {
+  var v = $(this).find('video')[0];
+  if (v) { v.play().catch(function(){}); }
+}).on('mouseleave', function() {
+  var v = $(this).find('video')[0];
+  if (v) { v.pause(); v.currentTime = 0; }
+});
+
 $('a.video-thumbnail').on('click', function(e) {
 	e.preventDefault();
 

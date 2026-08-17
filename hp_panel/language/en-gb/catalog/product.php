@@ -83,6 +83,16 @@ $_['entry_reward']           = 'Reward Points';
 $_['entry_layout']           = 'Layout Override';
 $_['entry_recurring']        = 'Recurring Profile';
 
+// Land (product landing tab -> oc_product_details)
+$_['tab_land']               = 'Land';
+$_['entry_land_tab_title']   = 'Tab name (homepage switch button)';
+$_['entry_land_subtitle']    = 'Product subtitle';
+$_['entry_land_blocks']      = 'Content blocks';
+$_['entry_land_block']       = 'Block';
+$_['entry_land_add_block']   = 'Add block';
+$_['entry_land_block_title'] = 'Block title';
+$_['entry_land_block_html']  = 'Block content (HTML)';
+
 // Help
 $_['help_sku']               = 'Stock Keeping Unit';
 $_['help_upc']               = 'Universal Product Code';

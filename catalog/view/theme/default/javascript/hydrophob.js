@@ -1093,7 +1093,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-/* ===== Попап "Детальніше": опис товару з products.json ===== */
+/* ===== Попап "Детальніше": опис товару з products.json + попап опису категорії ===== */
 document.addEventListener('DOMContentLoaded', function() {
     const popup = document.querySelector('.popupProduct');
     if (!popup) return;
@@ -1111,6 +1111,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const descrContent = popup.querySelector('.popupProduct__descr-content');
     let currentId = null;
 
+    // Опис категорії (попап popupCategory) — тягнемо catalog_api/categories один раз, ліниво
+    // (при першому відкритті попапу товару), кешуємо в CATEGORIES {id: {id,name,description}}.
+    const categoryPopup = document.querySelector('.popupCategory');
+    let CATEGORIES = null;
+    let categoriesPromise = null;
+    function loadCategoriesOnce() {
+        if (CATEGORIES) return Promise.resolve(CATEGORIES);
+        if (!categoriesPromise) {
+            categoriesPromise = fetch('index.php?route=extension/module/catalog_api/categories')
+                .then(r => r.json())
+                .then(list => {
+                    CATEGORIES = {};
+                    (list || []).forEach(c => { CATEGORIES[c.id] = c; });
+                    return CATEGORIES;
+                })
+                .catch(() => { CATEGORIES = {}; return CATEGORIES; });
+        }
+        return categoriesPromise;
+    }
+
+    function openCategoryPopup(cat) {
+        if (!categoryPopup || !cat) return;
+        const titleEl = categoryPopup.querySelector('.popupCategory__title');
+        const textEl = categoryPopup.querySelector('.popupCategory__text');
+        if (titleEl) titleEl.textContent = cat.name || '';
+        if (textEl) textEl.innerHTML = cat.description || '';
+        categoryPopup.classList.add('active');
+        document.body.classList.add('no-scroll');
+    }
+
     function val(f) {
         if (f === null || f === undefined) return '';
         if (typeof f !== 'object') return f;
@@ -1121,39 +1151,74 @@ document.addEventListener('DOMContentLoaded', function() {
     function fillPopup(id) {
         const products = window.HYDRO_PRODUCTS || [];
         const p = products.find(x => x.id === id);
-        if (!p) return false;
-        currentId = id;
-        img.src = p.image;
-        img.alt = val(p.title);
-        title.textContent = val(p.title);
-        volumeValue.textContent = p.volume || '—';
-        volumeWrap.style.display = p.volume ? '' : 'none';
-        priceValue.textContent = p.price;
-        buyBtn.dataset.productId = p.id;
-        specsList.innerHTML = '';
-        (p.attrs || []).forEach(a => {
-            const li = document.createElement('li');
-            const label = document.createElement('span');
-            label.textContent = a.name + ': ';
-            li.appendChild(label);
-            li.appendChild(document.createTextNode(a.value));
-            specsList.appendChild(li);
+        if (!p) return Promise.resolve(false);
+
+        return loadCategoriesOnce().then(function() {
+            currentId = id;
+            img.src = p.image;
+            img.alt = val(p.title);
+            title.textContent = val(p.title);
+            volumeValue.textContent = p.volume || '—';
+            volumeWrap.style.display = p.volume ? '' : 'none';
+            priceValue.textContent = p.price;
+            buyBtn.dataset.productId = p.id;
+            specsList.innerHTML = '';
+
+            // Перший рядок характеристик — категорія товару (клікабельна, якщо в неї є опис).
+            if (p.category) {
+                const catLi = document.createElement('li');
+                const catLabel = document.createElement('span');
+                catLabel.textContent = 'Категорія: ';
+                catLi.appendChild(catLabel);
+
+                const cat = p.categoryId && CATEGORIES ? CATEGORIES[p.categoryId] : null;
+                if (cat && cat.description) {
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.className = 'category-open';
+                    link.dataset.categoryId = p.categoryId;
+                    link.textContent = p.category;
+                    catLi.appendChild(link);
+                } else {
+                    catLi.appendChild(document.createTextNode(p.category));
+                }
+                specsList.appendChild(catLi);
+            }
+
+            (p.attrs || []).forEach(a => {
+                const li = document.createElement('li');
+                const label = document.createElement('span');
+                label.textContent = a.name + ': ';
+                li.appendChild(label);
+                li.appendChild(document.createTextNode(a.value));
+                specsList.appendChild(li);
+            });
+            specsWrap.style.display = (specsList.children.length) ? '' : 'none';
+            const html = val(p.descriptionHtml);
+            descrContent.innerHTML = html || '';
+            descrWrap.style.display = html ? '' : 'none';
+            return true;
         });
-        specsWrap.style.display = (p.attrs && p.attrs.length) ? '' : 'none';
-        const html = val(p.descriptionHtml);
-        descrContent.innerHTML = html || '';
-        descrWrap.style.display = html ? '' : 'none';
-        return true;
     }
 
     document.addEventListener('click', function(e) {
         const link = e.target.closest('.product-more-open[data-product-id]');
         if (!link) return;
         e.preventDefault();
-        if (fillPopup(link.dataset.productId)) {
-            popup.classList.add('active');
-            document.body.classList.add('no-scroll');
-        }
+        fillPopup(link.dataset.productId).then(ok => {
+            if (ok) {
+                popup.classList.add('active');
+                document.body.classList.add('no-scroll');
+            }
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        const catLink = e.target.closest('.category-open[data-category-id]');
+        if (!catLink) return;
+        e.preventDefault();
+        const cat = CATEGORIES && CATEGORIES[catLink.dataset.categoryId];
+        if (cat) openCategoryPopup(cat);
     });
 
     function closePopup() {
@@ -1170,6 +1235,19 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('hydro:lang', function() {
         if (popup.classList.contains('active') && currentId) fillPopup(currentId);
     });
+
+    if (categoryPopup) {
+        const catInner = categoryPopup.querySelector('.popupAbout__inner');
+        const catCloseBtn = categoryPopup.querySelector('.popupAbout__close');
+        function closeCategoryPopup() {
+            categoryPopup.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+        }
+        if (catCloseBtn) catCloseBtn.addEventListener('click', closeCategoryPopup);
+        categoryPopup.addEventListener('click', function(e) {
+            if (catInner && !catInner.contains(e.target)) closeCategoryPopup();
+        });
+    }
 });
 
 
@@ -1338,7 +1416,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ===== Юзабіліті: Esc закриває будь-який відкритий попап ===== */
 document.addEventListener('keydown', function(e) {
     if (e.key !== 'Escape') return;
-    const active = document.querySelector('.popupProduct.active, .popupAbout.active, .popupDelivery.active, .popupVideo.active, .popupPhoto.active');
+    const active = document.querySelector('.popupProduct.active, .popupAbout.active, .popupCategory.active, .popupDelivery.active, .popupVideo.active, .popupPhoto.active');
     if (active) {
         active.classList.remove('active');
         document.body.classList.remove('no-scroll');

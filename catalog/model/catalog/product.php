@@ -550,4 +550,120 @@ class ModelCatalogProduct extends Model {
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id IN(" . implode(',', $implode) . ")");
   	    return $query->row;
 	}
+
+	private $productDetailsTableReady = null;
+
+	/**
+	 * true, якщо таблиця oc_product_details вже створена (SQL — product_details.sql — виконують
+	 * окремо, на підтвердження). Поки її нема, всі getProductDetails* методи тихо повертають null,
+	 * щоб не валити сторінку/API фаталом на "Unknown table" — працює фолбек на data/products.json.
+	 */
+	private function productDetailsTableExists() {
+		if ($this->productDetailsTableReady === null) {
+			try {
+				$query = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "product_details'");
+				$this->productDetailsTableReady = (bool)$query->num_rows;
+			} catch (\Exception $e) {
+				$this->productDetailsTableReady = false;
+			}
+		}
+
+		return $this->productDetailsTableReady;
+	}
+
+	/**
+	 * Ленд-контент товару (oc_product_details, hydrophob.net.ua) — trilingual {UA,RU,EN} формат,
+	 * як у data/products.json (details.tabTitle/subtitle/blocks). Використовується catalog_api.
+	 * Повертає null, якщо для товару немає жодного рядка в oc_product_details.
+	 */
+	public function getProductDetailsMultilang($product_id) {
+		if (!$this->productDetailsTableExists()) {
+			return null;
+		}
+
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
+
+		if (!$query->num_rows) {
+			return null;
+		}
+
+		$langKey = array(1 => 'EN', 2 => 'UA', 3 => 'RU');
+
+		$byLang = array();
+		foreach ($query->rows as $row) {
+			$key = isset($langKey[$row['language_id']]) ? $langKey[$row['language_id']] : null;
+			if (!$key) {
+				continue;
+			}
+			$byLang[$key] = array(
+				'tab_title' => $row['tab_title'],
+				'subtitle'  => $row['subtitle'],
+				'blocks'    => json_decode($row['blocks'], true) ?: array(),
+			);
+		}
+
+		if (!$byLang) {
+			return null;
+		}
+
+		$tabTitle = array();
+		$subtitle = array();
+		foreach (array('UA', 'RU', 'EN') as $k) {
+			$tabTitle[$k] = isset($byLang[$k]['tab_title']) ? $byLang[$k]['tab_title'] : '';
+			$subtitle[$k] = isset($byLang[$k]['subtitle']) ? $byLang[$k]['subtitle'] : '';
+		}
+
+		$maxBlocks = 0;
+		foreach ($byLang as $l) {
+			$maxBlocks = max($maxBlocks, count($l['blocks']));
+		}
+
+		$blocks = array();
+		for ($i = 0; $i < $maxBlocks; $i++) {
+			$title = array();
+			$html  = array();
+			foreach (array('UA', 'RU', 'EN') as $k) {
+				$b = isset($byLang[$k]['blocks'][$i]) ? $byLang[$k]['blocks'][$i] : array();
+				$title[$k] = isset($b['title']) ? $b['title'] : '';
+				$html[$k]  = isset($b['html']) ? $b['html'] : '';
+			}
+			$blocks[] = array('title' => $title, 'html' => $html);
+		}
+
+		return array('tabTitle' => $tabTitle, 'subtitle' => $subtitle, 'blocks' => $blocks);
+	}
+
+	/**
+	 * Ленд-контент товару (oc_product_details) для однієї мови, з фолбеком на UA (language_id=2),
+	 * якщо для поточної мови рядка немає (патерн getLocalizedValue). Використовується
+	 * hydrophob_info_block.
+	 */
+	public function getProductDetailsLocalized($product_id, $language_id) {
+		if (!$this->productDetailsTableExists()) {
+			return null;
+		}
+
+		$row = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "' AND language_id = '" . (int)$language_id . "'")->row;
+
+		if (!$row && (int)$language_id !== 2) {
+			$row = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "' AND language_id = '2'")->row;
+		}
+
+		if (!$row) {
+			return null;
+		}
+
+		return array(
+			'tab_title' => $row['tab_title'],
+			'subtitle'  => $row['subtitle'],
+			'blocks'    => json_decode($row['blocks'], true) ?: array(),
+		);
+	}
+
+	/** Значення текстового атрибута товару (напр. "Об'єм") поточною мовою. Null, якщо атрибута нема. */
+	public function getProductAttributeValue($product_id, $name, $language_id) {
+		$query = $this->db->query("SELECT pa.text FROM " . DB_PREFIX . "product_attribute pa LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (ad.attribute_id = pa.attribute_id AND ad.language_id = pa.language_id) WHERE pa.product_id = '" . (int)$product_id . "' AND pa.language_id = '" . (int)$language_id . "' AND ad.name = '" . $this->db->escape($name) . "'");
+
+		return $query->num_rows ? $query->row['text'] : null;
+	}
 }
