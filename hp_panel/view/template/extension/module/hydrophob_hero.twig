@@ -54,12 +54,17 @@
           <div class="form-group">
             <label class="col-sm-2 control-label">{{ entry_video }}</label>
             <div class="col-sm-10">
-              <div class="input-group">
-                <input type="text" name="module_hydrophob_hero_video" value="{{ video }}" placeholder="{{ entry_video }}" id="input-hero-video" class="form-control" />
-                <span class="input-group-btn">
-                  <a href="" data-toggle="video" data-video-input="input-hero-video" class="btn btn-default" title="Вибрати з медіатеки"><i class="fa fa-film"></i></a>
-                </span>
+              <div class="video-pick">
+                <a href="" data-toggle="video" data-video-input="input-hero-video" class="img-thumbnail video-pick__btn{% if video %} video-pick__btn--set{% endif %}" title="{{ video ?: entry_video }}"><i class="fa fa-film"></i></a>
+                <button type="button" class="video-pick__clear"{% if not video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
+                <input type="hidden" name="module_hydrophob_hero_video" value="{{ video }}" id="input-hero-video" />
               </div>
+              <style>
+              .video-pick { align-items: center; display: inline-flex; gap: 4px; }
+              .video-pick__btn { align-items: center; color: #9fb2c4; display: inline-flex; font-size: 18px; height: 44px; justify-content: center; width: 44px; }
+              .video-pick__btn--set { background: #eafcff; border-color: #1D9CB2; color: #1D9CB2; }
+              .video-pick__clear { background: none; border: 0; color: #c66; font-size: 18px; line-height: 1; padding: 2px 4px; }
+              </style>
               <p class="help-block">{{ help_video }}</p>
             </div>
           </div>
@@ -108,6 +113,25 @@
 
 
 <script type="text/javascript"><!--
+
+function syncVideoPick(wrap) {
+  var input = wrap.querySelector('input[type=hidden]');
+  var btn = wrap.querySelector('.video-pick__btn');
+  var clear = wrap.querySelector('.video-pick__clear');
+  var has = !!input.value;
+  btn.classList.toggle('video-pick__btn--set', has);
+  btn.title = input.value || btn.title;
+  clear.style.display = has ? '' : 'none';
+}
+$(document).on('click', '.video-pick__clear', function () {
+  var wrap = this.closest('.video-pick');
+  wrap.querySelector('input[type=hidden]').value = '';
+  syncVideoPick(wrap);
+});
+$(document).on('hidden.bs.modal', '#modal-image', function () {
+  document.querySelectorAll('.video-pick').forEach(syncVideoPick);
+});
+
 $(document).on('click', 'a[data-toggle="video"]', function (e) {
   e.preventDefault();
   var targetId = $(this).data('video-input');
