@@ -46,46 +46,29 @@
           <div class="hydro-repeater">
             <div class="hydro-repeater__head">
               <h4>{{ entry_items }}</h4>
+              <ul class="nav nav-tabs hydro-tabs faq-global-langs" style="margin:0;">
+                {% for language in languages %}
+                <li{% if loop.first %} class="active"{% endif %}><a href="#" data-faq-lang="{{ language.language_id }}">{{ language.name }}</a></li>
+                {% endfor %}
+              </ul>
               <button type="button" id="btn-add-faq" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> {{ entry_add }}</button>
             </div>
             <div id="faq-body">
               {% for i, item in items %}
-              <div class="hydro-row" id="faq-row{{ i }}">
-                <div class="hydro-row__head">
-                  <strong>{{ entry_item }}</strong>
+              <div class="hydro-row hydro-row--collapsed" id="faq-row{{ i }}">
+                <div class="hydro-row__head hydro-row__toggle">
+                  <i class="fa fa-chevron-right hydro-row__chevron"></i>
+                  <strong>{{ entry_item }} {{ i + 1 }}</strong>
+                  <span class="hydro-row__preview">{{ item.question[2] is defined ? item.question[2] : '' }}</span>
                   <button type="button" class="btn btn-danger btn-sm btn-remove-faq"><i class="fa fa-minus-circle"></i></button>
                 </div>
-
-                <div class="hydro-card">
-                  <div class="hydro-card__title">{{ entry_question }}</div>
-                  <ul class="nav nav-tabs hydro-tabs">
-                    {% for language in languages %}
-                    <li{% if loop.first %} class="active"{% endif %}><a href="#faq{{ i }}-q{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                  <div class="tab-content hydro-tab-content">
-                    {% for language in languages %}
-                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="faq{{ i }}-q{{ language.language_id }}">
-                      <input type="text" name="module_hydrophob_faq_items[{{ i }}][question][{{ language.language_id }}]" value="{{ item.question[language.language_id] is defined ? item.question[language.language_id] : '' }}" class="form-control" />
-                    </div>
-                    {% endfor %}
+                <div class="hydro-row__body">
+                  {% for language in languages %}
+                  <div class="faq-lang faq-lang-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+                    <input type="text" name="module_hydrophob_faq_items[{{ i }}][question][{{ language.language_id }}]" value="{{ item.question[language.language_id] is defined ? item.question[language.language_id] : '' }}" placeholder="{{ entry_question }}" class="form-control faq-question" style="margin-bottom:6px;" />
+                    <textarea name="module_hydrophob_faq_items[{{ i }}][answer][{{ language.language_id }}]" rows="3" placeholder="{{ entry_answer }}" class="form-control">{{ item.answer[language.language_id] is defined ? item.answer[language.language_id] : '' }}</textarea>
                   </div>
-                </div>
-
-                <div class="hydro-card">
-                  <div class="hydro-card__title">{{ entry_answer }}</div>
-                  <ul class="nav nav-tabs hydro-tabs">
-                    {% for language in languages %}
-                    <li{% if loop.first %} class="active"{% endif %}><a href="#faq{{ i }}-a{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                  <div class="tab-content hydro-tab-content">
-                    {% for language in languages %}
-                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="faq{{ i }}-a{{ language.language_id }}">
-                      <textarea name="module_hydrophob_faq_items[{{ i }}][answer][{{ language.language_id }}]" rows="3" class="form-control">{{ item.answer[language.language_id] is defined ? item.answer[language.language_id] : '' }}</textarea>
-                    </div>
-                    {% endfor %}
-                  </div>
+                  {% endfor %}
                 </div>
               </div>
               {% endfor %}
@@ -115,40 +98,57 @@ var faqLangs = [
   { id: {{ language.language_id }}, name: '{{ language.name|escape('js') }}' }{% if not loop.last %},{% endif %}
 {% endfor %}
 ];
+var faqActiveLang = String(faqLangs.length ? faqLangs[0].id : '');
 
-function faqLangTabs(prefix) {
-  var tabsHtml = '<ul class="nav nav-tabs hydro-tabs">';
-  var contentHtml = '<div class="tab-content hydro-tab-content">';
-  for (var i = 0; i < faqLangs.length; i++) {
-    var active = i === 0 ? ' active' : '';
-    tabsHtml += '<li class="' + active.trim() + '"><a href="#' + prefix + faqLangs[i].id + '" data-toggle="tab">' + faqLangs[i].name + '</a></li>';
-    var field = prefix.indexOf('-a') !== -1
-      ? '<textarea name="module_hydrophob_faq_items[' + faqRowIndex + '][answer][' + faqLangs[i].id + ']" rows="3" class="form-control"></textarea>'
-      : '<input type="text" name="module_hydrophob_faq_items[' + faqRowIndex + '][question][' + faqLangs[i].id + ']" class="form-control" />';
-    contentHtml += '<div class="tab-pane' + active + '" id="' + prefix + faqLangs[i].id + '">' + field + '</div>';
+// Глобальний перемикач мов: показує поля лише активної мови у ВСІХ рядах
+document.querySelectorAll('.faq-global-langs a[data-faq-lang]').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    faqActiveLang = this.dataset.faqLang;
+    document.querySelectorAll('.faq-global-langs li').forEach(function (li) { li.classList.remove('active'); });
+    this.parentNode.classList.add('active');
+    document.querySelectorAll('#faq-body .faq-lang').forEach(function (el) {
+      el.style.display = el.classList.contains('faq-lang-' + faqActiveLang) ? '' : 'none';
+    });
+  });
+});
+
+// Акордеон
+document.getElementById('faq-body').addEventListener('click', function (e) {
+  if (e.target.closest('.btn-remove-faq')) {
+    e.target.closest('.hydro-row').remove();
+    return;
   }
-  tabsHtml += '</ul>';
-  contentHtml += '</div>';
-  return tabsHtml + contentHtml;
-}
+  var head = e.target.closest('.hydro-row__toggle');
+  if (head) head.closest('.hydro-row').classList.toggle('hydro-row--collapsed');
+});
 
-document.getElementById('btn-add-faq').addEventListener('click', function() {
+// Прев'ю в шапці = укр питання
+document.getElementById('faq-body').addEventListener('input', function (e) {
+  if (!e.target.classList.contains('faq-question')) return;
+  var row = e.target.closest('.hydro-row');
+  var uk = row.querySelector('.faq-lang-2 .faq-question');
+  var prev = row.querySelector('.hydro-row__preview');
+  if (uk && prev) prev.textContent = uk.value;
+});
+
+document.getElementById('btn-add-faq').addEventListener('click', function () {
   var list = document.getElementById('faq-body');
   var row = document.createElement('div');
   row.className = 'hydro-row';
-  row.id = 'faq-row' + faqRowIndex;
-
+  var body = '';
+  faqLangs.forEach(function (l) {
+    var vis = String(l.id) === faqActiveLang ? '' : ' style="display:none;"';
+    body += '<div class="faq-lang faq-lang-' + l.id + '"' + vis + '>' +
+      '<input type="text" name="module_hydrophob_faq_items[' + faqRowIndex + '][question][' + l.id + ']" placeholder="{{ entry_question|escape('js') }}" class="form-control faq-question" style="margin-bottom:6px;" />' +
+      '<textarea name="module_hydrophob_faq_items[' + faqRowIndex + '][answer][' + l.id + ']" rows="3" placeholder="{{ entry_answer|escape('js') }}" class="form-control"></textarea>' +
+      '</div>';
+  });
   row.innerHTML =
-    '<div class="hydro-row__head"><strong>{{ entry_item|escape('js') }}</strong><button type="button" class="btn btn-danger btn-sm btn-remove-faq"><i class="fa fa-minus-circle"></i></button></div>' +
-    '<div class="hydro-card"><div class="hydro-card__title">{{ entry_question|escape('js') }}</div>' + faqLangTabs('faq' + faqRowIndex + '-q') + '</div>' +
-    '<div class="hydro-card"><div class="hydro-card__title">{{ entry_answer|escape('js') }}</div>' + faqLangTabs('faq' + faqRowIndex + '-a') + '</div>';
-
+    '<div class="hydro-row__head hydro-row__toggle"><i class="fa fa-chevron-down hydro-row__chevron"></i><strong>{{ entry_item|escape('js') }}</strong><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-sm btn-remove-faq"><i class="fa fa-minus-circle"></i></button></div>' +
+    '<div class="hydro-row__body">' + body + '</div>';
   list.appendChild(row);
   faqRowIndex++;
-
-  row.querySelector('.btn-remove-faq').addEventListener('click', function() {
-    row.parentNode.removeChild(row);
-  });
 });
 
 document.querySelectorAll('.btn-remove-faq').forEach(function(btn) {
@@ -173,4 +173,16 @@ document.querySelectorAll('.btn-remove-faq').forEach(function(btn) {
 .hydro-row__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }
 </style>
 
+
+<style>
+.hydro-repeater__head { align-items: center; display: flex; gap: 14px; }
+.hydro-repeater__head h4 { margin: 0; }
+.hydro-repeater__head #btn-add-faq { margin-left: auto; }
+.hydro-row__toggle { align-items: center; cursor: pointer; display: flex; gap: 10px; user-select: none; }
+.hydro-row__toggle .btn-remove-faq { margin-left: auto; }
+.hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
+.hydro-row:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
+.hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hydro-row--collapsed .hydro-row__body { display: none; }
+</style>
 {{ footer }}

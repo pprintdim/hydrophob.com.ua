@@ -70,7 +70,7 @@
               <div class="col-sm-3">
                 <label>{{ entry_poster }}</label><br/>
                 <a href="" id="thumb-row-{{ row.index }}-poster" data-toggle="image" class="img-thumbnail">
-                  <img src="{{ row.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:110px;" />
+                  <img src="{{ row.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="width:84px;height:84px;object-fit:cover;" />
                 </a>
                 <input type="hidden" name="module_hydrophob_info_block_rows[{{ row.index }}][poster]" value="{{ row.poster }}" id="input-row-{{ row.index }}-poster" />
               </div>
@@ -247,7 +247,7 @@ document.getElementById('btn-add-row').addEventListener('click', function() {
 .hydro-row--collapsed .hydro-row__body { display: none; }
 .hydro-row--collapsed { padding-bottom: 8px; }
 .video-pick { display: inline-block; position: relative; }
-.video-pick__btn { align-items: center; background: #f7fafc; color: #b6c6d5; display: inline-flex; font-size: 26px; height: 110px; justify-content: center; overflow: hidden; padding: 0; position: relative; width: 110px; }
+.video-pick__btn { align-items: center; background: #f7fafc; color: #b6c6d5; display: inline-flex; font-size: 20px; height: 84px; justify-content: center; overflow: hidden; padding: 0; position: relative; width: 84px; }
 .video-pick__btn video { height: 100%; object-fit: cover; width: 100%; }
 .video-pick__btn--set { border-color: #1D9CB2; }
 .video-pick__badge { background: rgba(18,18,18,.72); border-radius: 6px; bottom: 4px; color: #fff; font-size: 11px; left: 4px; line-height: 1; padding: 4px 6px; position: absolute; }

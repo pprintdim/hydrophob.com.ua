@@ -949,10 +949,6 @@ class ControllerSettingSetting extends Controller {
 			$this->error['telephone'] = $this->language->get('error_telephone');
 		}
 
-		if (!empty($this->request->post['config_customer_group_display']) && !in_array($this->request->post['config_customer_group_id'], $this->request->post['config_customer_group_display'])) {
-			$this->error['customer_group_display'] = $this->language->get('error_customer_group_display');
-		}
-
 		if (!$this->request->post['config_limit_admin']) {
 			$this->error['limit_admin'] = $this->language->get('error_limit');
 		}
@@ -961,22 +957,6 @@ class ControllerSettingSetting extends Controller {
 			$this->error['login_attempts'] = $this->language->get('error_login_attempts');
 		}
 
-		if (!$this->request->post['config_voucher_min']) {
-			$this->error['voucher_min'] = $this->language->get('error_voucher_min');
-		}
-
-		if (!$this->request->post['config_voucher_max']) {
-			$this->error['voucher_max'] = $this->language->get('error_voucher_max');
-		}
-
-		if (!isset($this->request->post['config_processing_status'])) {
-			$this->error['processing_status'] = $this->language->get('error_processing_status');
-		}
-
-		if (!isset($this->request->post['config_complete_status'])) {
-			$this->error['complete_status'] = $this->language->get('error_complete_status');
-		}
-		
 		if (!$this->request->post['config_error_filename']) {
 			$this->error['log'] = $this->language->get('error_log_required');
 		} elseif (preg_match('/\.\.[\/\\\]?/', $this->request->post['config_error_filename'])) {

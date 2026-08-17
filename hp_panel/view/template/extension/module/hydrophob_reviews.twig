@@ -59,39 +59,39 @@
                 </div>
                 <div class="row hydro-row__body">
                   <div class="col-sm-3">
-                    <a href="" id="thumb-review{{ i }}" data-toggle="image" class="img-thumbnail">
-                      <img src="{{ item.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" />
-                    </a>
-                    <input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][poster]" value="{{ item.poster }}" id="input-review{{ i }}" />
-                    <div style="margin-top:8px;"><label>{{ entry_video }}</label><br/><span class="video-pick"><a href="" data-toggle="video" data-video-input="input-review-video{{ i }}" class="img-thumbnail video-pick__btn{% if item.video %} video-pick__btn--set{% endif %}" title="{{ item.video ?: 'Вибрати відео' }}">{% if item.video %}<video src="{{ (item.video starts with 'video/' or item.video starts with 'image/') ? '../' ~ item.video : '../image/' ~ item.video }}" preload="metadata" muted></video><span class="video-pick__badge"><i class="fa fa-film"></i></span>{% else %}<i class="fa fa-film"></i>{% endif %}</a><button type="button" class="video-pick__clear"{% if not item.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button><input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][video]" value="{{ item.video }}" id="input-review-video{{ i }}" /></span></div>
+                    <div class="media-pair">
+                      <div class="media-pair__cell">
+                        <a href="" id="thumb-review{{ i }}" data-toggle="image" class="img-thumbnail media-thumb">
+                          <img src="{{ item.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" />
+                        </a>
+                        <input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][poster]" value="{{ item.poster }}" id="input-review{{ i }}" />
+                        <span class="media-pair__cap">Постер</span>
+                      </div>
+                      <div class="media-pair__cell">
+                        <span class="video-pick">
+                          <a href="" data-toggle="video" data-video-input="input-review-video{{ i }}" class="img-thumbnail video-pick__btn{% if item.video %} video-pick__btn--set{% endif %}" title="{{ item.video ?: 'Вибрати відео' }}">{% if item.video %}<video src="{{ (item.video starts with 'video/' or item.video starts with 'image/') ? '../' ~ item.video : '../image/' ~ item.video }}" preload="metadata" muted></video><span class="video-pick__badge"><i class="fa fa-film"></i></span>{% else %}<i class="fa fa-film"></i>{% endif %}</a>
+                          <button type="button" class="video-pick__clear"{% if not item.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
+                          <input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][video]" value="{{ item.video }}" id="input-review-video{{ i }}" />
+                        </span>
+                        <span class="media-pair__cap">Відео</span>
+                      </div>
+                    </div>
                   </div>
                   <div class="col-sm-9">
                     <div class="hydro-card">
-                      <div class="hydro-card__title">{{ entry_message }}</div>
+                      <div class="hydro-card__title">Заголовок та альт тексти</div>
                       <ul class="nav nav-tabs hydro-tabs">
                         {% for language in languages %}
-                        <li{% if loop.first %} class="active"{% endif %}><a href="#review{{ i }}-message{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                        <li{% if loop.first %} class="active"{% endif %}><a href="#review{{ i }}-txt{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
                         {% endfor %}
                       </ul>
                       <div class="tab-content hydro-tab-content">
                         {% for language in languages %}
-                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="review{{ i }}-message{{ language.language_id }}">
-                          <textarea name="module_hydrophob_reviews_items[{{ i }}][message][{{ language.language_id }}]" rows="3" class="form-control">{{ item.message[language.language_id] is defined ? item.message[language.language_id] : '' }}</textarea>
-                        </div>
-                        {% endfor %}
-                      </div>
-                    </div>
-                    <div class="hydro-card">
-                      <div class="hydro-card__title">{{ entry_alt }}</div>
-                      <ul class="nav nav-tabs hydro-tabs">
-                        {% for language in languages %}
-                        <li{% if loop.first %} class="active"{% endif %}><a href="#review{{ i }}-alt{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                        {% endfor %}
-                      </ul>
-                      <div class="tab-content hydro-tab-content">
-                        {% for language in languages %}
-                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="review{{ i }}-alt{{ language.language_id }}">
-                          <input type="text" name="module_hydrophob_reviews_items[{{ i }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" class="form-control" />
+                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="review{{ i }}-txt{{ language.language_id }}">
+                          <div style="display:flex; gap:8px;">
+                            <input type="text" name="module_hydrophob_reviews_items[{{ i }}][message][{{ language.language_id }}]" value="{{ item.message[language.language_id] is defined ? item.message[language.language_id] : '' }}" placeholder="{{ entry_message }}" class="form-control" style="flex:1;" />
+                            <input type="text" name="module_hydrophob_reviews_items[{{ i }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" placeholder="{{ entry_alt }}" class="form-control" style="flex:1;" />
+                          </div>
                         </div>
                         {% endfor %}
                       </div>
@@ -134,9 +134,17 @@ function reviewLangTabs(prefix, kind) {
   for (var i = 0; i < reviewLangs.length; i++) {
     var active = i === 0 ? ' active' : '';
     tabsHtml += '<li class="' + active.trim() + '"><a href="#' + prefix + reviewLangs[i].id + '" data-toggle="tab">' + reviewLangs[i].name + '</a></li>';
-    var field = kind === 'message'
-      ? '<textarea name="module_hydrophob_reviews_items[' + reviewRowIndex + '][message][' + reviewLangs[i].id + ']" rows="3" class="form-control"></textarea>'
-      : '<input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][alt][' + reviewLangs[i].id + ']" class="form-control" />';
+    var field;
+    if (kind === 'merged') {
+      field = '<div style="display:flex;gap:8px;">' +
+        '<input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][message][' + reviewLangs[i].id + ']" placeholder="{{ entry_message|escape('js') }}" class="form-control" style="flex:1;" />' +
+        '<input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][alt][' + reviewLangs[i].id + ']" placeholder="{{ entry_alt|escape('js') }}" class="form-control" style="flex:1;" />' +
+        '</div>';
+    } else if (kind === 'message') {
+      field = '<textarea name="module_hydrophob_reviews_items[' + reviewRowIndex + '][message][' + reviewLangs[i].id + ']" rows="3" class="form-control"></textarea>';
+    } else {
+      field = '<input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][alt][' + reviewLangs[i].id + ']" class="form-control" />';
+    }
     contentHtml += '<div class="tab-pane' + active + '" id="' + prefix + reviewLangs[i].id + '">' + field + '</div>';
   }
   tabsHtml += '</ul>';
@@ -208,13 +216,20 @@ document.getElementById('btn-add-review').addEventListener('click', function() {
     '<div class="hydro-row__head hydro-row__toggle"><i class="fa fa-chevron-down hydro-row__chevron"></i><strong>{{ entry_item|escape('js') }} ' + (reviewRowIndex + 1) + '</strong><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-sm btn-remove-review"><i class="fa fa-minus-circle"></i></button></div>' +
     '<div class="row hydro-row__body">' +
       '<div class="col-sm-3">' +
-        '<a href="" id="thumb-review' + reviewRowIndex + '" data-toggle="image" class="img-thumbnail"><img src="' + reviewPlaceholder + '" alt="" data-placeholder="' + reviewPlaceholder + '" style="max-width:160px;" /></a>' +
-        '<input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][poster]" value="" id="input-review' + reviewRowIndex + '" />' +
-        '<div style="margin-top:8px;"><label>{{ entry_video|escape('js') }}</label><br/><span class="video-pick"><a href="" data-toggle="video" data-video-input="input-review-video' + reviewRowIndex + '" class="img-thumbnail video-pick__btn" title="Вибрати відео"><i class="fa fa-film"></i></a><button type="button" class="video-pick__clear" style="display:none;">&times;</button><input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][video]" id="input-review-video' + reviewRowIndex + '" value="" /></span></div>' +
+        '<div class="media-pair">' +
+          '<div class="media-pair__cell">' +
+            '<a href="" id="thumb-review' + reviewRowIndex + '" data-toggle="image" class="img-thumbnail media-thumb"><img src="' + reviewPlaceholder + '" alt="" data-placeholder="' + reviewPlaceholder + '" /></a>' +
+            '<input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][poster]" value="" id="input-review' + reviewRowIndex + '" />' +
+            '<span class="media-pair__cap">Постер</span>' +
+          '</div>' +
+          '<div class="media-pair__cell">' +
+            '<span class="video-pick"><a href="" data-toggle="video" data-video-input="input-review-video' + reviewRowIndex + '" class="img-thumbnail video-pick__btn" title="Вибрати відео"><i class="fa fa-film"></i></a><button type="button" class="video-pick__clear" style="display:none;">&times;</button><input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][video]" id="input-review-video' + reviewRowIndex + '" value="" /></span>' +
+            '<span class="media-pair__cap">Відео</span>' +
+          '</div>' +
+        '</div>' +
       '</div>' +
       '<div class="col-sm-9">' +
-        '<div class="hydro-card"><div class="hydro-card__title">{{ entry_message|escape('js') }}</div>' + reviewLangTabs('review' + reviewRowIndex + '-message', 'message') + '</div>' +
-        '<div class="hydro-card"><div class="hydro-card__title">{{ entry_alt|escape('js') }}</div>' + reviewLangTabs('review' + reviewRowIndex + '-alt', 'alt') + '</div>' +
+        '<div class="hydro-card"><div class="hydro-card__title">Заголовок та альт тексти</div>' + reviewLangTabs('review' + reviewRowIndex + '-txt', 'merged') + '</div>' +
       '</div>' +
     '</div>';
 
@@ -250,8 +265,13 @@ document.querySelectorAll('.btn-remove-review').forEach(function(btn) {
 
 
 <style>
+.media-pair { display: flex; gap: 10px; }
+.media-pair__cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.media-pair__cap { color: #8fa2b5; font-size: 11px; }
+.media-thumb { margin: 0; padding: 2px; }
+.media-thumb img { display: block; height: 84px; object-fit: cover; width: 84px; }
 .video-pick { display: inline-block; position: relative; }
-.video-pick__btn { align-items: center; background: #f7fafc; color: #b6c6d5; display: inline-flex; font-size: 26px; height: 110px; justify-content: center; overflow: hidden; padding: 0; position: relative; width: 110px; }
+.video-pick__btn { align-items: center; background: #f7fafc; color: #b6c6d5; display: inline-flex; font-size: 20px; height: 84px; justify-content: center; overflow: hidden; padding: 0; position: relative; width: 84px; }
 .video-pick__btn video { height: 100%; object-fit: cover; width: 100%; }
 .video-pick__btn--set { border-color: #1D9CB2; }
 .video-pick__badge { background: rgba(18,18,18,.72); border-radius: 6px; bottom: 4px; color: #fff; font-size: 11px; left: 4px; line-height: 1; padding: 4px 6px; position: absolute; }
