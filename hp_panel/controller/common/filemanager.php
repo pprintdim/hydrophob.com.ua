@@ -52,7 +52,9 @@ class ControllerCommonFileManager extends Controller {
 			} elseif ($filter_type === 'document') {
 				$files = glob($directory . '/' . $filter_name . '*.{pdf,doc,docx,PDF,DOC,DOCX}', GLOB_BRACE);
 			} else {
-				$files = glob($directory . '/' . $filter_name . '*.{jpg,jpeg,png,gif,webp,svg,mp4,pdf,doc,docx,JPG,JPEG,PNG,GIF,WEBP,SVG,MP4,PDF,DOC,DOCX}', GLOB_BRACE);
+				// у звичайному (картинковому) режимі відео/документи не показуємо —
+				// інакше mp4 можна випадково вибрати як зображення (постер)
+				$files = glob($directory . '/' . $filter_name . '*.{jpg,jpeg,png,gif,webp,svg,JPG,JPEG,PNG,GIF,WEBP,SVG}', GLOB_BRACE);
 			}
 
 			if (!$files) {

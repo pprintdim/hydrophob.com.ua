@@ -39,7 +39,7 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 		// Категорії (укр. назви, поточна мова адмінки) для селекта.
 		$this->load->model('catalog/category');
 		$data['categories'] = array();
-		foreach ($this->model_catalog_category->getCategories(0) as $category) {
+		foreach ($this->model_catalog_category->getCategories(array()) as $category) {
 			$data['categories'][] = array(
 				'category_id' => $category['category_id'],
 				'name'        => $category['name'],
@@ -53,11 +53,11 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 			$productsByCategory[$cat['category_id']] = array();
 		}
 		foreach ($this->model_catalog_product->getProducts(array()) as $product) {
-			foreach ($this->model_catalog_product->getCategories($product['product_id']) as $pc) {
-				if (!isset($productsByCategory[$pc['category_id']])) {
-					$productsByCategory[$pc['category_id']] = array();
+			foreach ($this->model_catalog_product->getProductCategories($product['product_id']) as $category_id) {
+				if (!isset($productsByCategory[$category_id])) {
+					$productsByCategory[$category_id] = array();
 				}
-				$productsByCategory[$pc['category_id']][] = array(
+				$productsByCategory[$category_id][] = array(
 					'product_id' => (int)$product['product_id'],
 					'name'       => $product['name'],
 				);
@@ -111,6 +111,16 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 	protected function validate() {
 		if (!$this->user->hasPermission('modify', 'extension/module/hydrophob_info_block')) {
 			$this->error['warning'] = $this->language->get('error_permission');
+		}
+
+
+		// перевірка обовʼязкових укр (дефолтна мова) полів
+		if (!empty($this->request->post['module_hydrophob_info_block_rows']) && is_array($this->request->post['module_hydrophob_info_block_rows'])) {
+			foreach ($this->request->post['module_hydrophob_info_block_rows'] as $row) {
+				if (empty($row['category_id']) || empty($row['product_id'])) {
+					$this->error['warning'] = 'У кожному рядку виберіть категорію і товар.';
+				}
+			}
 		}
 
 		return !$this->error;

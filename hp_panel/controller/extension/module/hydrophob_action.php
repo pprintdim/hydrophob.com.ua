@@ -60,6 +60,12 @@ class ControllerExtensionModuleHydrophobAction extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
+
+		// перевірка обовʼязкових укр (дефолтна мова) полів
+		if (isset($this->request->post['module_hydrophob_action_title']) && is_array($this->request->post['module_hydrophob_action_title']) && trim(strip_tags((string)($this->request->post['module_hydrophob_action_title'][2] ?? ''))) === '') {
+			$this->error['warning'] = 'Поле «Заголовок» обовʼязкове українською (мова за замовчуванням).';
+		}
+
 		return !$this->error;
 	}
 }

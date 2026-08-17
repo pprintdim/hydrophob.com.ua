@@ -63,6 +63,22 @@ class ControllerExtensionModuleHydrophobFaq extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
+
+		// перевірка обовʼязкових укр (дефолтна мова) полів
+		if (isset($this->request->post['module_hydrophob_faq_title_html']) && is_array($this->request->post['module_hydrophob_faq_title_html']) && trim(strip_tags((string)($this->request->post['module_hydrophob_faq_title_html'][2] ?? ''))) === '') {
+			$this->error['warning'] = 'Поле «Заголовок» обовʼязкове українською (мова за замовчуванням).';
+		}
+		if (!empty($this->request->post['module_hydrophob_faq_items']) && is_array($this->request->post['module_hydrophob_faq_items'])) {
+			foreach ($this->request->post['module_hydrophob_faq_items'] as $row) {
+				if (trim(strip_tags((string)($row['question'][2] ?? ''))) === '') {
+					$this->error['warning'] = 'У кожному рядку поле «Питання» обовʼязкове українською.';
+				}
+				if (trim(strip_tags((string)($row['answer'][2] ?? ''))) === '') {
+					$this->error['warning'] = 'У кожному рядку поле «Відповідь» обовʼязкове українською.';
+				}
+			}
+		}
+
 		return !$this->error;
 	}
 }

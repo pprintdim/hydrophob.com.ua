@@ -80,6 +80,19 @@ class ControllerExtensionModuleHydrophobReviews extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
+
+		// перевірка обовʼязкових укр (дефолтна мова) полів
+		if (isset($this->request->post['module_hydrophob_reviews_title_html']) && is_array($this->request->post['module_hydrophob_reviews_title_html']) && trim(strip_tags((string)($this->request->post['module_hydrophob_reviews_title_html'][2] ?? ''))) === '') {
+			$this->error['warning'] = 'Поле «Заголовок» обовʼязкове українською (мова за замовчуванням).';
+		}
+		if (!empty($this->request->post['module_hydrophob_reviews_items']) && is_array($this->request->post['module_hydrophob_reviews_items'])) {
+			foreach ($this->request->post['module_hydrophob_reviews_items'] as $row) {
+				if (trim(strip_tags((string)($row['message'][2] ?? ''))) === '') {
+					$this->error['warning'] = 'У кожному рядку поле «Заголовок відгуку» обовʼязкове українською.';
+				}
+			}
+		}
+
 		return !$this->error;
 	}
 }
