@@ -335,6 +335,13 @@
             </div>
             <!-- вкладка "Опція" вирізана під ленд; критичний для пагінації адмінки ключ зберігаємо приховано -->
             <input type="hidden" name="config_limit_admin" value="{{ config_limit_admin ?: 20 }}" />
+            {# статуси замовлень для дашборда/звітності — вкладку "Опція" вирізано, значення тримаємо приховано #}
+            {% for st in config_processing_status|default(['1','2','3']) %}
+            <input type="hidden" name="config_processing_status[]" value="{{ st }}" />
+            {% endfor %}
+            {% for st in config_complete_status|default(['5']) %}
+            <input type="hidden" name="config_complete_status[]" value="{{ st }}" />
+            {% endfor %}
 
             <div class="tab-pane" id="tab-image">
               <div class="form-group">
