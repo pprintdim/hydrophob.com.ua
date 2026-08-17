@@ -1,14 +1,19 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title'] = 'Use Coupon Code';
+$_['heading_title'] = 'Використати код купону';
 
 // Text
-$_['text_coupon']   = 'Coupon (%s)';
-$_['text_success']  = 'Success: Your coupon discount has been applied!';
+$_['text_coupon']   = 'Код купону (%s)';
+$_['text_success']  = 'Ви використали код купону!';
 
 // Entry
-$_['entry_coupon']  = 'Enter your coupon here';
+$_['entry_coupon']  = 'Введіть код купону';
 
 // Error
-$_['error_coupon']  = 'Warning: Coupon is either invalid, expired or reached its usage limit!';
-$_['error_empty']   = 'Warning: Please enter a coupon code!';
+$_['error_coupon']  = 'Код купону неправильний, прострочений або перевищив кількість використань!';
+$_['error_empty']   = 'Введіть код купону!';

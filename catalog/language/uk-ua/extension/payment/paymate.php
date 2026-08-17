@@ -1,10 +1,15 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
-$_['text_title']				= 'Credit Card / Debit Card (Paymate)';
-$_['text_unable']				= 'Unable to locate or update your order status';
-$_['text_declined']				= 'Payment was declined by Paymate';
-$_['text_failed']				= 'Paymate Transaction Failed';
-$_['text_failed_message']		= '<p>Unfortunately there was an error processing your Paymate transaction.</p><p><b>Warning: </b>%s</p><p>Please verify your Paymate account balance before attempting to re-process this order</p><p> If you believe this transaction has completed successfully, or is showing as a deduction in your Paymate account, please <a href="%s">Contact Us</a> with your order details.</p>';
-$_['text_basket']				= 'Basket';
-$_['text_checkout']				= 'Checkout';
-$_['text_success']				= 'Success';
+$_['text_title']				= 'Кредитна / Дебетна карта (Paymate)';
+$_['text_unable']				= 'Не вдалося знайти чи оновити статус замовлення';
+$_['text_declined']				= 'Платіж відхилено сервісом Paymate';
+$_['text_failed']				= 'Невдала оплата Paymate';
+$_['text_failed_message']		= '<p>На жаль в процесі оплати Paymate виникла помилка.</p><p><b>Увага: </b>%s</p><p>будь ласка, перевірте Ваш Paymate баланс перед наступною стробою оплати цього замовлення</p><p> Якщо ви вважаєте що ця транзакція була успішною, чи гроші було списано з Вашого Paymate балансу, будь-ласка <a href="%s">напишіть нам</a> вказавши деталі Вашого замовлення.</p>';
+$_['text_basket']				= 'Кошик';
+$_['text_checkout']				= 'Оформити';
+$_['text_success']				= 'Успішно';

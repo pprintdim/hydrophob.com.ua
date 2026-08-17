@@ -1,7 +1,12 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
 $_['text_title']           = 'United Parcel Service';
-$_['text_weight']          = 'Weight:';
+$_['text_weight']          = 'Вага:';
 $_['text_us_origin_01']    = 'UPS Next Day Air';
 $_['text_us_origin_02']    = 'UPS 2nd Day Air';
 $_['text_us_origin_03']    = 'UPS Ground';

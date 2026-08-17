@@ -1,0 +1,132 @@
+<?php
+// Заголовок
+$_['heading_title']              = 'Замовлення';
+
+// Текст
+$_['text_success']               = 'Готово: замовлення змінено!';
+$_['text_list']                  = 'Список замовлень';
+$_['text_add']                   = 'Додати замовлення';
+$_['text_edit']                  = 'Редагувати замовлення';
+$_['text_filter']                = 'Фільтр';
+$_['text_order_detail']          = 'Деталі замовлення';
+$_['text_customer_detail']       = 'Дані покупця';
+$_['text_option']                = 'Опції';
+$_['text_store']                 = 'Магазин';
+$_['text_date_added']            = 'Дата додавання';
+$_['text_payment_method']        = 'Спосіб оплати';
+$_['text_shipping_method']       = 'Спосіб доставки';
+$_['text_customer']              = 'Покупець';
+$_['text_customer_group']        = 'Група покупців';
+$_['text_email']                 = 'E-Mail';
+$_['text_telephone']             = 'Телефон';
+$_['text_fax']                   = 'Факс';
+$_['text_invoice']               = 'Рахунок';
+$_['text_reward']                = 'Бонусні бали';
+$_['text_affiliate']             = 'Партнер';
+$_['text_order']                 = 'Замовлення (№%s)';
+$_['text_payment_address']       = 'Платіжна адреса';
+$_['text_shipping_address']      = 'Адреса доставки';
+$_['text_comment']               = 'Коментар покупця';
+$_['text_history']               = 'Історія замовлення';
+$_['text_history_add']           = 'Додати запис до історії замовлення';
+$_['text_account_custom_field']  = 'Додаткові поля облікового запису';
+$_['text_payment_custom_field']  = 'Додаткові поля платіжної адреси';
+$_['text_shipping_custom_field'] = 'Додаткові поля адреси доставки';
+$_['text_browser']               = 'Браузер';
+$_['text_ip']                    = 'IP-адреса';
+$_['text_forwarded_ip']          = 'Переспрямована IP-адреса';
+$_['text_user_agent']            = 'User Agent';
+$_['text_accept_language']       = 'Мова браузера';
+$_['text_order_id']              = 'Номер замовлення:';
+$_['text_website']               = 'Вебсайт:';
+$_['text_invoice_no']            = 'Номер рахунку';
+$_['text_invoice_date']          = 'Дата рахунку:';
+$_['text_sku']                   = 'SKU:';
+$_['text_upc']                   = 'UPC:';
+$_['text_ean']                   = 'EAN:';
+$_['text_jan']                   = 'JAN:';
+$_['text_isbn']                  = 'ISBN:';
+$_['text_mpn']                   = 'MPN:';
+$_['text_missing']               = 'Втрачені замовлення';
+$_['text_default']               = 'За замовчуванням';
+$_['text_product']               = 'Додати товар(и)';
+$_['text_voucher']               = 'Додати ваучер(и)';
+$_['text_shipping']              = 'Доставка';
+$_['text_contact']               = 'Контактні дані';
+$_['text_reward_added']          = 'Готово: бонусні бали додано!';
+$_['text_reward_removed']        = 'Готово: бонусні бали видалено!';
+$_['text_commission_added']      = 'Готово: комісію додано!';
+$_['text_commission_removed']    = 'Готово: комісію видалено!';
+$_['text_restock']               = 'Готово: товари повернено на склад!';
+$_['text_upload']                = 'Файл успішно завантажено!';
+$_['text_picklist']              = 'Накладна на відправлення';
+
+// Стовпці
+$_['column_order_id']            = 'Номер замовлення';
+$_['column_customer']            = 'Покупець';
+$_['column_status']              = 'Статус';
+$_['column_date_added']          = 'Дата додавання';
+$_['column_date_modified']       = 'Дата зміни';
+$_['column_total']               = 'Разом';
+$_['column_product']             = 'Товар';
+$_['column_model']               = 'Модель';
+$_['column_quantity']            = 'Кількість';
+$_['column_price']               = 'Ціна за одиницю';
+$_['column_comment']             = 'Коментар';
+$_['column_notify']              = 'Покупця сповіщено';
+$_['column_location']            = 'Розташування';
+$_['column_reference']           = 'Посилання';
+$_['column_action']              = 'Дія';
+$_['column_weight']              = 'Вага товару';
+
+// Поля
+$_['entry_store']                = 'Магазин';
+$_['entry_customer']             = 'Покупець';
+$_['entry_customer_group']       = 'Група покупців';
+$_['entry_firstname']            = 'Ім\'я';
+$_['entry_lastname']             = 'Прізвище';
+$_['entry_email']                = 'E-Mail';
+$_['entry_telephone']            = 'Телефон';
+$_['entry_address']              = 'Виберіть адресу';
+$_['entry_company']              = 'Компанія';
+$_['entry_address_1']            = 'Адреса 1';
+$_['entry_address_2']            = 'Адреса 2';
+$_['entry_city']                 = 'Місто';
+$_['entry_postcode']             = 'Поштовий індекс';
+$_['entry_country']              = 'Країна';
+$_['entry_zone']                 = 'Область / Регіон';
+$_['entry_zone_code']            = 'Код області / регіону';
+$_['entry_product']              = 'Виберіть товар';
+$_['entry_option']               = 'Виберіть опцію(-ї)';
+$_['entry_quantity']             = 'Кількість';
+$_['entry_to_name']              = 'Ім\'я одержувача';
+$_['entry_to_email']             = 'E-Mail одержувача';
+$_['entry_from_name']            = 'Ім\'я відправника';
+$_['entry_from_email']           = 'E-Mail відправника';
+$_['entry_theme']                = 'Тема подарункового сертифіката';
+$_['entry_message']              = 'Повідомлення';
+$_['entry_amount']               = 'Сума';
+$_['entry_affiliate']            = 'Партнер';
+$_['entry_order_status']         = 'Статус замовлення';
+$_['entry_notify']               = 'Сповістити покупця';
+$_['entry_override']             = 'Перевизначити';
+$_['entry_comment']              = 'Коментар';
+$_['entry_currency']             = 'Валюта';
+$_['entry_shipping_method']      = 'Спосіб доставки';
+$_['entry_payment_method']       = 'Спосіб оплати';
+$_['entry_coupon']               = 'Купон';
+$_['entry_voucher']              = 'Ваучер';
+$_['entry_reward']               = 'Бонусні бали';
+$_['entry_order_id']             = 'Номер замовлення';
+$_['entry_total']                = 'Разом';
+$_['entry_date_added']           = 'Дата додавання';
+$_['entry_date_modified']        = 'Дата зміни';
+
+// Підказка
+$_['help_override']              = 'Увімкніть перевизначення, якщо розширення захисту від шахрайства блокує зміну статусу замовлення покупця.';
+
+// Помилки
+$_['error_warning']              = 'Увага: уважно перевірте форму на наявність помилок!';
+$_['error_permission']           = 'Увага: у вас немає прав для редагування замовлень!';
+$_['error_action']               = 'Увага: не вдалося виконати цю дію!';
+$_['error_filetype']             = 'Неприпустимий тип файлу!';

@@ -1,30 +1,35 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
-$_['text_title']				= 'Credit Card / Debit Card (SagePay)';
-$_['text_credit_card']			= 'Card Details';
-$_['text_description']			= 'Items on %s Order No: %s';
-$_['text_card_type']			= 'Card Type: ';
-$_['text_card_name']			= 'Card Name: ';
-$_['text_card_digits']			= 'Last Digits: ';
-$_['text_card_expiry']			= 'Expiry: ';
-$_['text_trial']				= '%s every %s %s for %s payments then ';
-$_['text_recurring']			= '%s every %s %s';
-$_['text_length']				= ' for %s payments';
-$_['text_success']				= 'Your payment has been authorised.';
-$_['text_decline']				= 'Your payment has been declined.';
-$_['text_bank_error']			= 'There was an error processing your request with the bank.';
-$_['text_transaction_error']	= 'There was an error processing your transaction.';
-$_['text_generic_error']		= 'There was an error processing your request.';
-$_['text_hash_failed']			= 'Hash check failed. Do not try your payment again as the payment status is unknown. Please contact the merchant.';
-$_['text_link']					= 'Please click <a href="%s">here</a> to continue';
+$_['text_title']				= 'Кредитна/ Дебетна карта (SagePay)';
+$_['text_credit_card']			= 'Деталі карти';
+$_['text_description']			= 'Товари з %s Замовлення №: %s';
+$_['text_card_type']			= 'Тип карти: ';
+$_['text_card_name']			= 'Назва карти: ';
+$_['text_card_digits']			= 'Останні цифри номера: ';
+$_['text_card_expiry']			= 'Дійсна до: ';
+$_['text_trial']				= '%s кожні %s %s для %s payments then ';
+$_['text_recurring']			= '%s кожні %s %s';
+$_['text_length']				= ' для %s платежів';
+$_['text_success']				= 'Ваш платіж авторизовано.';
+$_['text_decline']				= 'Ваш платіж відхилено.';
+$_['text_bank_error']			= 'В процесі обробки Вашої оплати виникла помилка зі сторони банку.';
+$_['text_transaction_error']	= 'Виникла помилка в обробці вашої транзакції.';
+$_['text_generic_error']		= 'Виникла помилка обробки запиту.';
+$_['text_hash_failed']			= 'Не вдалося перевірити hash. Не намагайтеся ще раз проводити оплату оскільки статус оплати невідомий. Будь-ласка, зв’яжіться з продавцем.';
+$_['text_link']					= 'Будь-ласка, натисніть <a href="%s">тут</a> для продовження';
 $_['text_confirm_delete']		= 'Are you sure you want to delete the card?';
 
 // Entry
-$_['entry_card']				= 'New or Existing Card: ';
-$_['entry_card_existing']		= 'Existing';
-$_['entry_card_new']			= 'New';
-$_['entry_card_save']			= 'Remember card details for future use';
-$_['entry_cc_choice']			= 'Choose an Existing Card';
+$_['entry_card']				= 'Нова чи збережена карта: ';
+$_['entry_card_existing']		= 'Збережена';
+$_['entry_card_new']			= 'Нова';
+$_['entry_card_save']			= 'Зберегти деталі карти для подальшого використання';
+$_['entry_cc_choice']			= 'Виберіть збережену карту';
 
 // Button
 $_['button_delete_card']		= 'Delete selected card';

@@ -1,9 +1,14 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
-$_['text_success']     = 'Success: Your reward points discount has been applied!';
+$_['text_success']     = 'Ви успішно використали бонусні бали!';
 
 // Error
-$_['error_permission'] = 'Warning: You do not have permission to access the API!';
-$_['error_reward']     = 'Warning: Please enter the amount of reward points to use!';
-$_['error_points']     = 'Warning: You don\'t have %s reward points!';
-$_['error_maximum']    = 'Warning: The maximum number of points that can be applied is %s!';
+$_['error_permission'] = 'У Вас немає доступу до API!';
+$_['error_reward']     = 'Будь-ласка введіть суму бонусних балів, які Ви хочете використати для оплати!';
+$_['error_points']     = 'У Вас немає %s бонусних балів!';
+$_['error_maximum']    = 'Максимальна кількість бонусних балів, які Ви можете використати для оплати становить %s!';

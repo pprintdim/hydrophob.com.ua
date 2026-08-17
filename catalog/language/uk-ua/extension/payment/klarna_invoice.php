@@ -1,37 +1,40 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
-$_['text_title']				= 'Klarna Invoice - Pay within 14 days';
+$_['text_title']				= 'Рахунок-фактура Klarna - Сплатити протягом 14 днів';
 $_['text_terms_fee']			= '<span id="klarna_invoice_toc"></span> (+%s)<script type="text/javascript">var terms = new Klarna.Terms.Invoice({el: \'klarna_invoice_toc\', eid: \'%s\', country: \'%s\', charge: %s});</script>';
 $_['text_terms_no_fee']			= '<span id="klarna_invoice_toc"></span><script type="text/javascript">var terms = new Klarna.Terms.Invoice({el: \'klarna_invoice_toc\', eid: \'%s\', country: \'%s\'});</script>';
-$_['text_additional']			= 'Klarna Invoice requires some additional information before they can proccess your order.';
-$_['text_male']					= 'Male';
-$_['text_female']				= 'Female';
-$_['text_year']					= 'Year';
-$_['text_month']				= 'Month';
-$_['text_day']					= 'Day';
-$_['text_comment']				= 'Klarna\'s Invoice ID: %s. ' . "\n" . '%s/%s: %.4f';
-$_['text_trems_description']    = 'Mit der Übermittlung der für die Abwicklung des Rechnungskaufes und einer Identitäts - und Bonitätsprüfung erforderlichen
-Daten an Klarna bin ich einverstanden. Meine <a href="https://online.klarna.com/consent_de.yaws" target="_blank">Einwilligung</a> kann ich jederzeit mit Wirkung für die Zukunft widerrufen.';
+$_['text_additional']			= 'Для рахунку-фактури Klarna необхідна додаткова інформація.';
+$_['text_male']					= 'Чоловік';
+$_['text_female']				= 'Жінка';
+$_['text_year']					= 'Рік';
+$_['text_month']				= 'Місяць';
+$_['text_day']					= 'День';
+$_['text_comment']				= 'Номер рахунку-фактури Klarna: %s. ' . "\n" . '%s/%s: %.4f';
 
 // Entry
-$_['entry_gender']				= 'Gender';
-$_['entry_pno']					= 'Personal Number';
-$_['entry_dob']					= 'Date of Birth';
-$_['entry_phone_no']			= 'Phone number';
-$_['entry_street']				= 'Street';
-$_['entry_house_no']			= 'House No.';
-$_['entry_house_ext']			= 'House Ext.';
-$_['entry_company']				= 'Company Registration Number';
+$_['entry_gender']				= 'Стать';
+$_['entry_pno']					= 'Податковий номер';
+$_['entry_dob']					= 'Дата народження';
+$_['entry_phone_no']			= 'Номер телефону';
+$_['entry_street']				= 'Вулиця';
+$_['entry_house_no']			= 'Номер будинку.';
+$_['entry_house_ext']			= 'Корпус.';
+$_['entry_company']				= 'Реєстраційний номер компанії';
 
 // Help
-$_['help_pno']					= 'Please enter your Social Security number here.';
-$_['help_phone_no']				= 'Please enter your phone number.';
-$_['help_street']				= 'Please note that delivery can only take place to the registered address when paying with Klarna.';
-$_['help_house_no']				= 'Please enter your house number.';
-$_['help_house_ext']			= 'Please submit your house extension here. E.g. A, B, C, Red, Blue ect.';
-$_['help_company']				= 'Please enter your Company\'s registration number';
+$_['help_pno']					= 'Будь-ласка, введіть Ваш податковий номер.';
+$_['help_phone_no']				= 'Будь-ласка, введіть Ваш номер телефону.';
+$_['help_street']				= 'Будь-ласка, зверніть увагу на те, що доставка товару можлива тільки на зареєстровану адресу, якщо Ви оплачуєте за допомогою Klarna.';
+$_['help_house_no']				= 'Будь-ласка, введіть номер Вашого будинку.';
+$_['help_house_ext']			= 'Будь-ласка, введіть додаткову інформацію про Ваш будинок.';
+$_['help_company']				= 'Будь-ласка, введіть реєстраційний номер Вашої компанії';
 
 // Error
-$_['error_deu_terms']			= 'You must agree to Klarna\'s privacy policy (Datenschutz)';
-$_['error_address_match']		= 'Billing and Shipping addresses must match if you want to use Klarna Invoice';
-$_['error_network']				= 'Error occurred while connecting to Klarna. Please try again later.';
+$_['error_deu_terms']			= 'Ви мусите погодитися з умовами політики конфіденційності Klarna(Datenschutz)';
+$_['error_address_match']		= 'Платіжна адреса і адреса доставки повинні співпадати, якщо Ви збираєтеся використати Рахунок-фактуру Klarna';
+$_['error_network']				= 'В процесі обробки виникла помилка. Будь-ласка, спробуйте пізніше.';

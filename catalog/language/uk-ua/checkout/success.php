@@ -1,10 +1,15 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']        = 'Your order has been placed!';
+$_['heading_title']        = 'Ви успішно оформили замовлення!';
 
 // Text
-$_['text_basket']          = 'Shopping Cart';
-$_['text_checkout']        = 'Checkout';
-$_['text_success']         = 'Success';
-$_['text_customer']        = '<p>Your order has been successfully processed!</p><p>You can view your order history by going to the <a href="%s">my account</a> page and by clicking on <a href="%s">history</a>.</p><p>If your purchase has an associated download, you can go to the account <a href="%s">downloads</a> page to view them.</p><p>Please direct any questions you have to the <a href="%s">store owner</a>.</p><p>Thanks for shopping with us online!</p>';
-$_['text_guest']           = '<p>Your order has been successfully processed!</p><p>Please direct any questions you have to the <a href="%s">store owner</a>.</p><p>Thanks for shopping with us online!</p>';
+$_['text_basket']          = 'Кошик';
+$_['text_checkout']        = 'Оформлення замовлення';
+$_['text_success']         = 'Успішно';
+$_['text_customer']        = '<p>Ваше замовлення було успішно опрацьовано!</p><p>Ви можете переглянути історію Ваших замовлень перейшовши в <a href="%s">Мій обліковий запис</a> і натиснувши на <a href="%s">Історія замовлень</a>.</p><p>Якщо ваша покупка потребує завантаження, Ви можете перейти на сторінку <a href="%s">Завантаження</a> для їх перегляду.</p><p>Якщо у Вас є якісь запитання висилайте їх <a href="%s">нам</a>.</p><p>Дякуємо за покупку!</p>';
+$_['text_guest']           = '<p>Ваше замовлення було успішно опрацьовано!</p><p>Якщо у Вас є якісь запитання висилайте їх <a href="%s">нам</a>.</p><p>Дякуємо за покупку!</p>';

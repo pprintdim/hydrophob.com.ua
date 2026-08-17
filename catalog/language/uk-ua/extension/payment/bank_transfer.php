@@ -1,6 +1,11 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
-$_['text_title']       = 'Bank Transfer';
-$_['text_instruction'] = 'Bank Transfer Instructions';
-$_['text_description'] = 'Please transfer the total amount to the following bank account.';
-$_['text_payment']     = 'Your order will not ship until we receive payment.';
+$_['text_title']				= 'Банківський переказ';
+$_['text_instruction']			= 'Інструкції для банківського переказу';
+$_['text_description']			= 'Будь-ласка перекажіть суму замовлення на наступні реквізити.';
+$_['text_payment']			= 'Ваше замовлення буде відправлене після отримання оплати.';

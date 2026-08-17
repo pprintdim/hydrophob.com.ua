@@ -1,29 +1,34 @@
 <?php
-$_['text_title'] = 'Credit / Debit card';
-$_['text_card_details'] = 'Card details';
-$_['text_wait'] = 'Processing your payment';
-$_['text_auth_code'] = 'Authorisation code: %s';
-$_['text_postcode_check'] = 'Postcode check: %s';
-$_['text_security_code_check'] = 'CVV2 check: %s';
-$_['text_address_check'] = 'Address check: %s';
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
+$_['text_title'] = 'Кредитна/Дебетна карта';
+$_['text_card_details'] = 'Деталі карти';
+$_['text_wait'] = 'Обробка Вашої оплати';
+$_['text_auth_code'] = 'Код авторизації: %s';
+$_['text_postcode_check'] = 'Перевірка індексу: %s';
+$_['text_security_code_check'] = 'Перевірка CVV2: %s';
+$_['text_address_check'] = 'Перевірка адреси: %s';
 $_['text_3d_secure_check'] = '3D Secure: %s';
-$_['text_not_given'] = 'Not given';
-$_['text_not_checked'] = 'Not checked';
-$_['text_match'] = 'Matched';
-$_['text_not_match'] = 'Not matched';
-$_['text_authenticated'] = 'Authenticated';
-$_['text_not_authenticated'] = 'Not authenticated';
-$_['text_authentication_not_completed'] = 'Attempted but not completed';
-$_['text_unable_to_perform'] = 'Unable to perform';
-$_['text_transaction_declined'] = 'Your bank has declined the transaction. Please use a different payment method.';
-$_['text_transaction_failed'] = 'Could not process the payment. Please check the details you provided.';
-$_['text_connection_error'] = 'Please try again later or use a different payment method.';
+$_['text_not_given'] = 'Невідомо';
+$_['text_not_checked'] = 'не перевірено';
+$_['text_match'] = 'Співпадає';
+$_['text_not_match'] = 'Не співпадає';
+$_['text_authenticated'] = 'Підтверджені';
+$_['text_not_authenticated'] = 'Не підтверджені';
+$_['text_authentication_not_completed'] = 'Перевіка не завершена';
+$_['text_unable_to_perform'] = 'Не вдалося виконати';
+$_['text_transaction_declined'] = 'Ваш банк відхилив транзакцію. Будь-ласка, виберіть інший спосіб оплати.';
+$_['text_transaction_failed'] = 'Неможливо провести оплату. Будь-ласка, перевірте деталі оплати.';
+$_['text_connection_error'] = 'Будь-ласка, спробуйте пізніше або виберіть інший спосіб оплати.';
 
-$_['entry_type'] = 'Card type';
-$_['entry_number'] = 'Card number';
-$_['entry_expire_date'] = 'Expiry date';
-$_['entry_cvv2'] = 'Security Code (CVV2)';
+$_['entry_type'] = "Тип карти";
+$_['entry_number'] = "Номер карти";
+$_['entry_expire_date'] = "Дійсна до";
+$_['entry_cvv2'] = "Код безпеки (CVV2)";
 
-$_['button_confirm'] = 'Confirm';
+$_['button_confirm'] = 'Підтверджено';
 
-$_['error_failure'] = 'Could not complete transaction. Please try again later or use a different payment method.';
+$_['error_failure'] = 'Неможливо завершити транзакцію. Будь-ласка, спробуйте пізніше або використайте інший спосіб оплати.';

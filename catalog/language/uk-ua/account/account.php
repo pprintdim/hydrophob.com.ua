@@ -1,26 +1,27 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']       = 'My Account';
+$_['heading_title']      = 'Мій обліковий запис';
 
 // Text
-$_['text_account']        = 'Account';
-$_['text_my_account']     = 'My Account';
-$_['text_my_orders']      = 'My Orders';
-$_['text_my_affiliate']   = 'My Affiliate Account';
-$_['text_my_newsletter']  = 'Newsletter';
-$_['text_edit']           = 'Edit your account information';
-$_['text_password']       = 'Change your password';
-$_['text_address']        = 'Modify your address book entries';
-$_['text_credit_card']    = 'Manage Stored Credit Cards';
-$_['text_wishlist']       = 'Modify your wish list';
-$_['text_order']          = 'View your order history';
-$_['text_download']       = 'Downloads';
-$_['text_reward']         = 'Your Reward Points';
-$_['text_return']         = 'View your return requests';
-$_['text_transaction']    = 'Your Transactions';
-$_['text_newsletter']     = 'Subscribe / unsubscribe to newsletter';
-$_['text_recurring']      = 'Recurring payments';
-$_['text_transactions']   = 'Transactions';
-$_['text_affiliate_add']  = 'Register for an affiliate account';
-$_['text_affiliate_edit'] = 'Edit your affiliate information';
-$_['text_tracking']       = 'Custom Affiliate Tracking Code';
+$_['text_account']       = 'Обліковий запис';
+$_['text_my_account']    = 'Обліковий запис';
+$_['text_my_orders']     = 'Замовлення';
+$_['text_my_newsletter'] = 'Розсилання новин';
+$_['text_edit']          = 'Редагувати обліковий запис';
+$_['text_password']      = 'Змінити пароль';
+$_['text_address']       = 'Змінити адреси Вашої адресної книги';
+$_['text_credit_card']   = 'Manage Stored Credit Cards';
+$_['text_wishlist']      = 'Змінити список бажаних товарів';
+$_['text_order']         = 'Переглянути історію замовлень';
+$_['text_download']      = 'Завантаження';
+$_['text_reward']        = 'Бонусні бали';
+$_['text_return']        = 'Переглянути запити на поверення';
+$_['text_transaction']   = 'Транзакції';
+$_['text_newsletter']    = 'Підписатися на/відмовитися від розсилання новин';
+$_['text_recurring']     = 'Регулярні платежі';
+$_['text_transactions']  = 'Транзакції';

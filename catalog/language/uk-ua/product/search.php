@@ -1,34 +1,39 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']     = 'Search';
-$_['heading_tag']       = 'Tag - ';
+$_['heading_title']     = 'Пошук';
+$_['heading_tag']		= 'Тег - ';
 
 // Text
-$_['text_search']       = 'Products meeting the search criteria';
-$_['text_keyword']      = 'Keywords';
-$_['text_category']     = 'All Categories';
-$_['text_sub_category'] = 'Search in subcategories';
-$_['text_empty']        = 'There is no product that matches the search criteria.';
-$_['text_quantity']     = 'Qty:';
-$_['text_manufacturer'] = 'Brand:';
-$_['text_model']        = 'Product Code:';
-$_['text_points']       = 'Reward Points:';
-$_['text_price']        = 'Price:';
-$_['text_tax']          = 'Ex Tax:';
-$_['text_reviews']      = 'Based on %s reviews.';
-$_['text_compare']      = 'Product Compare (%s)';
-$_['text_sort']         = 'Sort By:';
-$_['text_default']      = 'Default';
-$_['text_name_asc']     = 'Name (A - Z)';
-$_['text_name_desc']    = 'Name (Z - A)';
-$_['text_price_asc']    = 'Price (Low &gt; High)';
-$_['text_price_desc']   = 'Price (High &gt; Low)';
-$_['text_rating_asc']   = 'Rating (Lowest)';
-$_['text_rating_desc']  = 'Rating (Highest)';
-$_['text_model_asc']    = 'Model (A - Z)';
-$_['text_model_desc']   = 'Model (Z - A)';
-$_['text_limit']        = 'Show:';
+$_['text_search']       = 'Товари, які відповідають критеріям пошуку';
+$_['text_keyword']      = 'Ключові слова';
+$_['text_category']     = 'Всі категорії';
+$_['text_sub_category'] = 'Пошук в підкатегоріях';
+$_['text_empty']        = 'Немає товарів, які б відповідали критеріям пошуку.';
+$_['text_quantity']     = 'Кількість:';
+$_['text_manufacturer'] = 'Бренд:';
+$_['text_model']        = 'Артикул:';
+$_['text_points']       = 'Бонусні бали:';
+$_['text_price']        = 'Ціна:';
+$_['text_tax']          = 'Без ПДВ:';
+$_['text_reviews']      = 'Згідно з %s оглядами.';
+$_['text_compare']      = 'Порівняння товару (%s)';
+$_['text_sort']         = 'Сортувати за:';
+$_['text_default']      = 'За замовчуванням';
+$_['text_name_asc']     = 'Ім\'я (A - Я)';
+$_['text_name_desc']    = 'Ім\'я (Я - A)';
+$_['text_price_asc']    = 'Ціна (Низька)';
+$_['text_price_desc']   = 'Ціна (Висока)';
+$_['text_rating_asc']   = 'Рейтинг (Низький)';
+$_['text_rating_desc']  = 'Рейтинг (Високий)';
+$_['text_model_asc']    = 'Модель (A - Я)';
+$_['text_model_desc']   = 'Модель (Я - A)';
+$_['text_limit']        = 'Показати:';
 
 // Entry
-$_['entry_search']      = 'Search Criteria';
-$_['entry_description'] = 'Search in product descriptions';
+$_['entry_search']      = 'Критерії пошуку';
+$_['entry_description'] = 'Пошук в описі товару';

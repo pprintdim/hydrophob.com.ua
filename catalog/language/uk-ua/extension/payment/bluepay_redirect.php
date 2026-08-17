@@ -1,30 +1,35 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
-$_['text_title']				= 'Credit Card / Debit Card (BluePay)';
-$_['text_credit_card']			= 'Card Details';
-$_['text_description']			= 'Items on %s Order No: %s';
-$_['text_card_type']			= 'Card Type: ';
-$_['text_card_name']			= 'Card Name: ';
-$_['text_card_digits']			= 'Last Digits: ';
-$_['text_card_expiry']			= 'Expiry: ';
+$_['text_title']				= 'Кредитна карта / Дебетна карта (BluePay)';
+$_['text_credit_card']			= 'Деталі карти';
+$_['text_description']			= 'Товари %s замовлення №: %s';
+$_['text_card_type']			= 'Тип карти: ';
+$_['text_card_name']			= 'Назва карти: ';
+$_['text_card_digits']			= 'Останні цифри: ';
+$_['text_card_expiry']			= 'Дійсна до: ';
 
 // Returned text
-$_['text_transaction_error']	= 'There was an error processing your transaction - ';
+$_['text_transaction_error']	= 'Під час проведення оплати виникла помилка - ';
 
 // Entry
-$_['entry_card']				= 'New or Existing Card: ';
-$_['entry_card_existing']		= 'Existing';
-$_['entry_card_new']			= 'New';
-$_['entry_card_save']			= 'Remember Card Details';
-$_['entry_cc_owner']			= 'Card Owner';
-$_['entry_cc_number']			= 'Card Number';
-$_['entry_cc_start_date']		= 'Card Valid From Date';
-$_['entry_cc_expire_date']		= 'Card Expiry Date';
-$_['entry_cc_cvv2']				= 'Card Security Code (CVV2)';
-$_['entry_cc_address']			= 'Street Address';
-$_['entry_cc_city']				= 'City';
-$_['entry_cc_state']			= 'State';
-$_['entry_cc_zipcode']			= 'Zipcode';
-$_['entry_cc_phone']			= 'Phone';
+$_['entry_card']				= 'Нова чи збережена карта: ';
+$_['entry_card_existing']		= 'Збережена';
+$_['entry_card_new']			= 'Нова';
+$_['entry_card_save']			= 'Зберегти деталі карти';
+$_['entry_cc_owner']			= 'Власник карти';
+$_['entry_cc_number']			= 'Номер карти';
+$_['entry_cc_start_date']		= 'Карта дійсна з';
+$_['entry_cc_expire_date']		= 'Карта дійсна до';
+$_['entry_cc_cvv2']				= 'Код карти (CVV2)';
+$_['entry_cc_address']			= 'Назва вулиці';
+$_['entry_cc_city']				= 'Місто';
+$_['entry_cc_state']			= 'Область';
+$_['entry_cc_zipcode']			= 'Поштовий індекс';
+$_['entry_cc_phone']			= 'Номер телефону';
 $_['entry_cc_email']			= 'E-mail';
-$_['entry_cc_choice']			= 'Choose an Existing Card';
+$_['entry_cc_choice']			= 'Виберіть збережену карту';

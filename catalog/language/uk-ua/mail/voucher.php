@@ -1,8 +1,13 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
-$_['text_subject']  = 'You have been sent a gift certificate from %s';
-$_['text_greeting'] = 'Congratulations, You have received a Gift Certificate worth %s';
-$_['text_from']     = 'This Gift Certificate has been sent to you by %s';
-$_['text_message']  = 'With a message saying';
-$_['text_redeem']   = 'To redeem this Gift Certificate, write down the redemption code which is <b>%s</b> then click on the the link below and purchase the product you wish to use this gift certificate on. You can enter the gift certificate code on the shopping cart page before you click checkout.';
-$_['text_footer']   = 'Please reply to this e-mail if you have any questions.';
+$_['text_subject']  = 'Подарунковий сертифікат Вам відправив %s';
+$_['text_greeting'] = 'Вітання, Ви отримали подарунковий сертифікат номіналом %s';
+$_['text_from']     = 'Цей подарунковий сертифікат Вам відправив %s';
+$_['text_message']  = 'Разом з повідомленням';
+$_['text_redeem']   = 'Для  того, щоб використати цей подарунковий сертифікат напишіть код, а саме <b>%s</b> тоді натисніть на посиланні нижче і купіть товар, який Ви хочете оплатити подарунковим сертифікатом. Також Ви можете ввести код подарункового сертифікату в кошику перед оформленням замовлення.';
+$_['text_footer']   = 'Якщо у Вас виникли якість питання Ви можете їх задати у відповіді на цей лист.';

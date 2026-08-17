@@ -1,20 +1,25 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title'] = 'Failed Payment!';
+$_['heading_title'] = 'Невдала оплата!';
 
 // Text
-$_['text_basket']   = 'Shopping Cart';
-$_['text_checkout'] = 'Checkout';
-$_['text_failure']  = 'Failed Payment';
-$_['text_message']  = '<p>There was a problem processing your payment and the order did not complete.</p>
+$_['text_basket']   = 'Кошик';
+$_['text_checkout'] = 'Оформлення замовлення';
+$_['text_failure']  = 'Невдала оплата';
+$_['text_message']  = '<p>Виникли проблеми при оплаті і тому Ваше замовлення не завершене.</p>
 
-<p>Possible reasons are:</p>
+<p>Можливі причини:</p>
 <ul>
-  <li>Insufficient funds</li>
-  <li>Verification failed</li>
+  <li>Недостатньо коштів</li>
+  <li>Невдала перевірка</li>
 </ul>
 
-<p>Please try to order again using a different payment method.</p>
+<p>Будь ласка, спробуйте інший метод оплати.</p>
 
-<p>If the problem persists please <a href="%s">contact us</a> with the details of the order you are trying to place.</p>
+<p>Якщо проблема залишиться будь-ласка <a href="%s">напишіть нам</a> з подробицями замовлення, яке Ви намагалися зробити.</p>
 ';

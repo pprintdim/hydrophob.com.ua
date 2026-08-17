@@ -1,38 +1,42 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']      = 'Address Book';
+$_['heading_title']        = 'Ваші адреси';
 
 // Text
-$_['text_account']       = 'Account';
-$_['text_address_book']  = 'Address Book Entries';
-$_['text_address_add']   = 'Add Address';
-$_['text_address_edit']  = 'Edit Address';
-$_['text_add']           = 'Your address has been successfully added';
-$_['text_edit']          = 'Your address has been successfully updated';
-$_['text_delete']        = 'Your address has been successfully deleted';
-$_['text_empty']         = 'You have no addresses in your account.';
-$_['text_confirm']       = 'Are you sure?';
+$_['text_account']         = 'Обліковий запис';
+$_['text_address_book']    = 'Список ваших адрес';
+$_['text_edit_address']    = 'Змінити адреси';
+$_['text_add']             = 'Вашу адресу успішно додано';
+$_['text_edit']            = 'Вашу адресу успішно оновлено';
+$_['text_delete']          = 'Вашу адресу успішно видалено';
+$_['text_empty']           = 'У вашому обліковому записі немає адрес.';
 
 // Entry
-$_['entry_firstname']    = 'First Name';
-$_['entry_lastname']     = 'Last Name';
-$_['entry_company']      = 'Company';
-$_['entry_address_1']    = 'Address 1';
-$_['entry_address_2']    = 'Address 2';
-$_['entry_postcode']     = 'Post Code';
-$_['entry_city']         = 'City';
-$_['entry_country']      = 'Country';
-$_['entry_zone']         = 'Region / State';
-$_['entry_default']      = 'Default Address';
+$_['entry_firstname']      = 'Ім\'я';
+$_['entry_lastname']       = 'Прізвище';
+$_['entry_company']        = 'Компанія';
+$_['entry_address_1']      = 'Адреса 1';
+$_['entry_address_2']      = 'Адреса 2';
+$_['entry_postcode']       = 'Індекс';
+$_['entry_city']           = 'Місто';
+$_['entry_country']        = 'Країна';
+$_['entry_zone']           = 'Область/Район';
+$_['entry_default']        = 'Адреса основна';
 
 // Error
-$_['error_delete']       = 'Warning: You must have at least one address!';
-$_['error_default']      = 'Warning: You can not delete your default address!';
-$_['error_firstname']    = 'First Name must be between 1 and 32 characters!';
-$_['error_lastname']     = 'Last Name must be between 1 and 32 characters!';
-$_['error_address_1']    = 'Address must be between 3 and 128 characters!';
-$_['error_postcode']     = 'Postcode must be between 2 and 10 characters!';
-$_['error_city']         = 'City must be between 2 and 128 characters!';
-$_['error_country']      = 'Please select a country!';
-$_['error_zone']         = 'Please select a region / state!';
-$_['error_custom_field'] = '%s required!';
+$_['error_delete']         = 'Ви повинні вказати хоча б одну адресу!';
+$_['error_default']        = 'Ви не можете видалити основну адресу!';
+$_['error_firstname']      = 'Ім\'я повинно містити від 1 до 32 символів!';
+$_['error_lastname']       = 'Прізвище повинно містити від 1 до 32 символів!';
+$_['error_vat']            = 'Неправильний номер платника ПДВ!';
+$_['error_address_1']      = 'Адреса повинна містити від 3 до 128 символів!';
+$_['error_postcode']       = 'Поштовий індекс повинен містити від 2 до 10 символів!';
+$_['error_city']           = 'Назва міста повинна містити від 2 до 128 символів!';
+$_['error_country']        = 'Будь-ласка оберіть країну!';
+$_['error_zone']           = 'Будь-ласка оберіть район/область!';
+$_['error_custom_field']   = '%s необхідно!';

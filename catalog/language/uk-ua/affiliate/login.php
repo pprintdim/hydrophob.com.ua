@@ -1,22 +1,27 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']                 = 'Affiliate Program';
+$_['heading_title']                 = 'Партнерська програма';
 
 // Text
-$_['text_account']                  = 'Account';
-$_['text_login']                    = 'Login';
-$_['text_description']              = '<p>%s affiliate program is free and enables members to earn revenue by placing a link or links on their web site which advertises %s or specific products on it. Any sales made to customers who have clicked on those links will earn the affiliate commission. The standard commission rate is currently %s.</p><p>For more information, visit our FAQ page or see our Affiliate terms &amp; conditions.</p>';
-$_['text_new_affiliate']            = 'New Affiliate';
-$_['text_register_account']         = '<p>I am not currently an affiliate.</p><p>Click Continue below to create a new affiliate account. Please note that this is not connected in any way to your customer account.</p>';
-$_['text_returning_affiliate']      = 'Affiliate Login';
-$_['text_i_am_returning_affiliate'] = 'I am a returning affiliate.';
-$_['text_forgotten']                = 'Forgotten Password';
+$_['text_account']                  = 'Рахунок';
+$_['text_login']                    = 'Логін';
+$_['text_description']              = '<p>%s партнерська програма безкоштовна і дозволяє користувачам заробляти гроші, розміщуючи посилання на їхніх сайтах з рекламою %s або конкретним товаром. Будь-які покупки покупців, які натиснули на такі посилання, принесуть партнерам комісію від продажу. Стандартна комісія зараз складає %s.</p><p>Щоб отримати більше інформації відвідайте сторіну частих питань або перегляньте умови партнерської програми.</p>';
+$_['text_new_affiliate']            = 'Реєстрація в партнерській програмі';
+$_['text_register_account']         = '<p>Я поки-що не зараєстрований в парнерській програмі.</p><p>Натисніть продовжити щоб стати новим партнером. Зверніть увагу що це ніяк не повязано з Вашим обліковий записом покупця.</p>';
+$_['text_returning_affiliate']      = 'Вхід в партнерську програму';
+$_['text_i_am_returning_affiliate'] = 'Вже зареєстрований в партнерській програмі.';
+$_['text_forgotten']                = 'Забули пароль?';
 
 // Entry
-$_['entry_email']                   = 'Affiliate E-Mail';
-$_['entry_password']                = 'Password';
+$_['entry_email']                   = 'E-Mail';
+$_['entry_password']                = 'Пароль';
 
 // Error
-$_['error_login']                   = 'Warning: No match for E-Mail Address and/or Password.';
+$_['error_login']                   = 'E-Mail і/чи пароль не співпадають.';
 $_['error_attempts']                = 'Warning: Your account has exceeded allowed number of login attempts. Please try again in 1 hour.';
-$_['error_approved']                = 'Warning: Your account requires approval before you can login.';
+$_['error_approved']                = 'Ваш обліковий запис потребує підтвердження перед тим як Ви зможете ввійти.';

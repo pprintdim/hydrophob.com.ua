@@ -1,15 +1,19 @@
 <?php
 
-$_['text_title'] = 'Credit / Debit card';
-$_['button_confirm'] = 'Confirm';
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
 
-$_['text_postcode_check'] = 'Postcode check: %s';
-$_['text_security_code_check'] = 'CVV2 check: %s';
-$_['text_address_check'] = 'Address check: %s';
-$_['text_not_given'] = 'Not given';
-$_['text_not_checked'] = 'Not checked';
-$_['text_match'] = 'Matched';
-$_['text_not_match'] = 'Not matched';
-$_['text_payment_details'] = 'Payment details';
+$_['text_title'] = 'Кредитна / Дебетна карта';
+$_['button_confirm'] = 'Підтвердити';
 
-$_['entry_card_type'] = 'Card type';
+$_['text_postcode_check'] = 'Перевірка поштового індексу: %s';
+$_['text_security_code_check'] = 'Перевірка CVV2: %s';
+$_['text_address_check'] = 'Перевірка адреси: %s';
+$_['text_not_given'] = 'Не вказано';
+$_['text_not_checked'] = 'Не перевірено';
+$_['text_match'] = 'Співпадає';
+$_['text_not_match'] = 'Не співпадає';
+$_['text_payment_details'] = 'Деталі оплати';
+
+$_['entry_card_type'] = 'Тип карти';

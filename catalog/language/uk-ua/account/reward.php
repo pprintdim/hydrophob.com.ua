@@ -1,14 +1,19 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']      = 'Your Reward Points';
+$_['heading_title']      = 'Ваші бонусні бали';
 
 // Column
-$_['column_date_added']  = 'Date Added';
-$_['column_description'] = 'Description';
-$_['column_points']      = 'Points';
+$_['column_date_added']  = 'Дата додавання';
+$_['column_description'] = 'Опис';
+$_['column_points']      = 'Бали';
 
 // Text
-$_['text_account']       = 'Account';
-$_['text_reward']        = 'Reward Points';
-$_['text_total']         = 'Your total number of reward points is:';
-$_['text_empty']         = 'You do not have any reward points!';
+$_['text_account']       = 'Обліковий запис';
+$_['text_reward']        = 'Бонусні бали';
+$_['text_total']         = 'Загальна кількість Ваших бонусних балів:';
+$_['text_empty']         = 'У Вас немає бонусних балів!';

@@ -1,11 +1,16 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']				= 'Thank you for shopping with %s .... ';
+$_['heading_title']				= 'Дякуємо за покупку в %s .... ';
 
 // Text
-$_['text_title']				= 'Credit Card / Debit Card (PayPoint)';
-$_['text_response']				= 'Response from PayPoint:';
-$_['text_success']				= '... your payment was successfully received.';
-$_['text_success_wait']			= '<b><span style="color: #FF0000">Please wait...</span></b> whilst we finish processing your order.<br>If you are not automatically re-directed in 10 seconds, please click <a href="%s">here</a>.';
-$_['text_failure']				= '... Your payment has been cancelled!';
-$_['text_failure_wait']			= '<b><span style="color: #FF0000">Please wait...</span></b><br>If you are not automatically re-directed in 10 seconds, please click <a href="%s">here</a>.';
+$_['text_title']				= ' Кредитна/Дебетна карта (PayPoint)';
+$_['text_response']				= 'Відповідь від PayPoint:';
+$_['text_success']				= '... Ваш платіж успішно отримано.';
+$_['text_success_wait']			= '<b><span style="color: #FF0000">Будь ласка, зачекайте...</span></b> поки ми закінчимо обробляти Ваше замовлення.<br>Якщо протягом 10 секунд Ви не будете автоматично перенаправлені, натісніть будь-ласка <a href="%s">тут</a>.';
+$_['text_failure']				= '... Ваш платіж скасовано!';
+$_['text_failure_wait']			= '<b><span style="color: #FF0000">Будь ласка, зачекайте...</span></b><br>Якщо протягом 10 секунд Ви не будете автоматично перенаправлені, натісніть будь-ласка <a href="%s">тут</a>.';

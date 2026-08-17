@@ -1,14 +1,20 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Text
-$_['text_success']     = 'Success: Your gift voucher discount has been applied!';
-$_['text_cart']        = 'Success: You have modified your shopping cart!';
-$_['text_for']         = '%s Gift Certificate for %s';
+$_['text_success']     = 'Ви успішно використали знижку подарункового сертифікату!';
+$_['text_cart']        = 'Ви успішно змінили Кошик!';
+
+$_['text_for']         = '%s Подарунковий сертифікат %s';
 
 // Error
-$_['error_permission'] = 'Warning: You do not have permission to access the API!';
-$_['error_voucher']    = 'Warning: Gift Voucher is either invalid or the balance has been used up!';
-$_['error_to_name']    = 'Recipient\'s Name must be between 1 and 64 characters!';
-$_['error_from_name']  = 'Your Name must be between 1 and 64 characters!';
-$_['error_email']      = 'E-Mail Address does not appear to be valid!';
-$_['error_theme']      = 'You must select a theme!';
-$_['error_amount']     = 'Amount must be between %s and %s!';
+$_['error_permission'] = 'У Вас немає доступу до API!';
+$_['error_voucher']    = 'Подарунковий сертифікат недійсний або уже використаний!';
+$_['error_to_name']    = 'Ім\'я одержувача повинно містити від 1 до 64 символів!';
+$_['error_from_name']  = 'Ваше ім\'я повинно містити від 1 до 64 символів!';
+$_['error_email']      = 'Неправильний E-Mail!';
+$_['error_theme']      = 'Вкажіть тему!';
+$_['error_amount']     = 'Сума повинна бути від %s і до %s!';

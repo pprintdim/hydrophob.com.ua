@@ -1,7 +1,12 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']    = 'Технічні роботи';
+$_['heading_title']    = 'Сайт на технічному обсліговуванні';
 
 // Text
-$_['text_maintenance'] = 'Технічні роботи';
-$_['text_message']     = '<h1 style="text-align:center;">Наразі проводяться планові технічні роботи. <br/>Ми повернемось найближчим часом. Будь ласка, зайдіть трохи пізніше.</h1>';
+$_['text_maintenance'] = 'Сайт знаходиться на технічному обслуговуванні';
+$_['text_message']     = '<h1 style="text-align:center;">В даний час ми проводимо планове технічне обслуговування. <br/>Сайт скоро відновить свою роботу. Будь ласка, зайдіть через деякий час.</h1>';

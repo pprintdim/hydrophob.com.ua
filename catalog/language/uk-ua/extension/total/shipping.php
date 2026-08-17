@@ -1,20 +1,25 @@
 <?php
+
+//Update for OpenCart 2.3.x by OpenCart Ukrainian Community http://opencart.ua
+//Made by Sirchyk for www.marketplus.if.ua on 16 of october 2014.
+//info@marketplus.if.ua
+
 // Heading
-$_['heading_title']        = 'Estimate Shipping &amp; Taxes';
+$_['heading_title']        = 'Визначення вартості доставки і податку';
 
 // Text
-$_['text_success']         = 'Success: Your shipping estimate has been applied!';
-$_['text_shipping']        = 'Enter your destination to get a shipping estimate.';
-$_['text_shipping_method'] = 'Please select the preferred shipping method to use on this order.';
+$_['text_success']         = 'Ви успішно застосували оцінку вартості доставки!';
+$_['text_shipping']        = 'Введіть адресу доставки для визначення вартості доставки.';
+$_['text_shipping_method'] = 'Будь-ласка виберіть бажаний спосіб доставки цього замовлення.';
 
 // Entry
-$_['entry_country']        = 'Country';
-$_['entry_zone']           = 'Region / State';
-$_['entry_postcode']       = 'Post Code';
+$_['entry_country']        = 'Країна';
+$_['entry_zone']           = 'Район/Область';
+$_['entry_postcode']       = 'Індекс';
 
 // Error
-$_['error_postcode']       = 'Postcode must be between 2 and 10 characters!';
-$_['error_country']        = 'Please select a country!';
-$_['error_zone']           = 'Please select a region / state!';
-$_['error_shipping']       = 'Warning: Shipping method required!';
-$_['error_no_shipping']    = 'Warning: No Shipping options are available. Please <a href="%s">contact us</a> for assistance!';
+$_['error_postcode']       = 'Індекс повинен містити від 2 до 10 символів!';
+$_['error_country']        = 'Оберіть країну!';
+$_['error_zone']           = 'Оберіть район/область!';
+$_['error_shipping']       = 'Оберіть спосіб доставки!';
+$_['error_no_shipping']    = 'Немає варіантів доставки. Будь-ласка <a href="%s">зв`яжіться з нами</a> для допомоги!';
