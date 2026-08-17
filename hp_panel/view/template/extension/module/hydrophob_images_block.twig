@@ -27,10 +27,12 @@
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
 
+          <div id="images-items">
           {% for item in items %}
           {% set idx = loop.index0 %}
-          <div class="hydro-card">
-            <div class="hydro-card__title">{{ entry_item }} {{ loop.index }}</div>
+          <div class="hydro-card images-item">
+            <button type="button" class="btn btn-danger btn-xs pull-right images-item-remove" title="{{ button_remove|default('Видалити') }}"><i class="fa fa-minus-circle"></i></button>
+            <div class="hydro-card__title">{{ entry_item }} <span class="images-item-num">{{ loop.index }}</span></div>
             <div class="row">
               <div class="col-sm-3">
                 <a href="" id="thumb-item{{ idx }}" data-toggle="image" class="img-thumbnail">
@@ -55,6 +57,11 @@
             </div>
           </div>
           {% endfor %}
+          </div>
+
+          <div class="form-group" style="margin:0 0 14px;">
+            <button type="button" id="images-item-add" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> Додати плитку</button>
+          </div>
 
           <div class="hydro-card">
             <div class="hydro-card__title">{{ entry_logo }}</div>
@@ -89,5 +96,45 @@
 .hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
 .hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
 </style>
+
+
+<script type="text/javascript"><!--
+// Репітер плиток: додавання нового ряду (порожні поля) і видалення; name-індекси
+// перенумеровуються при сабміті не потрібно — PHP приймає будь-які ключі, головне унікальність.
+var imagesRowIndex = {{ items|length }};
+document.getElementById('images-item-add').addEventListener('click', function () {
+  var wrap = document.getElementById('images-items');
+  var idx = imagesRowIndex++;
+  var card = document.createElement('div');
+  card.className = 'hydro-card images-item';
+  var langs = [{% for language in languages %}{id: {{ language.language_id }}, name: '{{ language.name }}'}{% if not loop.last %},{% endif %}{% endfor %}];
+  var tabs = '', panes = '';
+  langs.forEach(function (l, i) {
+    tabs += '<li' + (i === 0 ? ' class="active"' : '') + '><a href="#item' + idx + '-alt' + l.id + '" data-toggle="tab">' + l.name + '</a></li>';
+    panes += '<div class="tab-pane' + (i === 0 ? ' active' : '') + '" id="item' + idx + '-alt' + l.id + '">' +
+      '<input type="text" name="module_hydrophob_images_block_items[' + idx + '][alt][' + l.id + ']" value="" placeholder="{{ entry_alt }}" class="form-control" /></div>';
+  });
+  card.innerHTML =
+    '<button type="button" class="btn btn-danger btn-xs pull-right images-item-remove"><i class="fa fa-minus-circle"></i></button>' +
+    '<div class="hydro-card__title">{{ entry_item }} <span class="images-item-num"></span></div>' +
+    '<div class="row"><div class="col-sm-3">' +
+    '<a href="" id="thumb-item' + idx + '" data-toggle="image" class="img-thumbnail">' +
+    '<img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" /></a>' +
+    '<input type="hidden" name="module_hydrophob_images_block_items[' + idx + '][tile]" value="" id="input-item' + idx + '" />' +
+    '</div><div class="col-sm-9">' +
+    '<ul class="nav nav-tabs hydro-tabs">' + tabs + '</ul>' +
+    '<div class="tab-content hydro-tab-content">' + panes + '</div>' +
+    '</div></div>';
+  wrap.appendChild(card);
+  renumberImages();
+});
+document.getElementById('images-items').addEventListener('click', function (e) {
+  var btn = e.target.closest('.images-item-remove');
+  if (btn) { btn.closest('.images-item').remove(); renumberImages(); }
+});
+function renumberImages() {
+  document.querySelectorAll('#images-items .images-item-num').forEach(function (el, i) { el.textContent = i + 1; });
+}
+//--></script>
 
 {{ footer }}

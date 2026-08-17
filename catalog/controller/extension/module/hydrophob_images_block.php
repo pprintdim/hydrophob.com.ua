@@ -16,14 +16,20 @@ class ControllerExtensionModuleHydrophobImagesBlock extends Controller {
 		$itemsSetting = $this->config->get($this->code . '_items');
 
 		$items = array();
-		for ($i = 0; $i < 4; $i++) {
-			$tileSetting = $itemsSetting[$i]['tile'] ?? '';
-			$tile = $tileSetting ? 'image/' . $tileSetting : ($legacyItems[$i]['tile'] ?? '');
-
-			$altSetting = $itemsSetting[$i]['alt'] ?? array();
-			$alt = $this->localizedFromArray($altSetting, $lang_id, $legacyItems[$i]['alt'] ?? '');
-
-			$items[] = array('tile' => $tile, 'alt' => $alt);
+		if (is_array($itemsSetting) && $itemsSetting) {
+			// репітер: довільна кількість плиток з адмінки
+			foreach (array_values($itemsSetting) as $i => $row) {
+				$tile = !empty($row['tile']) ? 'image/' . $row['tile'] : ($legacyItems[$i]['tile'] ?? '');
+				if ($tile === '') {
+					continue;
+				}
+				$alt = $this->localizedFromArray($row['alt'] ?? array(), $lang_id, $legacyItems[$i]['alt'] ?? '');
+				$items[] = array('tile' => $tile, 'alt' => $alt);
+			}
+		} else {
+			foreach ($legacyItems as $legacy) {
+				$items[] = array('tile' => $legacy['tile'] ?? '', 'alt' => $legacy['alt'] ?? '');
+			}
 		}
 
 		$data['items'] = $items;

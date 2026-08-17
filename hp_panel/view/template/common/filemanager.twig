@@ -36,6 +36,22 @@
             <input type="checkbox" name="path[]" value="{{ image.path }}" />
             {{ image.name }}</label>
           {% endif %}
+          {% if image.type == 'video' %}
+          <a href="{{ image.href }}" class="thumbnail video-thumbnail" data-path="{{ image.path }}" style="display:block;padding:4px;background:#000;text-align:center;">
+            <video src="{{ image.href }}" style="max-width:100%;max-height:80px;" preload="metadata" muted></video>
+          </a>
+          <label>
+            <input type="checkbox" name="path[]" value="{{ image.path }}" />
+            {{ image.name }}</label>
+          {% endif %}
+          {% if image.type == 'document' %}
+          <a href="{{ image.href }}" class="thumbnail document-thumbnail" data-path="{{ image.path }}" style="display:block;padding:18px 4px;color:#34495e;text-decoration:none;">
+            <i class="fa fa-file-text-o fa-5x"></i>
+          </a>
+          <label>
+            <input type="checkbox" name="path[]" value="{{ image.path }}" />
+            {{ image.name }}</label>
+          {% endif %}
         </div>
         {% endfor %}
       </div>
@@ -47,7 +63,7 @@
 </div>
 <script type="text/javascript"><!--
 {% if target %}
-$('a.thumbnail').on('click', function(e) {
+$('a.thumbnail').not('.video-thumbnail, .document-thumbnail').on('click', function(e) {
 	e.preventDefault();
 
 	{% if thumb %}
@@ -55,6 +71,32 @@ $('a.thumbnail').on('click', function(e) {
 	{% endif %}
 
 	$('#{{ target|escape('js') }}').val($(this).parent().find('input').val());
+
+	$('#modal-image').modal('hide');
+});
+
+$('a.video-thumbnail').on('click', function(e) {
+	e.preventDefault();
+
+	var path = $(this).data('path');
+
+	$('#{{ target|escape('js') }}').val(path);
+
+	{% if thumb %}
+	var $thumb = $('#{{ thumb|escape('js') }}');
+	if ($thumb.find('video').length) {
+		$thumb.find('video source').attr('src', $(this).attr('href'));
+		$thumb.find('video')[0].load();
+	}
+	{% endif %}
+
+	$('#modal-image').modal('hide');
+});
+
+$('a.document-thumbnail').on('click', function(e) {
+	e.preventDefault();
+
+	$('#{{ target|escape('js') }}').val($(this).data('path'));
 
 	$('#modal-image').modal('hide');
 });
@@ -107,6 +149,10 @@ $('#button-search').on('click', function(e) {
 	url += '&target=' + '{{ target|escape('js') }}';
 	{% endif %}
 
+	{% if filter_type %}
+	url += '&filter_type=' + '{{ filter_type|escape('js') }}';
+	{% endif %}
+
 	$('#modal-image').load(url);
 });
 //--></script>
@@ -114,7 +160,7 @@ $('#button-search').on('click', function(e) {
 $('#button-upload').on('click', function() {
 	$('#form-upload').remove();
 
-	$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file[]" value="" multiple="multiple" /></form>');
+	$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file[]" value="" multiple="multiple"{% if filter_type == 'document' %} accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"{% elseif filter_type == 'video' %} accept="video/mp4,.mp4"{% endif %} /></form>');
 
 	$('#form-upload input[name=\'file[]\']').trigger('click');
 
@@ -127,7 +173,7 @@ $('#button-upload').on('click', function() {
 			clearInterval(timer);
 
 			$.ajax({
-				url: 'index.php?route=common/filemanager/upload&user_token={{ user_token }}&directory={{ directory }}',
+				url: 'index.php?route=common/filemanager/upload&user_token={{ user_token }}&directory={{ directory }}{% if filter_type %}&filter_type={{ filter_type|escape('js') }}{% endif %}',
 				type: 'post',
 				dataType: 'json',
 				data: new FormData($('#form-upload')[0]),

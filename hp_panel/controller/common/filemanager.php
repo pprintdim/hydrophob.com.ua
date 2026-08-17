@@ -37,6 +37,8 @@ class ControllerCommonFileManager extends Controller {
 		$this->load->model('tool/image');
 
 		if (substr(str_replace('\\', '/', realpath($directory) . '/' . $filter_name), 0, strlen(DIR_IMAGE . 'catalog')) == str_replace('\\', '/', DIR_IMAGE . 'catalog')) {
+			$filter_type = isset($this->request->get['filter_type']) ? $this->request->get['filter_type'] : '';
+
 			// Get directories
 			$directories = glob($directory . '/' . $filter_name . '*', GLOB_ONLYDIR);
 
@@ -45,7 +47,13 @@ class ControllerCommonFileManager extends Controller {
 			}
 
 			// Get files
-			$files = glob($directory . '/' . $filter_name . '*.{jpg,jpeg,png,gif,webp,JPG,JPEG,PNG,GIF,WEBP}', GLOB_BRACE);
+			if ($filter_type === 'video') {
+				$files = glob($directory . '/' . $filter_name . '*.{mp4,MP4}', GLOB_BRACE);
+			} elseif ($filter_type === 'document') {
+				$files = glob($directory . '/' . $filter_name . '*.{pdf,doc,docx,PDF,DOC,DOCX}', GLOB_BRACE);
+			} else {
+				$files = glob($directory . '/' . $filter_name . '*.{jpg,jpeg,png,gif,webp,svg,mp4,pdf,doc,docx,JPG,JPEG,PNG,GIF,WEBP,SVG,MP4,PDF,DOC,DOCX}', GLOB_BRACE);
+			}
 
 			if (!$files) {
 				$files = array();
@@ -75,6 +83,10 @@ class ControllerCommonFileManager extends Controller {
 					$url .= '&thumb=' . $this->request->get['thumb'];
 				}
 
+				if (isset($this->request->get['filter_type'])) {
+					$url .= '&filter_type=' . $this->request->get['filter_type'];
+				}
+
 				$data['images'][] = array(
 					'thumb' => '',
 					'name'  => implode(' ', $name),
@@ -83,17 +95,40 @@ class ControllerCommonFileManager extends Controller {
 					'href'  => $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . '&directory=' . urlencode(utf8_substr($image, utf8_strlen(DIR_IMAGE . 'catalog/'))) . $url, true)
 				);
 			} elseif (is_file($image)) {
-				$data['images'][] = array(
-					'thumb' => $this->model_tool_image->resize(utf8_substr($image, utf8_strlen(DIR_IMAGE)), 100, 100),
-					'name'  => implode(' ', $name),
-					'type'  => 'image',
-					'path'  => utf8_substr($image, utf8_strlen(DIR_IMAGE)),
-					'href'  => $server . 'image/' . utf8_substr($image, utf8_strlen(DIR_IMAGE))
-				);
+				$ext = strtolower(pathinfo($image, PATHINFO_EXTENSION));
+
+				if ($ext === 'mp4') {
+					$data['images'][] = array(
+						'thumb' => '',
+						'name'  => implode(' ', $name),
+						'type'  => 'video',
+						'path'  => utf8_substr($image, utf8_strlen(DIR_IMAGE)),
+						'href'  => $server . 'image/' . utf8_substr($image, utf8_strlen(DIR_IMAGE))
+					);
+				} elseif (in_array($ext, array('pdf', 'doc', 'docx'))) {
+					$data['images'][] = array(
+						'thumb' => '',
+						'name'  => implode(' ', $name),
+						'type'  => 'document',
+						'path'  => utf8_substr($image, utf8_strlen(DIR_IMAGE)),
+						'href'  => $server . 'image/' . utf8_substr($image, utf8_strlen(DIR_IMAGE))
+					);
+				} else {
+					$data['images'][] = array(
+						'thumb' => $this->model_tool_image->resize(utf8_substr($image, utf8_strlen(DIR_IMAGE)), 100, 100),
+						'name'  => implode(' ', $name),
+						'type'  => 'image',
+						'path'  => utf8_substr($image, utf8_strlen(DIR_IMAGE)),
+						'href'  => $server . 'image/' . utf8_substr($image, utf8_strlen(DIR_IMAGE))
+					);
+				}
 			}
 		}
 
 		$data['user_token'] = $this->session->data['user_token'];
+
+		$filter_type = isset($this->request->get['filter_type']) ? $this->request->get['filter_type'] : '';
+		$data['filter_type'] = $filter_type;
 
 		if (isset($this->request->get['directory'])) {
 			$data['directory'] = urlencode($this->request->get['directory']);
@@ -121,6 +156,8 @@ class ControllerCommonFileManager extends Controller {
 			$data['thumb'] = '';
 		}
 
+		$ft_param = $filter_type ? '&filter_type=' . $filter_type : '';
+
 		// Parent
 		$url = '';
 
@@ -140,7 +177,7 @@ class ControllerCommonFileManager extends Controller {
 			$url .= '&thumb=' . $this->request->get['thumb'];
 		}
 
-		$data['parent'] = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url, true);
+		$data['parent'] = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . $ft_param, true);
 
 		// Refresh
 		$url = '';
@@ -157,7 +194,7 @@ class ControllerCommonFileManager extends Controller {
 			$url .= '&thumb=' . $this->request->get['thumb'];
 		}
 
-		$data['refresh'] = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url, true);
+		$data['refresh'] = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . $ft_param, true);
 
 		$url = '';
 
@@ -181,7 +218,7 @@ class ControllerCommonFileManager extends Controller {
 		$pagination->total = $image_total;
 		$pagination->page = $page;
 		$pagination->limit = 16;
-		$pagination->url = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
+		$pagination->url = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . $ft_param . '&page={page}', true);
 
 		$data['pagination'] = $pagination->render();
 
@@ -229,7 +266,7 @@ class ControllerCommonFileManager extends Controller {
 			foreach ($files as $file) {
 				if (is_file($file['tmp_name'])) {
 					// Sanitize the filename
-					$filename = basename(html_entity_decode($file['name'], ENT_QUOTES, 'UTF-8'));
+					$filename = sanitize_upload_filename($file['name']);
 
 					// Validate the filename length
 					if ((utf8_strlen($filename) < 3) || (utf8_strlen($filename) > 255)) {
@@ -242,7 +279,12 @@ class ControllerCommonFileManager extends Controller {
 						'jpeg',
 						'gif',
 						'png',
-						'webp'
+						'webp',
+						'svg',
+						'mp4',
+						'pdf',
+						'doc',
+						'docx'
 					);
 
 					if (!in_array(utf8_strtolower(utf8_substr(strrchr($filename, '.'), 1)), $allowed)) {
@@ -256,7 +298,13 @@ class ControllerCommonFileManager extends Controller {
 						'image/png',
 						'image/x-png',
 						'image/gif',
-						'image/webp'
+						'image/webp',
+						'image/svg+xml',
+						'video/mp4',
+						'application/pdf',
+						'application/msword',
+						'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+						'application/octet-stream'
 					);
 
 					if (!in_array($file['type'], $allowed)) {

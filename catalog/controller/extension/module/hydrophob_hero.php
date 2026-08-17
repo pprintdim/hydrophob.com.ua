@@ -22,7 +22,7 @@ class ControllerExtensionModuleHydrophobHero extends Controller {
 		$data['alt'] = $alt_setting !== null && $alt_setting !== '' ? $alt_setting : ($images['hero']['alt'] ?? 'Hydrophob');
 
 		$video_setting = $this->config->get('module_hydrophob_hero_video');
-		$data['video'] = $video_setting !== null && $video_setting !== '' ? $video_setting : ($images['hero']['video'] ?? 'video/hero.mp4');
+		$data['video'] = $video_setting !== null && $video_setting !== '' ? $this->videoPath($video_setting) : ($images['hero']['video'] ?? 'video/hero.mp4');
 
 		return $this->load->view('extension/module/hydrophob_hero', $data);
 	}
@@ -74,5 +74,13 @@ class ControllerExtensionModuleHydrophobHero extends Controller {
 			return 'image/hydrophob/' . substr($value, 4);
 		}
 		return $value;
+	}
+
+	/** Шлях відео: з медіатеки приходить відносно image/ (напр. catalog/x.mp4), легасі — video/... як є. */
+	private function videoPath($value) {
+		if (!$value || strpos($value, 'video/') === 0 || strpos($value, 'http') === 0 || strpos($value, 'image/') === 0) {
+			return $value;
+		}
+		return 'image/' . $value;
 	}
 }

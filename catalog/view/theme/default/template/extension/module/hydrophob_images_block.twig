@@ -2,22 +2,12 @@
     <div class="container">
         <div class="imagesBlock__inner">
             <div class="imagesBlock__block">
-                <div class="imagesBlock__item imagesBlock__item-large">
-                    <img class="imagesBlock__item-image" src="{{ items[0].tile|default('image/hydrophob/imagesBlock/KOV00626-tile.webp') }}" alt="{{ items[0].alt|default('') }}" loading="lazy" decoding="async">
-                    <img class="imagesBlock__item-logo" src="{{ logo|default('image/hydrophob/imagesBlock/logo.webp') }}" alt="Hydrophob" loading="lazy" decoding="async">
+                {% for item in items %}
+                <div class="imagesBlock__item{% if loop.index0 == 0 %} imagesBlock__item-large{% elseif loop.index0 == 1 %} imagesBlock__item-fill{% endif %}">
+                    <img class="imagesBlock__item-image" src="{{ item.tile }}" alt="{{ item.alt }}" loading="lazy" decoding="async">
+                    <img class="imagesBlock__item-logo{% if loop.index0 == 2 %} imagesBlock__item-end{% endif %}" src="{{ logo|default('image/hydrophob/imagesBlock/logo.webp') }}" alt="Hydrophob" loading="lazy" decoding="async">
                 </div>
-                <div class="imagesBlock__item imagesBlock__item-fill">
-                    <img class="imagesBlock__item-image" src="{{ items[1].tile|default('image/hydrophob/imagesBlock/KOV09659-tile.webp') }}" alt="{{ items[1].alt|default('') }}" loading="lazy" decoding="async">
-                    <img class="imagesBlock__item-logo" src="{{ logo|default('image/hydrophob/imagesBlock/logo.webp') }}" alt="Hydrophob" loading="lazy" decoding="async">
-                </div>
-                <div class="imagesBlock__item">
-                    <img class="imagesBlock__item-image" src="{{ items[2].tile|default('image/hydrophob/imagesBlock/frame-canister-tile.webp') }}" alt="{{ items[2].alt|default('') }}" loading="lazy" decoding="async">
-                    <img class="imagesBlock__item-logo imagesBlock__item-end" src="{{ logo|default('image/hydrophob/imagesBlock/logo.webp') }}" alt="Hydrophob" loading="lazy" decoding="async">
-                </div>
-                <div class="imagesBlock__item">
-                    <img class="imagesBlock__item-image" src="{{ items[3].tile|default('image/hydrophob/imagesBlock/frame-sprayers-tile.webp') }}" alt="{{ items[3].alt|default('') }}" loading="lazy" decoding="async">
-                    <img class="imagesBlock__item-logo" src="{{ logo|default('image/hydrophob/imagesBlock/logo.webp') }}" alt="Hydrophob" loading="lazy" decoding="async">
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>

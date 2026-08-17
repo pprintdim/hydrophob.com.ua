@@ -54,7 +54,12 @@
           <div class="form-group">
             <label class="col-sm-2 control-label">{{ entry_video }}</label>
             <div class="col-sm-10">
-              <input type="text" name="module_hydrophob_hero_video" value="{{ video }}" placeholder="{{ entry_video }}" class="form-control" />
+              <div class="input-group">
+                <input type="text" name="module_hydrophob_hero_video" value="{{ video }}" placeholder="{{ entry_video }}" id="input-hero-video" class="form-control" />
+                <span class="input-group-btn">
+                  <a href="" data-toggle="video" data-video-input="input-hero-video" class="btn btn-default" title="Вибрати з медіатеки"><i class="fa fa-film"></i></a>
+                </span>
+              </div>
               <p class="help-block">{{ help_video }}</p>
             </div>
           </div>
@@ -101,4 +106,20 @@
 .hydro-row__lang { color: #5f6f86; display: block; font-size: 11px; font-weight: 600; line-height: 1; margin-bottom: 4px; text-transform: uppercase; }
 </style>
 
+
+<script type="text/javascript"><!--
+$(document).on('click', 'a[data-toggle="video"]', function (e) {
+  e.preventDefault();
+  var targetId = $(this).data('video-input');
+  $('#modal-image').remove();
+  $.ajax({
+    url: 'index.php?route=common/filemanager&user_token={{ user_token }}&target=' + targetId + '&filter_type=video',
+    dataType: 'html',
+    success: function (html) {
+      $('body').append('<div id="modal-image" class="modal">' + html + '</div>');
+      $('#modal-image').modal('show');
+    }
+  });
+});
+//--></script>
 {{ footer }}

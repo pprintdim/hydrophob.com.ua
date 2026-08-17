@@ -36,14 +36,18 @@ class ControllerExtensionModuleHydrophobImagesBlock extends Controller {
 
 		$data['status'] = $this->field('status', 1);
 
-		$items = $this->field('items', array());
+		// Репітер: кількість плиток довільна (мінімум для сітки — 4, але не обмежуємо)
+		$items = array_values((array)$this->field('items', array()));
+		if (!$items) {
+			$items = array_fill(0, 4, array('tile' => '', 'alt' => array()));
+		}
 		$data['items'] = array();
-		for ($i = 0; $i < 4; $i++) {
-			$tile = $items[$i]['tile'] ?? '';
+		foreach ($items as $i => $item) {
+			$tile = $item['tile'] ?? '';
 			$data['items'][$i] = array(
 				'tile'       => $tile,
 				'thumb_tile' => $tile ? $this->model_tool_image->resize($tile, 160, 120) : $data['placeholder'],
-				'alt'        => $items[$i]['alt'] ?? array(),
+				'alt'        => $item['alt'] ?? array(),
 			);
 		}
 

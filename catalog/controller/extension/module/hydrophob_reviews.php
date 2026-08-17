@@ -26,7 +26,7 @@ class ControllerExtensionModuleHydrophobReviews extends Controller {
 				$items[] = array(
 					'poster'  => $poster ? 'image/' . $poster : '',
 					'alt'     => $this->localizedFromArray($item['alt'] ?? array(), $lang_id),
-					'video'   => $item['video'] ?? '',
+					'video'   => $this->videoPath($item['video'] ?? ''),
 					'index'   => $index,
 					'message' => $this->localizedFromArray($item['message'] ?? array(), $lang_id),
 				);
@@ -40,7 +40,7 @@ class ControllerExtensionModuleHydrophobReviews extends Controller {
 				$items[] = array(
 					'poster'  => $reviewItem['poster'] ?? '',
 					'alt'     => $reviewItem['alt'] ?? 'Відгук про Hydrophob',
-					'video'   => $reviewItem['video'] ?? '',
+					'video'   => $this->videoPath($reviewItem['video'] ?? ''),
 					'index'   => $index,
 					'message' => $this->localized('legacy_message' . $index, $lang_id, $strings['reviews']['message' . $index] ?? array()),
 				);
@@ -104,5 +104,13 @@ class ControllerExtensionModuleHydrophobReviews extends Controller {
 			return 'image/hydrophob/' . substr($value, 4);
 		}
 		return $value;
+	}
+
+	/** Шлях відео: з медіатеки приходить відносно image/ (напр. catalog/x.mp4), легасі — video/... як є. */
+	private function videoPath($value) {
+		if (!$value || strpos($value, 'video/') === 0 || strpos($value, 'http') === 0 || strpos($value, 'image/') === 0) {
+			return $value;
+		}
+		return 'image/' . $value;
 	}
 }

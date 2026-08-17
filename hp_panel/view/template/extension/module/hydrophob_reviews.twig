@@ -50,12 +50,14 @@
             </div>
             <div id="reviews-body">
               {% for i, item in items %}
-              <div class="hydro-row" id="review-row{{ i }}">
-                <div class="hydro-row__head">
+              <div class="hydro-row hydro-row--collapsed" id="review-row{{ i }}">
+                <div class="hydro-row__head hydro-row__toggle">
+                  <i class="fa fa-chevron-right hydro-row__chevron"></i>
                   <strong>{{ entry_item }} {{ i + 1 }}</strong>
+                  <span class="hydro-row__preview">{{ item.message[2] is defined ? item.message[2]|striptags|slice(0, 60) : '' }}</span>
                   <button type="button" class="btn btn-danger btn-sm btn-remove-review"><i class="fa fa-minus-circle"></i></button>
                 </div>
-                <div class="row">
+                <div class="row hydro-row__body">
                   <div class="col-sm-3">
                     <a href="" id="thumb-review{{ i }}" data-toggle="image" class="img-thumbnail">
                       <img src="{{ item.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" />
@@ -63,7 +65,12 @@
                     <input type="hidden" name="module_hydrophob_reviews_items[{{ i }}][poster]" value="{{ item.poster }}" id="input-review{{ i }}" />
                     <div class="form-group" style="margin-top:8px;">
                       <label>{{ entry_video }}</label>
-                      <input type="text" name="module_hydrophob_reviews_items[{{ i }}][video]" value="{{ item.video }}" class="form-control input-sm" />
+                      <div class="input-group input-group-sm">
+                        <input type="text" name="module_hydrophob_reviews_items[{{ i }}][video]" value="{{ item.video }}" id="input-review-video{{ i }}" class="form-control input-sm" />
+                        <span class="input-group-btn">
+                          <a href="" id="thumb-review-video{{ i }}" data-toggle="video" data-video-input="input-review-video{{ i }}" class="btn btn-default btn-sm" title="Вибрати з медіатеки"><i class="fa fa-film"></i></a>
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div class="col-sm-9">
@@ -145,19 +152,43 @@ function reviewLangTabs(prefix, kind) {
   return tabsHtml + contentHtml;
 }
 
+
+// Акордеон рядів (початково згорнуто; клік по шапці розгортає)
+document.getElementById('reviews-body').addEventListener('click', function (e) {
+  if (e.target.closest('.btn-remove-review') || e.target.closest('a[data-toggle]')) return;
+  var head = e.target.closest('.hydro-row__toggle');
+  if (!head) return;
+  head.closest('.hydro-row').classList.toggle('hydro-row--collapsed');
+});
+
+// Вибір відео з медіатеки (filemanager з filter_type=video)
+$(document).on('click', 'a[data-toggle="video"]', function (e) {
+  e.preventDefault();
+  var targetId = $(this).data('video-input');
+  $('#modal-image').remove();
+  $.ajax({
+    url: 'index.php?route=common/filemanager&user_token={{ user_token }}&target=' + targetId + '&filter_type=video',
+    dataType: 'html',
+    success: function (html) {
+      $('body').append('<div id="modal-image" class="modal">' + html + '</div>');
+      $('#modal-image').modal('show');
+    }
+  });
+});
+
 document.getElementById('btn-add-review').addEventListener('click', function() {
   var list = document.getElementById('reviews-body');
   var row = document.createElement('div');
-  row.className = 'hydro-row';
+  row.className = 'hydro-row';  // новий ряд одразу розгорнутий
   row.id = 'review-row' + reviewRowIndex;
 
   row.innerHTML =
-    '<div class="hydro-row__head"><strong>{{ entry_item|escape('js') }} ' + (reviewRowIndex + 1) + '</strong><button type="button" class="btn btn-danger btn-sm btn-remove-review"><i class="fa fa-minus-circle"></i></button></div>' +
-    '<div class="row">' +
+    '<div class="hydro-row__head hydro-row__toggle"><i class="fa fa-chevron-down hydro-row__chevron"></i><strong>{{ entry_item|escape('js') }} ' + (reviewRowIndex + 1) + '</strong><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-sm btn-remove-review"><i class="fa fa-minus-circle"></i></button></div>' +
+    '<div class="row hydro-row__body">' +
       '<div class="col-sm-3">' +
         '<a href="" id="thumb-review' + reviewRowIndex + '" data-toggle="image" class="img-thumbnail"><img src="' + reviewPlaceholder + '" alt="" data-placeholder="' + reviewPlaceholder + '" style="max-width:160px;" /></a>' +
         '<input type="hidden" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][poster]" value="" id="input-review' + reviewRowIndex + '" />' +
-        '<div class="form-group" style="margin-top:8px;"><label>{{ entry_video|escape('js') }}</label><input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][video]" class="form-control input-sm" /></div>' +
+        '<div class="form-group" style="margin-top:8px;"><label>{{ entry_video|escape('js') }}</label><div class="input-group input-group-sm"><input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][video]" id="input-review-video' + reviewRowIndex + '" class="form-control input-sm" /><span class="input-group-btn"><a href="" data-toggle="video" data-video-input="input-review-video' + reviewRowIndex + '" class="btn btn-default btn-sm"><i class="fa fa-film"></i></a></span></div></div>' +
       '</div>' +
       '<div class="col-sm-9">' +
         '<div class="hydro-card"><div class="hydro-card__title">{{ entry_message|escape('js') }}</div>' + reviewLangTabs('review' + reviewRowIndex + '-message', 'message') + '</div>' +
@@ -195,4 +226,13 @@ document.querySelectorAll('.btn-remove-review').forEach(function(btn) {
 .hydro-row__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }
 </style>
 
+
+<style>
+.hydro-row__toggle { align-items: center; cursor: pointer; display: flex; gap: 10px; user-select: none; }
+.hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
+.hydro-row:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
+.hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hydro-row--collapsed .hydro-row__body { display: none; }
+.hydro-row__toggle .btn-remove-review { margin-left: auto; }
+</style>
 {{ footer }}
