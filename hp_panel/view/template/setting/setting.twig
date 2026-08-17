@@ -605,4 +605,39 @@ $('select[name=\'config_country_id\']').on('change', function() {
 
 $('select[name=\'config_country_id\']').trigger('change');
 //--></script></div>
+
+<script type="text/javascript"><!--
+// Поштовий рушій: показуємо лише свої поля, чужі — ховаємо і зачищаємо
+(function () {
+  var engine = document.getElementById('input-mail-engine');
+  if (!engine) return;
+  var groups = {
+    parameter: document.getElementById('input-mail-parameter'),
+    smtp: ['input-mail-smtp-hostname', 'input-mail-smtp-username', 'input-mail-smtp-password', 'input-mail-smtp-port', 'input-mail-smtp-timeout']
+      .map(function (id) { return document.getElementById(id); }),
+  };
+  var paramLabel = groups.parameter ? groups.parameter.closest('.form-group').querySelector('label') : null;
+  function fg(el) { return el ? el.closest('.form-group') : null; }
+  function sync(clear) {
+    var mode = engine.value;
+    var showParam = (mode === 'brevo' || mode === 'mail');
+    var showSmtp = (mode === 'smtp');
+    var pg = fg(groups.parameter);
+    if (pg) {
+      pg.style.display = showParam ? '' : 'none';
+      if (!showParam && clear) groups.parameter.value = '';
+      if (paramLabel) paramLabel.textContent = (mode === 'brevo') ? 'Brevo API ключ' : paramLabel.dataset.orig || paramLabel.textContent;
+      if (!paramLabel.dataset.orig) paramLabel.dataset.orig = paramLabel.textContent;
+    }
+    groups.smtp.forEach(function (el) {
+      var g = fg(el);
+      if (!g) return;
+      g.style.display = showSmtp ? '' : 'none';
+      if (!showSmtp && clear) el.value = '';
+    });
+  }
+  engine.addEventListener('change', function () { sync(true); });
+  sync(false); // при завантаженні — тільки ховаємо, значення не чіпаємо
+})();
+//--></script>
 {{ footer }} 
