@@ -27,7 +27,7 @@
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
 
-          {% for field in ['title', 'address', 'time'] %}
+          {% for field in ['title'] %}
           <div class="hydro-card">
             <div class="hydro-card__title">{{ attribute(_context, 'entry_' ~ field) }}</div>
             <ul class="nav nav-tabs hydro-tabs">
@@ -45,39 +45,9 @@
           </div>
           {% endfor %}
 
-          <div class="hydro-card">
-            <div class="hydro-card__title">{{ text_general }}</div>
-            <div class="row">
-              <div class="col-sm-6 form-group">
-                <label>{{ entry_phone }}</label>
-                <input type="text" name="module_hydrophob_contacts_phone" value="{{ phone }}" class="form-control" />
-              </div>
-              <div class="col-sm-6 form-group">
-                <label>{{ entry_email }}</label>
-                <input type="text" name="module_hydrophob_contacts_email" value="{{ email }}" class="form-control" />
-              </div>
-              <div class="col-sm-6 form-group">
-                <label>{{ entry_lat }}</label>
-                <input type="text" name="module_hydrophob_contacts_lat" value="{{ lat }}" class="form-control" />
-              </div>
-              <div class="col-sm-6 form-group">
-                <label>{{ entry_lng }}</label>
-                <input type="text" name="module_hydrophob_contacts_lng" value="{{ lng }}" class="form-control" />
-              </div>
-              <div class="col-sm-4 form-group">
-                <label>{{ entry_tiktok }}</label>
-                <input type="text" name="module_hydrophob_contacts_tiktok" value="{{ tiktok }}" class="form-control" />
-              </div>
-              <div class="col-sm-4 form-group">
-                <label>{{ entry_telegram }}</label>
-                <input type="text" name="module_hydrophob_contacts_telegram" value="{{ telegram }}" class="form-control" />
-              </div>
-              <div class="col-sm-4 form-group">
-                <label>{{ entry_viber }}</label>
-                <input type="text" name="module_hydrophob_contacts_viber" value="{{ viber }}" class="form-control" />
-              </div>
-            </div>
-            <p class="help-block">{{ help_general }}</p>
+          <div class="alert alert-info" style="border-radius:10px;">
+            <i class="fa fa-info-circle"></i> Адреса, графік, телефон, email, соцмережі й координати редагуються в
+            <a href="{{ settings_link }}">Система → Налаштування</a>.
           </div>
 
           <div class="form-group">

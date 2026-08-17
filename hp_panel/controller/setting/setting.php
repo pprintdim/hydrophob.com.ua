@@ -229,6 +229,17 @@ class ControllerSettingSetting extends Controller {
 			$data['config_owner'] = $this->config->get('config_owner');
 		}
 
+		$this->load->model('localisation/language');
+		$data['languages'] = $this->model_localisation_language->getLanguages();
+
+		foreach (array('config_hydro_email', 'config_hydro_tiktok', 'config_hydro_telegram', 'config_hydro_viber') as $hydro_key) {
+			if (isset($this->request->post[$hydro_key])) {
+				$data[$hydro_key] = $this->request->post[$hydro_key];
+			} else {
+				$data[$hydro_key] = $this->config->get($hydro_key);
+			}
+		}
+
 		if (isset($this->request->post['config_address'])) {
 			$data['config_address'] = $this->request->post['config_address'];
 		} else {
@@ -925,7 +936,8 @@ class ControllerSettingSetting extends Controller {
 			$this->error['owner'] = $this->language->get('error_owner');
 		}
 
-		if ((utf8_strlen($this->request->post['config_address']) < 3) || (utf8_strlen($this->request->post['config_address']) > 256)) {
+		$address_check = is_array($this->request->post['config_address']) ? implode('', $this->request->post['config_address']) : $this->request->post['config_address'];
+		if ((utf8_strlen($address_check) < 3) || (utf8_strlen($address_check) > 1024)) {
 			$this->error['address'] = $this->language->get('error_address');
 		}
 

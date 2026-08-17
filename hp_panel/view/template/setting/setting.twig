@@ -110,7 +110,12 @@
               <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-address">{{ entry_address }}</label>
                 <div class="col-sm-10">
-                  <textarea name="config_address" placeholder="{{ entry_address }}" rows="5" id="input-address" class="form-control">{{ config_address }}</textarea>
+                  {% for language in languages %}
+                  <div class="input-group" style="margin-bottom:6px; width:100%;">
+                    <span style="display:block; font-size:11px; color:#777; margin-bottom:2px;">{{ language.name }}</span>
+                    <input type="text" name="config_address[{{ language.language_id }}]" value="{{ config_address[language.language_id] is defined ? config_address[language.language_id] : (config_address is iterable ? '' : config_address) }}" placeholder="{{ entry_address }} ({{ language.name }})" class="form-control" style="width:100%;" />
+                  </div>
+                  {% endfor %}
                   {% if error_address %}
                   <div class="text-danger">{{ error_address }}</div>
                   {% endif %} </div>
@@ -136,6 +141,30 @@
                   {% if error_telephone %}
                   <div class="text-danger">{{ error_telephone }}</div>
                   {% endif %} </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-hydro-email">Публічний E-Mail (сайт)</label>
+                <div class="col-sm-10">
+                  <input type="text" name="config_hydro_email" value="{{ config_hydro_email }}" placeholder="Публічний E-Mail" id="input-hydro-email" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-hydro-tiktok">TikTok</label>
+                <div class="col-sm-10">
+                  <input type="text" name="config_hydro_tiktok" value="{{ config_hydro_tiktok }}" placeholder="TikTok URL" id="input-hydro-tiktok" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-hydro-telegram">Telegram</label>
+                <div class="col-sm-10">
+                  <input type="text" name="config_hydro_telegram" value="{{ config_hydro_telegram }}" placeholder="Telegram URL" id="input-hydro-telegram" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-hydro-viber">Viber</label>
+                <div class="col-sm-10">
+                  <input type="text" name="config_hydro_viber" value="{{ config_hydro_viber }}" placeholder="Viber (телефон)" id="input-hydro-viber" class="form-control" />
+                </div>
+              </div>
               </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-fax">{{ entry_fax }}</label>
@@ -152,7 +181,12 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label" for="input-open"><span data-toggle="tooltip" data-container="#tab-general" title="{{ help_open }}">{{ entry_open }}</span></label>
                 <div class="col-sm-10">
-                  <textarea name="config_open" rows="5" placeholder="{{ entry_open }}" id="input-open" class="form-control">{{ config_open }}</textarea>
+                  {% for language in languages %}
+                  <div class="input-group" style="margin-bottom:6px; width:100%;">
+                    <span style="display:block; font-size:11px; color:#777; margin-bottom:2px;">{{ language.name }}</span>
+                    <input type="text" name="config_open[{{ language.language_id }}]" value="{{ config_open[language.language_id] is defined ? config_open[language.language_id] : (config_open is iterable ? '' : config_open) }}" placeholder="{{ entry_open }} ({{ language.name }})" class="form-control" style="width:100%;" />
+                  </div>
+                  {% endfor %}
                 </div>
               </div>
               <div class="form-group">

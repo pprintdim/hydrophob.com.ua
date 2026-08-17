@@ -1,7 +1,7 @@
 <?php
 /**
  * Адмін-форма content_top модуля "hydrophob_contacts" (hydrophob.net.ua).
- * Адреса/графік — мультимовно; телефон/email/соцмережі/координати — спільні для всіх мов.
+ * Єдине поле — мультимовний заголовок секції; всі контактні дані беруться з Система -> Налаштування.
  */
 class ControllerExtensionModuleHydrophobContacts extends Controller {
 	private $error = array();
@@ -33,12 +33,10 @@ class ControllerExtensionModuleHydrophobContacts extends Controller {
 
 		$data['status']  = $this->field('status', 1);
 		$data['title']   = $this->field('title', array());
-		$data['address'] = $this->field('address', array());
-		$data['time']    = $this->field('time', array());
 
-		foreach (array('phone', 'email', 'tiktok', 'telegram', 'viber', 'lat', 'lng') as $field) {
-			$data[$field] = $this->field($field, '');
-		}
+		// решта контактних даних живе в Система -> Налаштування (config_address,
+		// config_open, config_telephone, config_geocode, config_hydro_*)
+		$data['settings_link'] = $this->url->link('setting/setting', 'user_token=' . $this->session->data['user_token'], true);
 
 		$data['header']      = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
