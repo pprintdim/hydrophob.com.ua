@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.submit();
                 } else if (d && d.ok && d.token) {
                     localStorage.removeItem('hydrophob_cart');
-                    window.location.href = (cfg.successUrl || '/success') + '&token=' + d.token;
+                    window.location.href = (cfg.successUrl || '/success') + '?token=' + d.token;
                 } else {
                     throw new Error((d && d.error) || 'fail');
                 }

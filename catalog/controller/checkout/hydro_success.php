@@ -3,15 +3,14 @@
  * Сторінка успішного замовлення hydrophob.net.ua.
  * Route: checkout/hydro_success&token=...
  * Відкривається ОДИН раз за унікальним токеном (api/storage/orders/<token>.json), повторний
- * візит чи невалідний токен -> редирект на головну. Портовано 1:1 зі старого кореневого success.php.
+ * візит чи невалідний токен -> 404.
  */
 class ControllerCheckoutHydroSuccess extends Controller {
 	public function index() {
 		$token = (string)($this->request->get['token'] ?? '');
 
 		if (!preg_match('/^[a-f0-9]{32,80}$/', $token)) {
-			$this->response->redirect($this->url->link('common/home'));
-			return;
+			return $this->notFound();
 		}
 
 		$root = DIR_APPLICATION . '../';
@@ -19,8 +18,7 @@ class ControllerCheckoutHydroSuccess extends Controller {
 		$order = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
 
 		if (!$order || !empty($order['used'])) {
-			$this->response->redirect($this->url->link('common/home'));
-			return;
+			return $this->notFound();
 		}
 
 		// позначаємо використаним — вдруге сторінка не відкриється
@@ -64,5 +62,11 @@ class ControllerCheckoutHydroSuccess extends Controller {
 			}
 		}
 		return $env;
+	}
+
+	/** Невалідний або вже використаний токен — чесний 404. */
+	private function notFound() {
+		$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . ' 404 Not Found');
+		return new Action('error/not_found');
 	}
 }
