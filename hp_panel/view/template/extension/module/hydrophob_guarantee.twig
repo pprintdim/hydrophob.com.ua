@@ -27,59 +27,44 @@
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
 
+          <ul class="nav nav-tabs hydro-tabs hydro-global-langs">
+            {% for language in languages %}
+            <li{% if loop.first %} class="active"{% endif %}><a href="#" data-lang="{{ language.language_id }}">{{ language.name }}</a></li>
+            {% endfor %}
+          </ul>
+
           <div class="hydro-card">
             <div class="hydro-card__title">{{ entry_title }}</div>
-            <ul class="nav nav-tabs hydro-tabs">
-              {% for language in languages %}
-              <li{% if loop.first %} class="active"{% endif %}><a href="#guarantee-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-              {% endfor %}
-            </ul>
-            <div class="tab-content hydro-tab-content">
-              {% for language in languages %}
-              <div class="tab-pane{% if loop.first %} active{% endif %}" id="guarantee-title{{ language.language_id }}">
-                <input type="text" name="module_hydrophob_guarantee_title[{{ language.language_id }}]" value="{{ title[language.language_id] is defined ? title[language.language_id] : '' }}" class="form-control" />
-              </div>
-              {% endfor %}
+            {% for language in languages %}
+            <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+              <input type="text" name="module_hydrophob_guarantee_title[{{ language.language_id }}]" value="{{ title[language.language_id] is defined ? title[language.language_id] : '' }}" class="form-control" />
             </div>
+            {% endfor %}
           </div>
 
-          {% for i, item in item_fields %}
-          <div class="hydro-repeater">
-            <div class="hydro-repeater__head"><h4>{{ entry_item }} {{ i }}{% if i == 2 %} <small>({{ help_item2 }})</small>{% endif %}</h4></div>
+          <div class="row guarantee-items">
+            {% for i, item in item_fields %}
+            <div class="col-sm-6">
+              <div class="hydro-card guarantee-item">
+                <div class="hydro-card__title">{{ entry_item }} {{ i }}{% if i == 2 %} <small>({{ help_item2 }})</small>{% endif %}</div>
 
-            <div class="hydro-card">
-              <div class="hydro-card__title">{{ entry_item_title }}</div>
-              <ul class="nav nav-tabs hydro-tabs">
+                <label class="guarantee-item__label">{{ entry_item_title }}</label>
                 {% for language in languages %}
-                <li{% if loop.first %} class="active"{% endif %}><a href="#guarantee-item{{ i }}-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                {% endfor %}
-              </ul>
-              <div class="tab-content hydro-tab-content">
-                {% for language in languages %}
-                <div class="tab-pane{% if loop.first %} active{% endif %}" id="guarantee-item{{ i }}-title{{ language.language_id }}">
-                  <input type="text" name="module_hydrophob_guarantee_item{{ i }}_title[{{ language.language_id }}]" value="{{ item.title[language.language_id] is defined ? item.title[language.language_id] : '' }}" class="form-control" />
+                <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+                  <input type="text" name="module_hydrophob_guarantee_item{{ i }}_title[{{ language.language_id }}]" value="{{ item.title[language.language_id] is defined ? item.title[language.language_id] : '' }}" class="form-control guarantee-item__title" />
                 </div>
                 {% endfor %}
-              </div>
-            </div>
 
-            <div class="hydro-card">
-              <div class="hydro-card__title">{{ entry_item_message }}</div>
-              <ul class="nav nav-tabs hydro-tabs">
+                <label class="guarantee-item__label">{{ entry_item_message }}</label>
                 {% for language in languages %}
-                <li{% if loop.first %} class="active"{% endif %}><a href="#guarantee-item{{ i }}-message{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                {% endfor %}
-              </ul>
-              <div class="tab-content hydro-tab-content">
-                {% for language in languages %}
-                <div class="tab-pane{% if loop.first %} active{% endif %}" id="guarantee-item{{ i }}-message{{ language.language_id }}">
+                <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
                   <textarea name="module_hydrophob_guarantee_item{{ i }}_message[{{ language.language_id }}]" rows="3" class="form-control">{{ item.message[language.language_id] is defined ? item.message[language.language_id] : '' }}</textarea>
                 </div>
                 {% endfor %}
               </div>
             </div>
+            {% endfor %}
           </div>
-          {% endfor %}
 
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
@@ -105,9 +90,27 @@
 .hydro-tabs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
 .hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
 .hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
-.hydro-repeater { background: #f7f9fc; border: 1px solid #dfe6f1; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
-.hydro-repeater__head { margin-bottom: 10px; }
-.hydro-repeater__head h4 { margin: 0; }
+.hydro-global-langs { margin-bottom: 16px; }
+.guarantee-items { margin: 0 -7px; }
+.guarantee-items .col-sm-6 { padding: 0 7px; }
+.guarantee-item { margin-bottom: 14px; }
+.guarantee-item__label { color: #5f6f86; display: block; font-size: 11px; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; }
+.guarantee-item__title { margin-bottom: 8px; }
 </style>
+
+<script type="text/javascript"><!--
+// Глобальний перемикач мов: показує поля лише активної мови у ВСІЙ формі
+document.querySelectorAll('.hydro-global-langs a[data-lang]').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    var lang = this.dataset.lang;
+    document.querySelectorAll('.hydro-global-langs li').forEach(function (li) { li.classList.remove('active'); });
+    this.parentNode.classList.add('active');
+    document.querySelectorAll('.lang-field').forEach(function (el) {
+      el.style.display = el.classList.contains('lang-field-' + lang) ? '' : 'none';
+    });
+  });
+});
+//--></script>
 
 {{ footer }}

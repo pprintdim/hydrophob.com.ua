@@ -27,6 +27,12 @@
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
 
+          <ul class="nav nav-tabs hydro-tabs hydro-global-langs">
+            {% for language in languages %}
+            <li{% if loop.first %} class="active"{% endif %}><a href="#" data-lang="{{ language.language_id }}">{{ language.name }}</a></li>
+            {% endfor %}
+          </ul>
+
           <div id="images-items">
           {% for item in items %}
           {% set idx = loop.index0 %}
@@ -45,18 +51,11 @@
                 <input type="hidden" name="module_hydrophob_images_block_items[{{ idx }}][tile]" value="{{ item.tile }}" id="input-item{{ idx }}" />
               </div>
               <div class="col-sm-9">
-                <ul class="nav nav-tabs hydro-tabs">
-                  {% for language in languages %}
-                  <li{% if loop.first %} class="active"{% endif %}><a href="#item{{ idx }}-alt{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                  {% endfor %}
-                </ul>
-                <div class="tab-content hydro-tab-content">
-                  {% for language in languages %}
-                  <div class="tab-pane{% if loop.first %} active{% endif %}" id="item{{ idx }}-alt{{ language.language_id }}">
-                    <input type="text" name="module_hydrophob_images_block_items[{{ idx }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" placeholder="{{ entry_alt }}" class="form-control" />
-                  </div>
-                  {% endfor %}
+                {% for language in languages %}
+                <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+                  <input type="text" name="module_hydrophob_images_block_items[{{ idx }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" placeholder="{{ entry_alt }}" class="form-control" />
                 </div>
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -99,10 +98,27 @@
 .hydro-tabs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
 .hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
 .hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
+.hydro-global-langs { margin-bottom: 16px; }
 </style>
 
 
 <script type="text/javascript"><!--
+var imagesLangs = [{% for language in languages %}{id: {{ language.language_id }}, name: '{{ language.name|escape('js') }}'}{% if not loop.last %},{% endif %}{% endfor %}];
+var imagesActiveLang = String(imagesLangs.length ? imagesLangs[0].id : '');
+
+// Глобальний перемикач мов: показує поля лише активної мови у ВСІЙ формі (включно з новими рядами)
+document.querySelectorAll('.hydro-global-langs a[data-lang]').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    imagesActiveLang = this.dataset.lang;
+    document.querySelectorAll('.hydro-global-langs li').forEach(function (li) { li.classList.remove('active'); });
+    this.parentNode.classList.add('active');
+    document.querySelectorAll('.lang-field').forEach(function (el) {
+      el.style.display = el.classList.contains('lang-field-' + imagesActiveLang) ? '' : 'none';
+    });
+  });
+});
+
 // Репітер плиток: додавання нового ряду (порожні поля) і видалення; name-індекси
 // перенумеровуються при сабміті не потрібно — PHP приймає будь-які ключі, головне унікальність.
 var imagesRowIndex = {{ items|length }};
@@ -111,23 +127,19 @@ document.getElementById('images-item-add').addEventListener('click', function ()
   var idx = imagesRowIndex++;
   var card = document.createElement('div');
   card.className = 'hydro-card images-item';
-  var langs = [{% for language in languages %}{id: {{ language.language_id }}, name: '{{ language.name }}'}{% if not loop.last %},{% endif %}{% endfor %}];
-  var tabs = '', panes = '';
-  langs.forEach(function (l, i) {
-    tabs += '<li' + (i === 0 ? ' class="active"' : '') + '><a href="#item' + idx + '-alt' + l.id + '" data-toggle="tab">' + l.name + '</a></li>';
-    panes += '<div class="tab-pane' + (i === 0 ? ' active' : '') + '" id="item' + idx + '-alt' + l.id + '">' +
-      '<input type="text" name="module_hydrophob_images_block_items[' + idx + '][alt][' + l.id + ']" value="" placeholder="{{ entry_alt }}" class="form-control" /></div>';
+  var fields = '';
+  imagesLangs.forEach(function (l) {
+    var vis = String(l.id) === imagesActiveLang ? '' : ' style="display:none;"';
+    fields += '<div class="lang-field lang-field-' + l.id + '"' + vis + '>' +
+      '<input type="text" name="module_hydrophob_images_block_items[' + idx + '][alt][' + l.id + ']" value="" placeholder="{{ entry_alt|escape('js') }}" class="form-control" /></div>';
   });
   card.innerHTML =
-    '<div class="hydro-row__toggle images-item-head"><i class="fa fa-chevron-down hydro-row__chevron"></i><span class="hydro-card__title" style="margin:0;">{{ entry_item }} <span class="images-item-num"></span></span><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-xs images-item-remove"><i class="fa fa-minus-circle"></i></button></div>' +
+    '<div class="hydro-row__toggle images-item-head"><i class="fa fa-chevron-down hydro-row__chevron"></i><span class="hydro-card__title" style="margin:0;">{{ entry_item|escape('js') }} <span class="images-item-num"></span></span><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-xs images-item-remove"><i class="fa fa-minus-circle"></i></button></div>' +
     '<div class="row hydro-row__body"><div class="col-sm-3">' +
     '<a href="" id="thumb-item' + idx + '" data-toggle="image" class="img-thumbnail">' +
     '<img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" style="width:84px;height:84px;object-fit:cover;" /></a>' +
     '<input type="hidden" name="module_hydrophob_images_block_items[' + idx + '][tile]" value="" id="input-item' + idx + '" />' +
-    '</div><div class="col-sm-9">' +
-    '<ul class="nav nav-tabs hydro-tabs">' + tabs + '</ul>' +
-    '<div class="tab-content hydro-tab-content">' + panes + '</div>' +
-    '</div></div>';
+    '</div><div class="col-sm-9">' + fields + '</div></div>';
   wrap.appendChild(card);
   renumberImages();
 });

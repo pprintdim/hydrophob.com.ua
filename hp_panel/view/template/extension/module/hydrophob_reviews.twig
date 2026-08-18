@@ -27,20 +27,19 @@
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
 
+          <ul class="nav nav-tabs hydro-tabs hydro-global-langs">
+            {% for language in languages %}
+            <li{% if loop.first %} class="active"{% endif %}><a href="#" data-lang="{{ language.language_id }}">{{ language.name }}</a></li>
+            {% endfor %}
+          </ul>
+
           <div class="hydro-card">
             <div class="hydro-card__title">{{ entry_title_html }}</div>
-            <ul class="nav nav-tabs hydro-tabs">
-              {% for language in languages %}
-              <li{% if loop.first %} class="active"{% endif %}><a href="#reviews-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-              {% endfor %}
-            </ul>
-            <div class="tab-content hydro-tab-content">
-              {% for language in languages %}
-              <div class="tab-pane{% if loop.first %} active{% endif %}" id="reviews-title{{ language.language_id }}">
-                <input type="text" name="module_hydrophob_reviews_title_html[{{ language.language_id }}]" value="{{ title_html[language.language_id] is defined ? title_html[language.language_id] : '' }}" class="form-control" />
-              </div>
-              {% endfor %}
+            {% for language in languages %}
+            <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+              <input type="text" name="module_hydrophob_reviews_title_html[{{ language.language_id }}]" value="{{ title_html[language.language_id] is defined ? title_html[language.language_id] : '' }}" class="form-control" />
             </div>
+            {% endfor %}
           </div>
 
           <div class="hydro-repeater">
@@ -70,21 +69,14 @@
                   <div class="col-sm-9">
                     <div class="hydro-card">
                       <div class="hydro-card__title">Заголовок та альт тексти</div>
-                      <ul class="nav nav-tabs hydro-tabs">
-                        {% for language in languages %}
-                        <li{% if loop.first %} class="active"{% endif %}><a href="#review{{ i }}-txt{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                        {% endfor %}
-                      </ul>
-                      <div class="tab-content hydro-tab-content">
-                        {% for language in languages %}
-                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="review{{ i }}-txt{{ language.language_id }}">
-                          <div style="display:flex; gap:8px;">
-                            <input type="text" name="module_hydrophob_reviews_items[{{ i }}][message][{{ language.language_id }}]" value="{{ item.message[language.language_id] is defined ? item.message[language.language_id] : '' }}" placeholder="{{ entry_message }}" class="form-control" style="flex:1;" />
-                            <input type="text" name="module_hydrophob_reviews_items[{{ i }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" placeholder="{{ entry_alt }}" class="form-control" style="flex:1;" />
-                          </div>
+                      {% for language in languages %}
+                      <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+                        <div style="display:flex; gap:8px;">
+                          <input type="text" name="module_hydrophob_reviews_items[{{ i }}][message][{{ language.language_id }}]" value="{{ item.message[language.language_id] is defined ? item.message[language.language_id] : '' }}" placeholder="{{ entry_message }}" class="form-control" style="flex:1;" />
+                          <input type="text" name="module_hydrophob_reviews_items[{{ i }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" placeholder="{{ entry_alt }}" class="form-control" style="flex:1;" />
                         </div>
-                        {% endfor %}
                       </div>
+                      {% endfor %}
                     </div>
                   </div>
                 </div>
@@ -117,30 +109,34 @@ var reviewLangs = [
 {% endfor %}
 ];
 var reviewPlaceholder = '{{ placeholder|escape('js') }}';
+var reviewActiveLang = String(reviewLangs.length ? reviewLangs[0].id : '');
 
-function reviewLangTabs(prefix, kind) {
-  var tabsHtml = '<ul class="nav nav-tabs hydro-tabs">';
-  var contentHtml = '<div class="tab-content hydro-tab-content">';
-  for (var i = 0; i < reviewLangs.length; i++) {
-    var active = i === 0 ? ' active' : '';
-    tabsHtml += '<li class="' + active.trim() + '"><a href="#' + prefix + reviewLangs[i].id + '" data-toggle="tab">' + reviewLangs[i].name + '</a></li>';
-    var field;
-    if (kind === 'merged') {
-      field = '<div style="display:flex;gap:8px;">' +
-        '<input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][message][' + reviewLangs[i].id + ']" placeholder="{{ entry_message|escape('js') }}" class="form-control" style="flex:1;" />' +
-        '<input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][alt][' + reviewLangs[i].id + ']" placeholder="{{ entry_alt|escape('js') }}" class="form-control" style="flex:1;" />' +
-        '</div>';
-    } else if (kind === 'message') {
-      field = '<textarea name="module_hydrophob_reviews_items[' + reviewRowIndex + '][message][' + reviewLangs[i].id + ']" rows="3" class="form-control"></textarea>';
-    } else {
-      field = '<input type="text" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][alt][' + reviewLangs[i].id + ']" class="form-control" />';
-    }
-    contentHtml += '<div class="tab-pane' + active + '" id="' + prefix + reviewLangs[i].id + '">' + field + '</div>';
-  }
-  tabsHtml += '</ul>';
-  contentHtml += '</div>';
-  return tabsHtml + contentHtml;
+function reviewLangFields(idx) {
+  var html = '';
+  reviewLangs.forEach(function (l) {
+    var vis = String(l.id) === reviewActiveLang ? '' : ' style="display:none;"';
+    html += '<div class="lang-field lang-field-' + l.id + '"' + vis + '>' +
+      '<div style="display:flex;gap:8px;">' +
+        '<input type="text" name="module_hydrophob_reviews_items[' + idx + '][message][' + l.id + ']" placeholder="{{ entry_message|escape('js') }}" class="form-control" style="flex:1;" />' +
+        '<input type="text" name="module_hydrophob_reviews_items[' + idx + '][alt][' + l.id + ']" placeholder="{{ entry_alt|escape('js') }}" class="form-control" style="flex:1;" />' +
+      '</div>' +
+    '</div>';
+  });
+  return html;
 }
+
+// Глобальний перемикач мов: показує поля лише активної мови у ВСІЙ формі (шапка + всі ряди)
+document.querySelectorAll('.hydro-global-langs a[data-lang]').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    reviewActiveLang = this.dataset.lang;
+    document.querySelectorAll('.hydro-global-langs li').forEach(function (li) { li.classList.remove('active'); });
+    this.parentNode.classList.add('active');
+    document.querySelectorAll('.lang-field').forEach(function (el) {
+      el.style.display = el.classList.contains('lang-field-' + reviewActiveLang) ? '' : 'none';
+    });
+  });
+});
 
 
 // Акордеон рядів (початково згорнуто; клік по шапці розгортає)
@@ -219,7 +215,7 @@ document.getElementById('btn-add-review').addEventListener('click', function() {
           '<input type="hidden" data-role="video" name="module_hydrophob_reviews_items[' + reviewRowIndex + '][video]" id="input-review-video' + reviewRowIndex + '" value="" /></span>' +
       '</div>' +
       '<div class="col-sm-9">' +
-        '<div class="hydro-card"><div class="hydro-card__title">Заголовок та альт тексти</div>' + reviewLangTabs('review' + reviewRowIndex + '-txt', 'merged') + '</div>' +
+        '<div class="hydro-card"><div class="hydro-card__title">Заголовок та альт тексти</div>' + reviewLangFields(reviewRowIndex) + '</div>' +
       '</div>' +
     '</div>';
 
@@ -246,6 +242,7 @@ document.querySelectorAll('.btn-remove-review').forEach(function(btn) {
 .hydro-tabs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
 .hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
 .hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
+.hydro-global-langs { margin-bottom: 16px; }
 .hydro-repeater { background: #f7f9fc; border: 1px solid #dfe6f1; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
 .hydro-repeater__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }
 .hydro-repeater__head h4 { margin: 0; }

@@ -28,20 +28,19 @@
         <p class="text-muted">{{ text_info }}</p>
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
 
+          <ul class="nav nav-tabs hydro-tabs hydro-global-langs">
+            {% for language in languages %}
+            <li{% if loop.first %} class="active"{% endif %}><a href="#" data-lang="{{ language.language_id }}">{{ language.name }}</a></li>
+            {% endfor %}
+          </ul>
+
           <div class="hydro-card">
             <div class="hydro-card__title">{{ entry_name }}</div>
-            <ul class="nav nav-tabs hydro-tabs">
-              {% for language in languages %}
-              <li{% if loop.first %} class="active"{% endif %}><a href="#product-name{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-              {% endfor %}
-            </ul>
-            <div class="tab-content hydro-tab-content">
-              {% for language in languages %}
-              <div class="tab-pane{% if loop.first %} active{% endif %}" id="product-name{{ language.language_id }}">
-                <input type="text" name="module_hydrophob_product_name[{{ language.language_id }}]" value="{{ name[language.language_id] is defined ? name[language.language_id] : '' }}" class="form-control" />
-              </div>
-              {% endfor %}
+            {% for language in languages %}
+            <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+              <input type="text" name="module_hydrophob_product_name[{{ language.language_id }}]" value="{{ name[language.language_id] is defined ? name[language.language_id] : '' }}" class="form-control" />
             </div>
+            {% endfor %}
           </div>
 
           <div class="form-group">
@@ -68,6 +67,22 @@
 .hydro-tabs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
 .hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
 .hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
+.hydro-global-langs { margin-bottom: 16px; }
 </style>
+
+<script type="text/javascript"><!--
+// Глобальний перемикач мов: показує поля лише активної мови у ВСІЙ формі
+document.querySelectorAll('.hydro-global-langs a[data-lang]').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    var lang = this.dataset.lang;
+    document.querySelectorAll('.hydro-global-langs li').forEach(function (li) { li.classList.remove('active'); });
+    this.parentNode.classList.add('active');
+    document.querySelectorAll('.lang-field').forEach(function (el) {
+      el.style.display = el.classList.contains('lang-field-' + lang) ? '' : 'none';
+    });
+  });
+});
+//--></script>
 
 {{ footer }}
