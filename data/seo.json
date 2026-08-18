@@ -89,34 +89,34 @@
         "checkout": {
             "UA": {
                 "title": "Оформлення замовлення — Hydrophob",
-                "description": "Оформлення замовлення в інтернет-магазині Hydrophob.",
-                "keywords": ""
+                "description": "Швидке оформлення замовлення Hydrophob: доставка Новою поштою, Meest або Укрпоштою по Україні, оплата карткою онлайн, накладеним платежем чи за реквізитами.",
+                "keywords": "оформлення замовлення hydrophob, купити гідрофоб, доставка нова пошта, оплата карткою"
             },
             "RU": {
                 "title": "Оформление заказа — Hydrophob",
-                "description": "Оформление заказа в интернет-магазине Hydrophob.",
-                "keywords": ""
+                "description": "Быстрое оформление заказа Hydrophob: доставка Новой почтой, Meest или Укрпочтой по Украине, оплата картой онлайн, наложенным платежом или по реквизитам.",
+                "keywords": "оформление заказа hydrophob, купить гидрофоб, доставка новая почта, оплата картой"
             },
             "EN": {
                 "title": "Checkout — Hydrophob",
-                "description": "Checkout at the Hydrophob online store.",
-                "keywords": ""
+                "description": "Fast Hydrophob checkout: delivery across Ukraine by Nova Poshta, Meest or Ukrposhta, pay online by card, cash on delivery or by bank transfer.",
+                "keywords": "hydrophob checkout, buy hydrophobic coating, nova poshta delivery, card payment"
             }
         },
         "error": {
             "UA": {
-                "title": "Сторінку не знайдено — Hydrophob",
-                "description": "Такої сторінки не існує. Поверніться на головну Hydrophob.",
+                "title": "Сторінку не знайдено (404) — Hydrophob",
+                "description": "Такої сторінки не існує або її було переміщено. Перейдіть на головну Hydrophob — нанокерамічний захист для авто, взуття, одягу та будматеріалів.",
                 "keywords": ""
             },
             "RU": {
-                "title": "Страница не найдена — Hydrophob",
-                "description": "Такой страницы не существует. Вернитесь на главную Hydrophob.",
+                "title": "Страница не найдена (404) — Hydrophob",
+                "description": "Такой страницы не существует или она была перемещена. Перейдите на главную Hydrophob — нанокерамическая защита для авто, обуви, одежды и стройматериалов.",
                 "keywords": ""
             },
             "EN": {
-                "title": "Page not found — Hydrophob",
-                "description": "This page does not exist. Return to the Hydrophob home page.",
+                "title": "Page not found (404) — Hydrophob",
+                "description": "This page does not exist or has been moved. Go to the Hydrophob home page — nano-ceramic protection for cars, footwear, clothing and building materials.",
                 "keywords": ""
             }
         }
