@@ -33,107 +33,61 @@
           </ul>
           <div class="tab-content">
             <div class="tab-pane active" id="tab-general">
-              <ul class="nav nav-tabs" id="language">
+              {# один глобальний перемикач мов на всю вкладку (стандарт адмін-форм) #}
+              <ul class="nav nav-tabs hydro-global-langs" id="language">
                 {% for language in languages %}
-                  <li><a href="#language{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                  <li{% if loop.first %} class="active"{% endif %}><a href="#" data-lang="{{ language.language_id }}">{{ language.name }}</a></li>
                 {% endfor %}
               </ul>
-              <div class="tab-content">{% for language in languages %}
-                  <div class="tab-pane" id="language{{ language.language_id }}">
-                    <div class="form-group required">
-                      <label class="col-sm-2 control-label" for="input-name{{ language.language_id }}">{{ entry_name }}</label>
-                      <div class="col-sm-10">
-                        <input type="text" name="product_description[{{ language.language_id }}][name]" value="{{ product_description[language.language_id] ? product_description[language.language_id].name }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
-                        {% if error_name[language.language_id] %}
-                          <div class="text-danger">{{ error_name[language.language_id] }}</div>
-                        {% endif %} </div>
-                    </div>
-                    <div class="form-group">
-                      <label class="col-sm-2 control-label" for="input-description{{ language.language_id }}">{{ entry_description }}</label>
-                      <div class="col-sm-10">
-                        <textarea name="product_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ product_description[language.language_id] ? product_description[language.language_id].description }}</textarea>
-                      </div>
-                    </div>
-                    
-                    
-                    
-                    <div class="form-group">
-                      <label class="col-sm-2 control-label" for="input-tag{{ language.language_id }}"><span data-toggle="tooltip" title="{{ help_tag }}">{{ entry_tag }}</span></label>
-                      <div class="col-sm-10">
-                        <input type="text" name="product_description[{{ language.language_id }}][tag]" value="{{ product_description[language.language_id] ? product_description[language.language_id].tag }}" placeholder="{{ entry_tag }}" id="input-tag{{ language.language_id }}" class="form-control"/>
-                      </div>
-                    </div>
+              {% for language in languages %}
+              <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+                <div class="form-group required">
+                  <label class="col-sm-2 control-label" for="input-name{{ language.language_id }}">{{ entry_name }}</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="product_description[{{ language.language_id }}][name]" value="{{ product_description[language.language_id] ? product_description[language.language_id].name }}" placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control"/>
+                    {% if error_name[language.language_id] %}
+                      <div class="text-danger">{{ error_name[language.language_id] }}</div>
+                    {% endif %} </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-description{{ language.language_id }}">{{ entry_description }}</label>
+                  <div class="col-sm-10">
+                    <textarea name="product_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ product_description[language.language_id] ? product_description[language.language_id].description }}</textarea>
                   </div>
-                {% endfor %}</div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-tag{{ language.language_id }}"><span data-toggle="tooltip" title="{{ help_tag }}">{{ entry_tag }}</span></label>
+                  <div class="col-sm-10">
+                    <input type="text" name="product_description[{{ language.language_id }}][tag]" value="{{ product_description[language.language_id] ? product_description[language.language_id].tag }}" placeholder="{{ entry_tag }}" id="input-tag{{ language.language_id }}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label">Підзаголовок (ленд)</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="product_land[subtitle][{{ language.language_id }}]" value="{{ product_land.subtitle[language.language_id] is defined ? product_land.subtitle[language.language_id] : '' }}" placeholder="Підзаголовок для секції на головній" class="form-control" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label">Призначення</label>
+                  <div class="col-sm-10">
+                    <textarea name="product_land[purpose][{{ language.language_id }}]" rows="4" data-toggle="summernote" class="form-control">{{ product_land.purpose[language.language_id] is defined ? product_land.purpose[language.language_id] : '' }}</textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label">Як використовувати</label>
+                  <div class="col-sm-10">
+                    <textarea name="product_land[usage][{{ language.language_id }}]" rows="4" data-toggle="summernote" class="form-control">{{ product_land.usage[language.language_id] is defined ? product_land.usage[language.language_id] : '' }}</textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label">Інструкція</label>
+                  <div class="col-sm-10">
+                    <textarea name="product_land[instruction][{{ language.language_id }}]" rows="4" data-toggle="summernote" class="form-control">{{ product_land.instruction[language.language_id] is defined ? product_land.instruction[language.language_id] : '' }}</textarea>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
             </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">Підзаголовок (ленд)</label>
-                <div class="col-sm-10">
-                  <ul class="nav nav-tabs">
-                    {% for language in languages %}
-                    <li{% if loop.first %} class="active"{% endif %}><a href="#land-sub{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                  <div class="tab-content">
-                    {% for language in languages %}
-                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-sub{{ language.language_id }}">
-                      <input type="text" name="product_land[subtitle][{{ language.language_id }}]" value="{{ product_land.subtitle[language.language_id] is defined ? product_land.subtitle[language.language_id] : '' }}" placeholder="Підзаголовок для секції на головній" class="form-control" />
-                    </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">Призначення</label>
-                <div class="col-sm-10">
-                  <ul class="nav nav-tabs">
-                    {% for language in languages %}
-                    <li{% if loop.first %} class="active"{% endif %}><a href="#land-purpose{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                  <div class="tab-content">
-                    {% for language in languages %}
-                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-purpose{{ language.language_id }}">
-                      <textarea name="product_land[purpose][{{ language.language_id }}]" rows="4" data-toggle="summernote" class="form-control">{{ product_land.purpose[language.language_id] is defined ? product_land.purpose[language.language_id] : '' }}</textarea>
-                    </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">Як використовувати</label>
-                <div class="col-sm-10">
-                  <ul class="nav nav-tabs">
-                    {% for language in languages %}
-                    <li{% if loop.first %} class="active"{% endif %}><a href="#land-usage{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                  <div class="tab-content">
-                    {% for language in languages %}
-                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-usage{{ language.language_id }}">
-                      <textarea name="product_land[usage][{{ language.language_id }}]" rows="4" data-toggle="summernote" class="form-control">{{ product_land.usage[language.language_id] is defined ? product_land.usage[language.language_id] : '' }}</textarea>
-                    </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">Інструкція</label>
-                <div class="col-sm-10">
-                  <ul class="nav nav-tabs">
-                    {% for language in languages %}
-                    <li{% if loop.first %} class="active"{% endif %}><a href="#land-instruction{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                  <div class="tab-content">
-                    {% for language in languages %}
-                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-instruction{{ language.language_id }}">
-                      <textarea name="product_land[instruction][{{ language.language_id }}]" rows="4" data-toggle="summernote" class="form-control">{{ product_land.instruction[language.language_id] is defined ? product_land.instruction[language.language_id] : '' }}</textarea>
-                    </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
             <div class="tab-pane" id="tab-data">
               <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-model">{{ entry_model }}</label>
@@ -1048,7 +1002,16 @@
   });
   //--></script>
   <script type="text/javascript"><!--
-  $('#language a:first').tab('show');
+  // глобальний перемикач мов вкладки "Загальне": показує поля лише активної мови
+  $('#language a[data-lang]').on('click', function (e) {
+    e.preventDefault();
+    $('#language li').removeClass('active');
+    $(this).parent().addClass('active');
+    var lang = String($(this).data('lang'));
+    $('#tab-general .lang-field').each(function () {
+      $(this).toggle($(this).hasClass('lang-field-' + lang));
+    });
+  });
   $('#option a:first').tab('show');
   //--></script>
 
