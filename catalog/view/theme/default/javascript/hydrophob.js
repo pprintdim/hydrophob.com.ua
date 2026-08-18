@@ -1505,17 +1505,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const el = document.getElementById('hero-slider');
     if (!el || typeof Swiper === 'undefined') return;
 
+    let currentVideo = null;
     function playActive(swiper) {
-        el.querySelectorAll('video').forEach(v => { v.pause(); });
+        el.querySelectorAll('video').forEach(v => { v.pause(); v.onended = null; });
         const active = swiper.slides[swiper.activeIndex];
         const video = active && active.querySelector('video');
-        if (video) { video.play().catch(() => {}); }
+        if (video) {
+            currentVideo = video;
+            video.currentTime = 0;
+            // автоперехід — тільки коли ролик догрався до кінця
+            video.onended = function () { swiper.slideNext(); };
+            video.play().catch(() => {});
+        }
     }
 
     const swiper = new Swiper(el, {
         loop: true,
         speed: 600,
-        autoplay: { delay: 7000, disableOnInteraction: false },
         pagination: { el: el.querySelector('.swiper-pagination'), clickable: true },
         mousewheel: { forceToAxis: true },
         grabCursor: true,

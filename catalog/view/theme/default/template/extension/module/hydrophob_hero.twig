@@ -8,7 +8,7 @@
             <div class="swiper-wrapper">
                 {% for slide in slides %}
                 <div class="swiper-slide hero__slide">
-                    <video class="hero__slide-video" src="{{ slide.video }}" poster="{{ slide.poster }}" muted playsinline loop preload="{{ loop.first ? 'auto' : 'metadata' }}"></video>
+                    <video class="hero__slide-video" src="{{ slide.video }}" poster="{{ slide.poster }}" muted playsinline preload="{{ loop.first ? 'auto' : 'metadata' }}"></video>
                     <button class="hero__video-play play-btn play-btn-open" data-video="{{ slide.video }}">Play reels</button>
                 </div>
                 {% endfor %}
