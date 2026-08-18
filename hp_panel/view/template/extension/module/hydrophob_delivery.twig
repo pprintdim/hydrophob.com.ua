@@ -60,39 +60,45 @@
           </div>
 
           <div class="hydro-repeater">
-            <div class="hydro-repeater__head"><h4>{{ entry_carriers }}</h4></div>
-            {% for key, carrier in carriers %}
-            <div class="hydro-row">
-              <div class="row">
-                <div class="col-sm-3">
-                  <strong>{{ carrier.label }}</strong>
-                  <div style="margin-top:6px;">
-                    <a href="" id="thumb-carrier-{{ key }}" data-toggle="image" class="img-thumbnail">
-                      <img src="{{ carrier.thumb_icon }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:120px;" />
-                    </a>
-                    <input type="hidden" name="module_hydrophob_delivery_carriers[{{ key }}][icon]" value="{{ carrier.icon }}" id="input-carrier-{{ key }}" />
-                  </div>
+            <div class="hydro-repeater__head">
+              <h4>{{ entry_items }}</h4>
+              <ul class="nav nav-tabs hydro-tabs delivery-global-langs" style="margin:0;">
+                {% for language in languages %}
+                <li{% if loop.first %} class="active"{% endif %}><a href="#" data-delivery-lang="{{ language.language_id }}">{{ language.name }}</a></li>
+                {% endfor %}
+              </ul>
+              <button type="button" id="btn-add-delivery" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> {{ entry_add }}</button>
+            </div>
+            <div id="delivery-body">
+              {% for i, item in items %}
+              <div class="hydro-row hydro-row--collapsed" id="delivery-row{{ i }}">
+                <div class="hydro-row__head hydro-row__toggle">
+                  <i class="fa fa-chevron-right hydro-row__chevron"></i>
+                  <strong>{{ entry_item }} {{ i + 1 }}</strong>
+                  <span class="hydro-row__preview">{{ item.name[2] is defined ? item.name[2] : '' }}</span>
+                  <button type="button" class="btn btn-danger btn-sm btn-remove-delivery"><i class="fa fa-minus-circle"></i></button>
                 </div>
-                <div class="col-sm-9">
-                  <div class="hydro-card">
-                    <div class="hydro-card__title">{{ entry_name }}</div>
-                    <ul class="nav nav-tabs hydro-tabs">
-                      {% for language in languages %}
-                      <li{% if loop.first %} class="active"{% endif %}><a href="#carrier-{{ key }}-{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                      {% endfor %}
-                    </ul>
-                    <div class="tab-content hydro-tab-content">
-                      {% for language in languages %}
-                      <div class="tab-pane{% if loop.first %} active{% endif %}" id="carrier-{{ key }}-{{ language.language_id }}">
-                        <input type="text" name="module_hydrophob_delivery_carriers[{{ key }}][name][{{ language.language_id }}]" value="{{ carrier.name[language.language_id] is defined ? carrier.name[language.language_id] : '' }}" class="form-control" />
-                      </div>
-                      {% endfor %}
+                <div class="row hydro-row__body">
+                  <input type="hidden" name="module_hydrophob_delivery_items[{{ i }}][key]" value="{{ item.key }}" />
+                  <div class="col-sm-3">
+                    <span class="delivery-icon-tile">
+                      <a href="" id="thumb-delivery{{ i }}" data-toggle="image" class="img-thumbnail"><img src="{{ item.thumb_icon }}" alt="" data-placeholder="{{ placeholder }}" /></a>
+                      <input type="hidden" name="module_hydrophob_delivery_items[{{ i }}][icon]" value="{{ item.icon }}" id="input-delivery{{ i }}" />
+                    </span>
+                  </div>
+                  <div class="col-sm-9">
+                    {% for language in languages %}
+                    <div class="delivery-lang delivery-lang-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+                      <input type="text" name="module_hydrophob_delivery_items[{{ i }}][name][{{ language.language_id }}]" value="{{ item.name[language.language_id] is defined ? item.name[language.language_id] : '' }}" placeholder="{{ entry_name }}" class="form-control delivery-name" style="margin-bottom:6px;" />
+                      <input type="text" name="module_hydrophob_delivery_items[{{ i }}][info_title][{{ language.language_id }}]" value="{{ item.info_title[language.language_id] is defined ? item.info_title[language.language_id] : '' }}" placeholder="{{ entry_info_title }}" class="form-control" style="margin-bottom:6px;" />
+                      <textarea name="module_hydrophob_delivery_items[{{ i }}][info_html][{{ language.language_id }}]" id="input-delivery{{ i }}-html{{ language.language_id }}" data-toggle="summernote" placeholder="{{ entry_info_html }}" class="form-control">{{ item.info_html[language.language_id] is defined ? item.info_html[language.language_id] : '' }}</textarea>
                     </div>
+                    {% endfor %}
                   </div>
                 </div>
               </div>
+              {% endfor %}
             </div>
-            {% endfor %}
           </div>
 
           <div class="form-group">
@@ -111,6 +117,103 @@
   </div>
 </div>
 
+<script type="text/javascript" src="view/javascript/summernote/summernote.min.js"></script>
+<link href="view/javascript/summernote/summernote.min.css" rel="stylesheet" />
+<script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
+<script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
+
+<script>
+var deliveryRowIndex = {{ next_index }};
+var deliveryLangs = [
+{% for language in languages %}
+  { id: {{ language.language_id }}, name: '{{ language.name|escape('js') }}' }{% if not loop.last %},{% endif %}
+{% endfor %}
+];
+var deliveryActiveLang = String(deliveryLangs.length ? deliveryLangs[0].id : '');
+var deliveryPlaceholder = '{{ placeholder|escape('js') }}';
+
+// Глобальний перемикач мов: показує поля лише активної мови у ВСІХ рядах
+document.querySelectorAll('.delivery-global-langs a[data-delivery-lang]').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    deliveryActiveLang = this.dataset.deliveryLang;
+    document.querySelectorAll('.delivery-global-langs li').forEach(function (li) { li.classList.remove('active'); });
+    this.parentNode.classList.add('active');
+    document.querySelectorAll('#delivery-body .delivery-lang').forEach(function (el) {
+      el.style.display = el.classList.contains('delivery-lang-' + deliveryActiveLang) ? '' : 'none';
+    });
+  });
+});
+
+// Акордеон
+document.getElementById('delivery-body').addEventListener('click', function (e) {
+  if (e.target.closest('.btn-remove-delivery') || e.target.closest('a[data-toggle]')) return;
+  var head = e.target.closest('.hydro-row__toggle');
+  if (head) head.closest('.hydro-row').classList.toggle('hydro-row--collapsed');
+});
+
+// Прев'ю в шапці = укр назва
+document.getElementById('delivery-body').addEventListener('input', function (e) {
+  if (!e.target.classList.contains('delivery-name')) return;
+  var row = e.target.closest('.hydro-row');
+  var uk = row.querySelector('.delivery-lang-2 .delivery-name');
+  var prev = row.querySelector('.hydro-row__preview');
+  if (uk && prev) prev.textContent = uk.value;
+});
+
+function deliveryLangBlocks(i) {
+  var html = '';
+  deliveryLangs.forEach(function (l) {
+    var vis = String(l.id) === deliveryActiveLang ? '' : ' style="display:none;"';
+    html += '<div class="delivery-lang delivery-lang-' + l.id + '"' + vis + '>' +
+      '<input type="text" name="module_hydrophob_delivery_items[' + i + '][name][' + l.id + ']" placeholder="{{ entry_name|escape('js') }}" class="form-control delivery-name" style="margin-bottom:6px;" />' +
+      '<input type="text" name="module_hydrophob_delivery_items[' + i + '][info_title][' + l.id + ']" placeholder="{{ entry_info_title|escape('js') }}" class="form-control" style="margin-bottom:6px;" />' +
+      '<textarea name="module_hydrophob_delivery_items[' + i + '][info_html][' + l.id + ']" id="input-delivery' + i + '-html' + l.id + '" data-toggle="summernote" placeholder="{{ entry_info_html|escape('js') }}" class="form-control"></textarea>' +
+      '</div>';
+  });
+  return html;
+}
+
+document.getElementById('btn-add-delivery').addEventListener('click', function () {
+  var list = document.getElementById('delivery-body');
+  var i = deliveryRowIndex;
+  var row = document.createElement('div');
+  row.className = 'hydro-row'; // новий ряд одразу розгорнутий
+  row.id = 'delivery-row' + i;
+
+  row.innerHTML =
+    '<div class="hydro-row__head hydro-row__toggle"><i class="fa fa-chevron-down hydro-row__chevron"></i><strong>{{ entry_item|escape('js') }} ' + (i + 1) + '</strong><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-sm btn-remove-delivery"><i class="fa fa-minus-circle"></i></button></div>' +
+    '<div class="row hydro-row__body">' +
+      '<input type="hidden" name="module_hydrophob_delivery_items[' + i + '][key]" value="row' + (i + 1) + '" />' +
+      '<div class="col-sm-3">' +
+        '<span class="delivery-icon-tile">' +
+          '<a href="" id="thumb-delivery' + i + '" data-toggle="image" class="img-thumbnail"><img src="' + deliveryPlaceholder + '" alt="" data-placeholder="' + deliveryPlaceholder + '" /></a>' +
+          '<input type="hidden" name="module_hydrophob_delivery_items[' + i + '][icon]" value="" id="input-delivery' + i + '" />' +
+        '</span>' +
+      '</div>' +
+      '<div class="col-sm-9">' + deliveryLangBlocks(i) + '</div>' +
+    '</div>';
+
+  list.appendChild(row);
+  deliveryRowIndex++;
+
+  row.querySelector('.btn-remove-delivery').addEventListener('click', function () {
+    row.parentNode.removeChild(row);
+  });
+
+  // Ініціалізація summernote для нового ряду (opencart.js вішається лише на document ready)
+  $(row).find('[data-toggle="summernote"]').each(function () {
+    $(this).summernote({ disableDragAndDrop: true, height: 200, emptyPara: '' });
+  });
+});
+
+document.querySelectorAll('.btn-remove-delivery').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    btn.closest('.hydro-row').remove();
+  });
+});
+</script>
+
 <style>
 .hydro-card { background: linear-gradient(180deg, #fff 0%, #f8fbff 100%); border: 1px solid #dfe6f1; border-radius: 10px; margin-bottom: 14px; padding: 14px; }
 .hydro-card__title { color: #36506b; font-size: 12px; font-weight: 700; letter-spacing: .04em; margin-bottom: 9px; text-transform: uppercase; }
@@ -120,9 +223,19 @@
 .hydro-tabs > li.active > a, .hydro-tabs > li.active > a:hover, .hydro-tabs > li.active > a:focus { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
 .hydro-tab-content .form-control { border-color: #d7e3ef; border-radius: 10px; box-shadow: none; }
 .hydro-repeater { background: #f7f9fc; border: 1px solid #dfe6f1; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
-.hydro-repeater__head { margin-bottom: 10px; }
+.hydro-repeater__head { align-items: center; display: flex; gap: 14px; margin-bottom: 10px; }
 .hydro-repeater__head h4 { margin: 0; }
+.hydro-repeater__head #btn-add-delivery { margin-left: auto; }
 .hydro-row { background: #fff; border: 1px solid #e4eaf3; border-radius: 8px; margin-bottom: 10px; padding: 12px; }
+.hydro-row__head { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }
+.hydro-row__toggle { align-items: center; cursor: pointer; display: flex; gap: 10px; user-select: none; }
+.hydro-row__toggle .btn-remove-delivery { margin-left: auto; }
+.hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
+.hydro-row:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
+.hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hydro-row--collapsed .hydro-row__body { display: none; }
+.delivery-icon-tile { display: inline-block; }
+.delivery-icon-tile .img-thumbnail { display: block; margin: 0; padding: 2px; }
+.delivery-icon-tile .img-thumbnail img { display: block; height: 84px; object-fit: cover; width: 84px; }
 </style>
-
 {{ footer }}

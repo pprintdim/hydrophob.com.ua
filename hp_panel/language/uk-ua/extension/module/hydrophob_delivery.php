@@ -11,16 +11,12 @@ $_['text_edit']        = 'Редагування модуля «Hydrophob — д
 $_['entry_status']     = 'Статус';
 $_['entry_title_html'] = 'Заголовок блоку';
 $_['entry_descr']      = 'Опис';
-$_['entry_carriers']   = 'Перевізники';
+$_['entry_items']      = 'Перевізники';
+$_['entry_item']       = 'Перевізник';
+$_['entry_add']        = 'Додати перевізника';
 $_['entry_name']       = 'Назва (текст у списку та alt іконки)';
-
-// Carriers
-$_['carrier_np']        = 'Нова пошта';
-$_['carrier_ukrposhta'] = 'Укрпошта';
-$_['carrier_meest']     = 'Meest';
-$_['carrier_other']     = 'Інші перевізники';
-$_['carrier_pickup']    = 'Самовивіз';
-$_['carrier_courier']   = 'Кур\'єр';
+$_['entry_info_title'] = 'Заголовок попапу';
+$_['entry_info_html']  = 'Текст попапу';
 
 // Error
 $_['error_permission'] = 'Попередження: у вас немає прав для редагування модуля «Hydrophob — доставка»!';

@@ -1382,9 +1382,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeBtn = popup.querySelector('.popupAbout__close');
     const titleEl = popup.querySelector('.popupDelivery__title');
     const textEl = popup.querySelector('.popupDelivery__text');
-    let INFO = null;
+    let INFO = (window.HYDRO_DELIVERY_INFO && Object.keys(window.HYDRO_DELIVERY_INFO).length) ? window.HYDRO_DELIVERY_INFO : null;
 
-    fetch('data/strings.json').then(r => r.json()).then(d => { INFO = d.deliveryInfo || {}; }).catch(() => {});
+    // Фолбек/доповнення зі старого JSON — SSR-дані з адмінки (window.HYDRO_DELIVERY_INFO) завжди виграють.
+    fetch('data/strings.json').then(r => r.json()).then(d => {
+        INFO = Object.assign({}, d.deliveryInfo || {}, INFO || {});
+    }).catch(() => {});
 
     function val(f) {
         if (!f) return '';

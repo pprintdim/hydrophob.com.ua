@@ -1,13 +1,25 @@
 <?php
 /**
  * Секція "delivery" головної сторінки (hydrophob.net.ua) — content_top модуль.
- * Заголовок/опис (мультимовно) + 6 фіксованих перевізників (назва мультимовно + іконка).
- * Дані: oc_setting (module_hydrophob_delivery_*), фолбек — data/strings.json -> delivery.*.
+ * Заголовок/опис (мультимовно) + перевізники в повторювачі (назва мультимовно + іконка +
+ * опис у попапі, редаговані з адмінки). Дані: oc_setting (module_hydrophob_delivery_items).
+ * Фолбек на старий формат (module_hydrophob_delivery_carriers + data/strings.json), поки
+ * не насіяно нові дані.
  */
 class ControllerExtensionModuleHydrophobDelivery extends Controller {
 	private $code = 'module_hydrophob_delivery';
 
-	/** Фіксовані ключі перевізників (використовуються в data-delivery на фронті — JS попапів). */
+	/** data-i18n у <li> списку — тільки для «рідних» шести перевізників (клієнтський перемикач мов). */
+	private $legacyDataI18n = array(
+		'np'        => 'delivery.np',
+		'ukrposhta' => 'delivery.ukr',
+		'meest'     => 'delivery.meest',
+		'other'     => 'delivery.other',
+		'pickup'    => 'delivery.pickup',
+		'courier'   => 'delivery.courier',
+	);
+
+	/** Фіксовані ключі перевізників для старого фолбек-шляху (доки не насіяно module_hydrophob_delivery_items). */
 	private $carrierKeys = array(
 		'np'        => array('legacy' => 'np',      'defaultIcon' => 'hydrophob/delivery/1.webp'),
 		'ukrposhta' => array('legacy' => 'ukr',      'defaultIcon' => 'hydrophob/delivery/2.webp'),
@@ -16,6 +28,9 @@ class ControllerExtensionModuleHydrophobDelivery extends Controller {
 		'pickup'    => array('legacy' => 'pickup',   'defaultIcon' => 'hydrophob/delivery/5.svg'),
 		'courier'   => array('legacy' => 'courier',  'defaultIcon' => 'hydrophob/delivery/6.svg'),
 	);
+
+	/** id мов проєкту (фіксовані, hydrophob.net.ua): 1=en-gb(EN), 2=uk-ua(UA), 3=ru-ru(RU). */
+	private $langIds = array('UA' => 2, 'RU' => 3, 'EN' => 1);
 
 	public function index($setting = array()) {
 		$this->load->language('extension/module/hydrophob_delivery');
@@ -27,27 +42,91 @@ class ControllerExtensionModuleHydrophobDelivery extends Controller {
 		$data['title_html'] = $this->localized('title_html', $lang_id, $d['titleHtml'] ?? array());
 		$data['descr']      = $this->localized('descr', $lang_id, $d['descr'] ?? array());
 
+		$items = $this->config->get($this->code . '_items');
+
+		if (is_array($items) && !empty($items)) {
+			list($carriers, $info) = $this->buildFromItems($items, $lang_id);
+		} else {
+			list($carriers, $info) = $this->buildLegacy($lang_id, $strings);
+		}
+
+		$data['carriers']            = $carriers;
+		$data['delivery_info_json']  = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+		return $this->load->view('extension/module/hydrophob_delivery', $data);
+	}
+
+	/** Новий формат: module_hydrophob_delivery_items — довільна кількість рядів {key, icon, name, info_title, info_html}. */
+	private function buildFromItems($items, $lang_id) {
+		$carriers = array();
+		$info = array();
+
+		$i = 0;
+		foreach ($items as $item) {
+			$i++;
+			$key  = !empty($item['key']) ? $item['key'] : ('row' . $i);
+			$icon = $item['icon'] ?? '';
+			$name = $this->localizedFromArray($item['name'] ?? array(), $lang_id);
+
+			if ($icon === '') {
+				$icon = $this->carrierKeys[$key]['defaultIcon'] ?? 'placeholder.png';
+			}
+
+			$carriers[] = array(
+				'key'       => $key,
+				'name'      => $name,
+				'icon'      => 'image/' . $icon,
+				'data_i18n' => $this->legacyDataI18n[$key] ?? '',
+			);
+
+			$info[$key] = array(
+				'title' => array(
+					'UA' => $this->localizedFromArray($item['info_title'] ?? array(), $this->langIds['UA']),
+					'RU' => $this->localizedFromArray($item['info_title'] ?? array(), $this->langIds['RU']),
+					'EN' => $this->localizedFromArray($item['info_title'] ?? array(), $this->langIds['EN']),
+				),
+				'text' => array(
+					'UA' => $this->localizedFromArray($item['info_html'] ?? array(), $this->langIds['UA']),
+					'RU' => $this->localizedFromArray($item['info_html'] ?? array(), $this->langIds['RU']),
+					'EN' => $this->localizedFromArray($item['info_html'] ?? array(), $this->langIds['EN']),
+				),
+			);
+		}
+
+		return array($carriers, $info);
+	}
+
+	/** Фолбек: старий формат module_hydrophob_delivery_carriers + data/strings.json (deliveryInfo) — доки нема items. */
+	private function buildLegacy($lang_id, $strings) {
+		$d = $strings['delivery'] ?? array();
+		$deliveryInfo = $strings['deliveryInfo'] ?? array();
 		$carriersSetting = $this->config->get($this->code . '_carriers');
 
 		$carriers = array();
-		foreach ($this->carrierKeys as $key => $info) {
+		$info = array();
+
+		foreach ($this->carrierKeys as $key => $meta) {
 			$icon = $carriersSetting[$key]['icon'] ?? '';
 			$name = $this->localizedFromArray($carriersSetting[$key]['name'] ?? array(), $lang_id);
 
 			if ($name === '') {
-				$name = $this->localized('legacy_' . $key, $lang_id, $d[$info['legacy']] ?? array());
+				$name = $this->localized('legacy_' . $key, $lang_id, $d[$meta['legacy']] ?? array());
 			}
 
-			$carriers[$key] = array(
-				'key'  => $key,
-				'name' => $name,
-				'icon' => $icon ? 'image/' . $icon : 'image/' . $info['defaultIcon'],
+			$carriers[] = array(
+				'key'       => $key,
+				'name'      => $name,
+				'icon'      => $icon ? 'image/' . $icon : 'image/' . $meta['defaultIcon'],
+				'data_i18n' => $this->legacyDataI18n[$key] ?? '',
+			);
+
+			$info[$key] = array(
+				'title' => $deliveryInfo[$key]['title'] ?? array('UA' => '', 'RU' => '', 'EN' => ''),
+				'text'  => $deliveryInfo[$key]['text'] ?? array('UA' => '', 'RU' => '', 'EN' => ''),
 			);
 		}
 
-		$data['carriers'] = $carriers;
-
-		return $this->load->view('extension/module/hydrophob_delivery', $data);
+		return array($carriers, $info);
 	}
 
 	private function localizedFromArray($values, $language_id) {

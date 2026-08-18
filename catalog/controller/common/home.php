@@ -148,13 +148,26 @@ class ControllerCommonHome extends Controller {
 		// delivery
 		if (($v = $ml3('module_hydrophob_delivery', 'title_html')) !== null) $overrides['delivery.titleHtml'] = $v;
 		if (($v = $ml3('module_hydrophob_delivery', 'descr')) !== null) $overrides['delivery.descr'] = $v;
-		$carriers = $this->config->get('module_hydrophob_delivery_carriers');
 		$carrierDotKeys = array('np' => 'delivery.np', 'ukrposhta' => 'delivery.ukr', 'meest' => 'delivery.meest', 'other' => 'delivery.other', 'pickup' => 'delivery.pickup', 'courier' => 'delivery.courier');
-		if (is_array($carriers)) {
-			foreach ($carrierDotKeys as $key => $dotKey) {
-				$name = $carriers[$key]['name'] ?? null;
-				if (is_array($name)) {
+		$deliveryItems = $this->config->get('module_hydrophob_delivery_items');
+		if (is_array($deliveryItems)) {
+			foreach ($deliveryItems as $item) {
+				$key = $item['key'] ?? '';
+				$dotKey = $carrierDotKeys[$key] ?? null;
+				$name = $item['name'] ?? null;
+				if ($dotKey !== null && is_array($name)) {
 					$overrides[$dotKey] = array('UA' => $name[$ukId] ?? '', 'RU' => $name[$ruId] ?? '', 'EN' => $name[$enId] ?? '');
+				}
+			}
+		} else {
+			// фолбек: старий формат, доки не насіяно module_hydrophob_delivery_items
+			$carriers = $this->config->get('module_hydrophob_delivery_carriers');
+			if (is_array($carriers)) {
+				foreach ($carrierDotKeys as $key => $dotKey) {
+					$name = $carriers[$key]['name'] ?? null;
+					if (is_array($name)) {
+						$overrides[$dotKey] = array('UA' => $name[$ukId] ?? '', 'RU' => $name[$ruId] ?? '', 'EN' => $name[$enId] ?? '');
+					}
 				}
 			}
 		}

@@ -11,16 +11,12 @@ $_['text_edit']        = 'Edit Hydrophob — Delivery Module';
 $_['entry_status']     = 'Status';
 $_['entry_title_html'] = 'Block title';
 $_['entry_descr']      = 'Description';
-$_['entry_carriers']   = 'Carriers';
+$_['entry_items']      = 'Carriers';
+$_['entry_item']       = 'Carrier';
+$_['entry_add']        = 'Add carrier';
 $_['entry_name']       = 'Name (list text & icon alt)';
-
-// Carriers
-$_['carrier_np']        = 'Nova Poshta';
-$_['carrier_ukrposhta'] = 'Ukrposhta';
-$_['carrier_meest']     = 'Meest';
-$_['carrier_other']     = 'Other carriers';
-$_['carrier_pickup']    = 'Pickup';
-$_['carrier_courier']   = 'Courier';
+$_['entry_info_title'] = 'Popup title';
+$_['entry_info_html']  = 'Popup text';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify Hydrophob — Delivery module!';

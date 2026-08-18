@@ -5,12 +5,9 @@
                 <h2 class="delivery__title" data-i18n-html="delivery.titleHtml">{{ title_html|raw }}</h2>
                 <p class="delivery__descr" data-i18n="delivery.descr">{{ descr }}</p>
                 <ul class="delivery__list">
-                    <li data-i18n="delivery.np">{{ carriers.np.name }}</li>
-                    <li data-i18n="delivery.ukr">{{ carriers.ukrposhta.name }}</li>
-                    <li data-i18n="delivery.meest">{{ carriers.meest.name }}</li>
-                    <li data-i18n="delivery.other">{{ carriers.other.name }}</li>
-                    <li data-i18n="delivery.pickup">{{ carriers.pickup.name }}</li>
-                    <li data-i18n="delivery.courier">{{ carriers.courier.name }}</li>
+{% for carrier in carriers %}
+                    <li{% if carrier.data_i18n %} data-i18n="{{ carrier.data_i18n }}"{% endif %}>{{ carrier.name }}</li>
+{% endfor %}
                 </ul>
             </div>
             <div class="delivery__block">
@@ -23,3 +20,4 @@
         </div>
     </div>
 </section>
+<script>window.HYDRO_DELIVERY_INFO = {{ delivery_info_json|raw }};</script>

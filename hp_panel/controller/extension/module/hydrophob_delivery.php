@@ -1,13 +1,12 @@
 <?php
 /**
  * Адмін-форма content_top модуля "hydrophob_delivery" (hydrophob.net.ua).
- * Заголовок/опис (мультимовно) + 6 фіксованих перевізників (назва мультимовно + іконка).
+ * Заголовок/опис (мультимовно) + перевізники в повторювачі: іконка, назва,
+ * заголовок і опис попапу (усе мультимовно).
  */
 class ControllerExtensionModuleHydrophobDelivery extends Controller {
 	private $error = array();
 	private $code = 'module_hydrophob_delivery';
-
-	private $carrierKeys = array('np', 'ukrposhta', 'meest', 'other', 'pickup', 'courier');
 
 	public function index() {
 		$this->load->language('extension/module/hydrophob_delivery');
@@ -34,24 +33,27 @@ class ControllerExtensionModuleHydrophobDelivery extends Controller {
 		$data['languages'] = $this->model_localisation_language->getLanguages();
 
 		$this->load->model('tool/image');
-		$data['placeholder'] = $this->model_tool_image->resize('placeholder.png', 200, 150);
+		$data['placeholder'] = $this->model_tool_image->resize('placeholder.png', 160, 120);
 
 		$data['status']     = $this->field('status', 1);
 		$data['title_html'] = $this->field('title_html', array());
 		$data['descr']      = $this->field('descr', array());
 
-		$carriers = $this->field('carriers', array());
-		$data['carriers'] = array();
-		foreach ($this->carrierKeys as $key) {
-			$icon = $carriers[$key]['icon'] ?? '';
-			$data['carriers'][$key] = array(
-				'key'        => $key,
-				'label'      => $this->language->get('carrier_' . $key),
-				'icon'       => $icon,
-				'thumb_icon' => $icon ? $this->model_tool_image->resize($icon, 160, 120) : $data['placeholder'],
-				'name'       => $carriers[$key]['name'] ?? array(),
+		$items = $this->field('items', array());
+		$data['items'] = array();
+		foreach ($items as $item) {
+			$icon = $item['icon'] ?? '';
+			$data['items'][] = array(
+				'key'         => $item['key'] ?? '',
+				'icon'        => $icon,
+				'thumb_icon'  => $icon ? $this->model_tool_image->resize($icon, 160, 120) : $data['placeholder'],
+				'name'        => $item['name'] ?? array(),
+				'info_title'  => $item['info_title'] ?? array(),
+				'info_html'   => $item['info_html'] ?? array(),
 			);
 		}
+
+		$data['next_index'] = count($data['items']);
 
 		$data['header']      = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -74,10 +76,16 @@ class ControllerExtensionModuleHydrophobDelivery extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-
 		// перевірка обовʼязкових укр (дефолтна мова) полів
 		if (isset($this->request->post['module_hydrophob_delivery_title_html']) && is_array($this->request->post['module_hydrophob_delivery_title_html']) && trim(strip_tags((string)($this->request->post['module_hydrophob_delivery_title_html'][2] ?? ''))) === '') {
 			$this->error['warning'] = 'Поле «Заголовок» обовʼязкове українською (мова за замовчуванням).';
+		}
+		if (!empty($this->request->post['module_hydrophob_delivery_items']) && is_array($this->request->post['module_hydrophob_delivery_items'])) {
+			foreach ($this->request->post['module_hydrophob_delivery_items'] as $row) {
+				if (trim((string)($row['name'][2] ?? '')) === '') {
+					$this->error['warning'] = 'У кожному рядку поле «Назва» обовʼязкове українською.';
+				}
+			}
 		}
 
 		return !$this->error;
