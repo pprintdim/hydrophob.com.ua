@@ -51,6 +51,24 @@
                   <textarea name="pages[{{ key }}][html]" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ page.html }}</textarea>
                 </div>
               </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_meta_title }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="pages[{{ key }}][meta_title]" value="{{ page.meta_title }}" class="form-control" maxlength="255" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_meta_description }}</label>
+                <div class="col-sm-10">
+                  <textarea name="pages[{{ key }}][meta_description]" rows="2" class="form-control" maxlength="500">{{ page.meta_description }}</textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_meta_keywords }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="pages[{{ key }}][meta_keywords]" value="{{ page.meta_keywords }}" class="form-control" />
+                </div>
+              </div>
             </div>
             {% endfor %}
           </div>

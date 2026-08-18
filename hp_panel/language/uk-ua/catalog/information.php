@@ -14,6 +14,10 @@ $_['text_page_offer']   = 'Публічна оферта';
 $_['entry_title']      = 'Заголовок';
 $_['entry_content']    = 'Вміст';
 
+$_['entry_meta_title']       = 'Мета-тег Title';
+$_['entry_meta_description'] = 'Мета-тег Description';
+$_['entry_meta_keywords']    = 'Мета-тег Keywords';
+
 // Error
 $_['error_permission'] = 'У вас немає прав для зміни інформаційних сторінок!';
 $_['error_title']      = 'Заголовок кожної сторінки обовʼязковий!';

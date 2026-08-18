@@ -20,13 +20,28 @@ class ControllerInformationLegal extends Controller {
 		$seo = $this->readJson('data/seo.json');
 		$baseUrl = rtrim($seo['url'] ?? '', '/') . '/';
 
-		$this->document->setTitle($page['title'] . ' — Hydrophob');
-		$this->document->setDescription($page['title'] . ' інтернет-магазину Hydrophob.');
+		$metaTitle = ($page['metaTitle'] ?? '') !== '' ? $page['metaTitle'] : $page['title'] . ' — Hydrophob';
+		$metaDescription = ($page['metaDescription'] ?? '') !== '' ? $page['metaDescription'] : $page['title'] . ' інтернет-магазину Hydrophob.';
+
+		$this->document->setTitle($metaTitle);
+		$this->document->setDescription($metaDescription);
+
+		$data['meta_title'] = $metaTitle;
+		$data['meta_description'] = $metaDescription;
+		$data['meta_keywords'] = $page['metaKeywords'] ?? '';
+		$data['og_image'] = $baseUrl . ltrim($seo['ogImage'] ?? 'img/og-image.jpg', '/');
 
 		$data['title'] = $page['title'];
 		$data['content'] = $page['html'];
 		$data['canonical'] = $baseUrl . $key;
 		$data['home'] = $this->url->link('common/home');
+
+		// Фавікон — з налаштувань, як на решті сторінок
+		$configIcon = (string)$this->config->get('config_icon');
+		$data['favicon'] = $configIcon !== '' ? 'image/' . $configIcon : 'image/hydrophob/favicon.png';
+
+		// Модулі з Макетів (route information/legal, позиція content_top)
+		$data['content_top'] = $this->load->controller('common/content_top');
 
 		$data['header'] = $this->load->view('common/home/header', array('hydro_lang' => 'UA'));
 		$data['footer'] = $this->load->view('common/home/footer', array());

@@ -52,10 +52,13 @@ class ControllerCatalogInformation extends Controller {
 
 		foreach ($this->pages as $page) {
 			$data['pages'][$page] = array(
-				'label' => $this->language->get('text_page_' . $page),
-				'url'   => '/' . $page,
-				'title' => $legal[$page]['title'] ?? '',
-				'html'  => $legal[$page]['html'] ?? '',
+				'label'            => $this->language->get('text_page_' . $page),
+				'url'              => '/' . $page,
+				'title'            => $legal[$page]['title'] ?? '',
+				'html'             => $legal[$page]['html'] ?? '',
+				'meta_title'       => $legal[$page]['metaTitle'] ?? '',
+				'meta_description' => $legal[$page]['metaDescription'] ?? '',
+				'meta_keywords'    => $legal[$page]['metaKeywords'] ?? '',
 			);
 		}
 
@@ -89,6 +92,9 @@ class ControllerCatalogInformation extends Controller {
 		foreach ($this->pages as $page) {
 			$legal[$page]['title'] = trim((string)($post['pages'][$page]['title'] ?? ''));
 			$legal[$page]['html'] = (string)($post['pages'][$page]['html'] ?? '');
+			$legal[$page]['metaTitle'] = trim((string)($post['pages'][$page]['meta_title'] ?? ''));
+			$legal[$page]['metaDescription'] = trim((string)($post['pages'][$page]['meta_description'] ?? ''));
+			$legal[$page]['metaKeywords'] = trim((string)($post['pages'][$page]['meta_keywords'] ?? ''));
 		}
 
 		file_put_contents($file, json_encode($legal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));

@@ -142,19 +142,16 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
+<?php
+// інформаційні сторінки — з data/legal.json (додається сторінка — потрапляє сюди сама)
+$legal = json_decode((string)@file_get_contents(__DIR__ . '/data/legal.json'), true) ?: [];
+foreach (array_keys($legal) as $pageKey):
+    if (!preg_match('/^[a-z]+$/', $pageKey)) continue;
+?>
     <url>
-        <loc><?= $base ?>/privacy</loc>
+        <loc><?= $base . '/' . $pageKey ?></loc>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
-    <url>
-        <loc><?= $base ?>/returns</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.3</priority>
-    </url>
-    <url>
-        <loc><?= $base ?>/offer</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.3</priority>
-    </url>
+<?php endforeach; ?>
 </urlset>
