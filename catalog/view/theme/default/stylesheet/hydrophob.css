@@ -4238,3 +4238,7 @@ section[id]{
 .hero__dots{ bottom: 18px !important; }
 .hero__dots .swiper-pagination-bullet{ background: rgba(255,255,255,.55); height: 9px; opacity: 1; transition: background .15s ease, transform .15s ease; width: 9px; }
 .hero__dots .swiper-pagination-bullet-active{ background: #1D9CB2; transform: scale(1.25); }
+
+/* У слайдері hero ховер-зум зайвий (виглядає як підглядання наступного слайду) */
+.hero__slider:hover img,
+.hero__slider:hover video{ transform: none; }
