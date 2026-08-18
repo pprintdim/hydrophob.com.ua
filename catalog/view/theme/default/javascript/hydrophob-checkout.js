@@ -395,6 +395,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function startTimer() {
             var left = 55;
             resendBtn.hidden = true;
+            resendBtn.style.display = 'none';
             timerEl.textContent = 'Повторна відправка через ' + left + ' с';
             if (timerId) clearInterval(timerId);
             timerId = setInterval(function () {
@@ -405,6 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearInterval(timerId); timerId = null;
                     timerEl.textContent = '';
                     resendBtn.hidden = false;
+                    resendBtn.style.display = '';
                 }
             }, 1000);
         }
