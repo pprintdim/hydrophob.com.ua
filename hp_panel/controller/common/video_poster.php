@@ -36,7 +36,7 @@ class ControllerCommonVideoPoster extends Controller {
 					mkdir($posterDir, 0755, true);
 				}
 
-				$name = pathinfo($relative, PATHINFO_FILENAME) . '-' . substr(md5($relative), 0, 6) . '.jpg';
+				$name = pathinfo($relative, PATHINFO_FILENAME) . '-' . substr(md5($relative), 0, 6) . '.webp';
 				$poster = $posterDir . $name;
 				$posterRel = 'catalog/video-posters/' . $name;
 

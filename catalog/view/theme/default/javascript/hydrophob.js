@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }).addTo(map);
     const marker = L.marker(coords, {
         icon: L.icon({
-            iconUrl: 'img/point.svg',
+            iconUrl: 'image/hydrophob/point.svg',
             iconSize: [80, 96],
             iconAnchor: [40, 96],
             popupAnchor: [0, -96]
@@ -1505,17 +1505,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const el = document.getElementById('hero-slider');
     if (!el || typeof Swiper === 'undefined') return;
 
-    let currentVideo = null;
+    let slideTimer = null;
     function playActive(swiper) {
         el.querySelectorAll('video').forEach(v => { v.pause(); v.onended = null; });
+        if (slideTimer) { clearTimeout(slideTimer); slideTimer = null; }
         const active = swiper.slides[swiper.activeIndex];
         const video = active && active.querySelector('video');
         if (video) {
-            currentVideo = video;
+            // відео-слайд (перший): грає одразу; дограв — їдемо далі
             video.currentTime = 0;
-            // автоперехід — тільки коли ролик догрався до кінця
             video.onended = function () { swiper.slideNext(); };
             video.play().catch(() => {});
+        } else {
+            // постер-слайд: гортаємо таймером
+            slideTimer = setTimeout(function () { swiper.slideNext(); }, 5000);
         }
     }
 

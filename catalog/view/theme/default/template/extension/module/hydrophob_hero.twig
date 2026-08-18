@@ -8,8 +8,14 @@
             <div class="swiper-wrapper">
                 {% for slide in slides %}
                 <div class="swiper-slide hero__slide">
-                    <video class="hero__slide-video" src="{{ slide.video }}" poster="{{ slide.poster }}" muted playsinline preload="{{ loop.first ? 'auto' : 'metadata' }}"></video>
+                    {% if loop.first %}
+                    {# перший слайд: відео грає одразу, без кнопки — дограв, і слайдер їде далі #}
+                    <video class="hero__slide-video" src="{{ slide.video }}" poster="{{ slide.poster }}" muted playsinline preload="auto"></video>
+                    {% else %}
+                    {# решта: постер + Play, відео відкривається в попапі #}
+                    <img class="hero__slide-video" src="{{ slide.poster }}" alt="" loading="lazy" decoding="async">
                     <button class="hero__video-play play-btn play-btn-open" data-video="{{ slide.video }}">Play reels</button>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
