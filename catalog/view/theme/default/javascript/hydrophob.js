@@ -539,13 +539,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!popupPhoto.classList.contains('active')) return;
         const activeVideo = popupPhoto.querySelector('.popupPhoto__content-image .swiper-slide-active video');
         if (activeVideo) {
+            // завжди зі звуком; якщо браузер заблокує автоплей — юзер тисне ▶ у контролах (теж зі звуком)
             activeVideo.muted = false;
-            activeVideo.play().catch(function() {
-                activeVideo.muted = true;
-                activeVideo.play().catch(function() {});
-            });
+            activeVideo.volume = 1;
+            activeVideo.play().catch(function() {});
         }
     }
+    // якщо юзер запускає відео рідними контролами — звук теж вмикаємо
+    popupPhoto.addEventListener('play', function(e) {
+        if (e.target.tagName === 'VIDEO') e.target.muted = false;
+    }, true);
     mainSwiper.on('slideChangeTransitionEnd', playActivePopupVideo);
 
     imagesBlockItems.forEach(function(item, index) {
