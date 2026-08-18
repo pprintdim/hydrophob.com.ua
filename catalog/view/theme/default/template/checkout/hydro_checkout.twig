@@ -6,6 +6,12 @@
     <title>Оформлення замовлення — Hydrophob</title>
     <meta name="description" content="Оформлення замовлення в інтернет-магазині Hydrophob.">
     <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="https://hydrophob.net.ua/checkout">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Оформлення замовлення — Hydrophob">
+    <meta property="og:description" content="Оформлення замовлення в інтернет-магазині Hydrophob.">
+    <meta property="og:url" content="https://hydrophob.net.ua/checkout">
+    <meta property="og:image" content="https://hydrophob.net.ua/img/og-image.jpg">
     <link rel="icon" type="image/svg+xml" href="image/hydrophob/logo.svg">
     <link rel="icon" type="image/png" href="image/hydrophob/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -187,9 +193,30 @@
                 </div>
             </div>
         </section>
+<div class="authPopup" id="auth-popup" hidden>
+    <div class="authPopup__inner">
+        <button class="authPopup__close" type="button" aria-label="Закрити">&times;</button>
+        <h3 class="authPopup__title">Підтвердження email</h3>
+        <p class="authPopup__descr">Для оформлення замовлення підтвердіть вашу пошту — ми надішлемо код на <strong class="authPopup__email"></strong></p>
+        <div class="authPopup__step authPopup__step--send">
+            <button class="btn authPopup__send" type="button">Надіслати код</button>
+        </div>
+        <div class="authPopup__step authPopup__step--code" hidden>
+            <input class="cart__data-input authPopup__code" type="text" inputmode="numeric" maxlength="6" placeholder="Код із листа" />
+            <div class="authPopup__actions">
+                <button class="btn authPopup__verify" type="button">Підтвердити</button>
+                <button class="btn-2 authPopup__resend" type="button" disabled>Надіслати ще раз <span class="authPopup__timer"></span></button>
+            </div>
+        </div>
+        <p class="authPopup__error" hidden></p>
+        <p class="authPopup__ok" hidden></p>
+    </div>
+</div>
+
     </main>
 
     {{ footer }}
+    <script src="catalog/view/theme/default/javascript/hydrophob.js?v={{ asset_version }}"></script>
     <script src="catalog/view/theme/default/javascript/hydrophob-checkout.js?v={{ asset_version }}"></script>
 </body>
 </html>

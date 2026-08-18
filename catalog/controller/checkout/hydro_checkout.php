@@ -50,7 +50,7 @@ class ControllerCheckoutHydroCheckout extends Controller {
 		$data['payments'] = $payments;
 		$data['default_phone_country'] = $env['DEFAULT_PHONE_COUNTRY'] ?? 'UA';
 		$data['home_url'] = $this->url->link('common/home');
-		$data['success_url'] = $this->url->link('checkout/hydro_success');
+		$data['success_url'] = '/success';
 		$data['products_url'] = $this->url->link('extension/module/catalog_api/products');
 		$data['shipping_url'] = 'api/shipping.php';
 		$data['order_url'] = 'api/order.php';

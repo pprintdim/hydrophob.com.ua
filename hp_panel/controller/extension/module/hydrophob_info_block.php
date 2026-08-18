@@ -37,33 +37,22 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 		$data['status'] = $this->field('status', 1);
 
 		// Категорії (укр. назви, поточна мова адмінки) для селекта.
+		// Всі товари одним списком; категорія показується в дужках (вибирається лише товар)
+		$this->load->model('catalog/product');
 		$this->load->model('catalog/category');
-		$data['categories'] = array();
+		$catNames = array();
 		foreach ($this->model_catalog_category->getCategories(array()) as $category) {
-			$data['categories'][] = array(
-				'category_id' => $category['category_id'],
-				'name'        => $category['name'],
+			$catNames[$category['category_id']] = $category['name'];
+		}
+		$data['products'] = array();
+		foreach ($this->model_catalog_product->getProducts(array()) as $product) {
+			$catIds = $this->model_catalog_product->getProductCategories($product['product_id']);
+			$catLabel = ($catIds && isset($catNames[$catIds[0]])) ? $catNames[$catIds[0]] : '';
+			$data['products'][] = array(
+				'product_id' => (int)$product['product_id'],
+				'name'       => $product['name'] . ($catLabel ? ' — ' . $catLabel : ''),
 			);
 		}
-
-		// category_id -> [{product_id, name}] — для JS-каскаду "категорія -> товар".
-		$this->load->model('catalog/product');
-		$productsByCategory = array();
-		foreach ($data['categories'] as $cat) {
-			$productsByCategory[$cat['category_id']] = array();
-		}
-		foreach ($this->model_catalog_product->getProducts(array()) as $product) {
-			foreach ($this->model_catalog_product->getProductCategories($product['product_id']) as $category_id) {
-				if (!isset($productsByCategory[$category_id])) {
-					$productsByCategory[$category_id] = array();
-				}
-				$productsByCategory[$category_id][] = array(
-					'product_id' => (int)$product['product_id'],
-					'name'       => $product['name'],
-				);
-			}
-		}
-		$data['products_by_category_json'] = json_encode($productsByCategory, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
 		$rowsPost = $this->field('rows', array());
 		$data['rows'] = array();

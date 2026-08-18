@@ -486,10 +486,11 @@ class ModelCatalogProduct extends Model {
 	public function getProductDetails($product_id) {
 		$tab_title = array();
 		$subtitle  = array();
-		$blocksByLang = array();
+		$purpose   = array();
+		$usage     = array();
 
 		if (!$this->productDetailsTableExists()) {
-			return array('tab_title' => $tab_title, 'subtitle' => $subtitle, 'blocks' => array());
+			return array('tab_title' => $tab_title, 'subtitle' => $subtitle, 'purpose' => $purpose, 'usage' => $usage);
 		}
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
@@ -497,29 +498,15 @@ class ModelCatalogProduct extends Model {
 		foreach ($query->rows as $row) {
 			$tab_title[$row['language_id']] = $row['tab_title'];
 			$subtitle[$row['language_id']]  = $row['subtitle'];
-			$blocksByLang[$row['language_id']] = json_decode($row['blocks'], true) ?: array();
-		}
-
-		$max_blocks = 0;
-		foreach ($blocksByLang as $lang_blocks) {
-			$max_blocks = max($max_blocks, count($lang_blocks));
-		}
-
-		$blocks = array();
-		for ($i = 0; $i < $max_blocks; $i++) {
-			$title = array();
-			$html  = array();
-			foreach ($blocksByLang as $language_id => $lang_blocks) {
-				$title[$language_id] = isset($lang_blocks[$i]['title']) ? $lang_blocks[$i]['title'] : '';
-				$html[$language_id]  = isset($lang_blocks[$i]['html']) ? $lang_blocks[$i]['html'] : '';
-			}
-			$blocks[] = array('title' => $title, 'html' => $html);
+			$purpose[$row['language_id']]   = $row['purpose'] ?? '';
+			$usage[$row['language_id']]     = $row['usage_html'] ?? '';
 		}
 
 		return array(
 			'tab_title' => $tab_title,
 			'subtitle'  => $subtitle,
-			'blocks'    => $blocks,
+			'purpose'   => $purpose,
+			'usage'     => $usage,
 		);
 	}
 
@@ -533,17 +520,19 @@ class ModelCatalogProduct extends Model {
 			return;
 		}
 
+		// tab_title поля у формі більше нема — зберігаємо наявні значення (сідовані короткі назви вкладок)
+		$existing_tab_titles = array();
+		$existing = $this->db->query("SELECT language_id, tab_title FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
+		foreach ($existing->rows as $row) {
+			$existing_tab_titles[$row['language_id']] = $row['tab_title'];
+		}
+
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
 
 		$land = isset($data['product_land']) && is_array($data['product_land']) ? $data['product_land'] : array();
 
-		if (empty($land['tab_title']) && empty($land['subtitle']) && empty($land['blocks'])) {
-			return;
-		}
-
 		$language_ids = array();
-
-		foreach (array('tab_title', 'subtitle') as $field) {
+		foreach (array('tab_title', 'subtitle', 'purpose', 'usage') as $field) {
 			if (!empty($land[$field]) && is_array($land[$field])) {
 				foreach (array_keys($land[$field]) as $language_id) {
 					$language_ids[$language_id] = true;
@@ -551,41 +540,17 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
-		if (!empty($land['blocks']) && is_array($land['blocks'])) {
-			foreach ($land['blocks'] as $block) {
-				foreach (array('title', 'html') as $field) {
-					if (!empty($block[$field]) && is_array($block[$field])) {
-						foreach (array_keys($block[$field]) as $language_id) {
-							$language_ids[$language_id] = true;
-						}
-					}
-				}
-			}
-		}
-
 		foreach (array_keys($language_ids) as $language_id) {
-			$tab_title = isset($land['tab_title'][$language_id]) ? (string)$land['tab_title'][$language_id] : '';
+			$tab_title = isset($land['tab_title'][$language_id]) ? (string)$land['tab_title'][$language_id] : ($existing_tab_titles[$language_id] ?? '');
 			$subtitle  = isset($land['subtitle'][$language_id]) ? (string)$land['subtitle'][$language_id] : '';
+			$purpose   = isset($land['purpose'][$language_id]) ? (string)$land['purpose'][$language_id] : '';
+			$usage     = isset($land['usage'][$language_id]) ? (string)$land['usage'][$language_id] : '';
 
-			$blocks = array();
-			if (!empty($land['blocks']) && is_array($land['blocks'])) {
-				foreach ($land['blocks'] as $block) {
-					$title = isset($block['title'][$language_id]) ? (string)$block['title'][$language_id] : '';
-					$html  = isset($block['html'][$language_id]) ? (string)$block['html'][$language_id] : '';
-
-					if ($title === '' && $html === '') {
-						continue;
-					}
-
-					$blocks[] = array('title' => $title, 'html' => $html);
-				}
-			}
-
-			if ($tab_title === '' && $subtitle === '' && !$blocks) {
+			if ($tab_title === '' && $subtitle === '' && trim(strip_tags($purpose)) === '' && trim(strip_tags($usage)) === '') {
 				continue;
 			}
 
-			$this->db->query("INSERT INTO " . DB_PREFIX . "product_details SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', tab_title = '" . $this->db->escape($tab_title) . "', subtitle = '" . $this->db->escape($subtitle) . "', blocks = '" . $this->db->escape(json_encode($blocks, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . "'");
+			$this->db->query("INSERT INTO " . DB_PREFIX . "product_details SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', tab_title = '" . $this->db->escape($tab_title) . "', subtitle = '" . $this->db->escape($subtitle) . "', purpose = '" . $this->db->escape($purpose) . "', usage_html = '" . $this->db->escape($usage) . "', blocks = ''");
 		}
 	}
 

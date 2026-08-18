@@ -61,11 +61,24 @@ class ControllerExtensionModuleHydrophobInfoBlock extends Controller {
 			}
 
 			$details = $this->model_catalog_product->getProductDetailsLocalized($product_id, $lang_id);
+			// Блоки: "Характеристики" — з атрибутів, "Призначення"/"Як використовувати" — з полів товару
+			$builtBlocks = $this->model_catalog_product->buildLandBlocks($product_id, $lang_id);
 
-			if ($details) {
-				$tabTitle = $details['tab_title'];
-				$subtitle = $details['subtitle'];
-				$blocks   = $details['blocks'];
+			if ($details || $builtBlocks) {
+				// tab_title з товару; якщо порожній — назва категорії товару
+				$tabTitle = $details['tab_title'] ?? '';
+				if ($tabTitle === '') {
+					$cats = $this->model_catalog_product->getCategories($product_id);
+					if ($cats) {
+						$this->load->model('catalog/category');
+						$cat = $this->model_catalog_category->getCategory($cats[0]['category_id']);
+						$tabTitle = $cat['name'] ?? $product['name'];
+					} else {
+						$tabTitle = $product['name'];
+					}
+				}
+				$subtitle = $details['subtitle'] ?? '';
+				$blocks   = $builtBlocks;
 			} else {
 				// Фолбек на легасі data/products.json для товарів без oc_product_details.
 				$extra  = $this->staticProductByModel($product['model']);

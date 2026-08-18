@@ -36,6 +36,24 @@ if (mb_strlen($name) > 200 || mb_strlen($phone) > 50 || mb_strlen($email) > 200
     hydro_json(['ok' => false, 'error' => 'field too long'], 422);
 }
 
+// Авторизація обовʼязкова: читаємо OC-сесію (движок db) за кукою OCSESSID
+$customerId = 0;
+$sessionId = preg_replace('/[^a-zA-Z0-9,\-]/', '', (string)($_COOKIE['OCSESSID'] ?? ''));
+if ($sessionId !== '') {
+    $db0 = hydro_db();
+    $stmt = $db0->prepare("SELECT data FROM " . DB_PREFIX . "session WHERE session_id = ? AND expire > NOW()");
+    $stmt->bind_param('s', $sessionId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    if ($row) {
+        $sess = json_decode($row['data'], true) ?: [];
+        $customerId = (int)($sess['customer_id'] ?? 0);
+    }
+}
+if (!$customerId) {
+    hydro_json(['ok' => false, 'error' => 'auth required'], 401);
+}
+
 // Спосіб оплати — тільки з увімкнених у налаштуваннях
 $paymentMethods = hydro_payment_methods(2); // uk-ua
 if (!isset($paymentMethods[$payment])) {
@@ -103,7 +121,7 @@ $comment = "Доставка: {$shippingTitle}\nМісто: {$dCity}\n"
 $stmt = $db->prepare("INSERT INTO " . DB_PREFIX . "order SET
     invoice_prefix = 'INV', store_id = 0, store_name = 'Hydrophob',
     store_url = 'https://hydrophob.net.ua/',
-    customer_id = 0, customer_group_id = 1,
+    customer_id = " . (int)$customerId . ", customer_group_id = 1,
     firstname = ?, lastname = ?, email = ?, telephone = ?, fax = '', custom_field = '',
     payment_firstname = ?, payment_lastname = ?, payment_company = '',
     payment_address_1 = ?, payment_address_2 = '', payment_city = ?, payment_postcode = '',
@@ -213,7 +231,7 @@ if ($payment === 'wayforpay') {
         'clientPhone'                   => $phone,
         'language'                      => 'UA',
         'serviceUrl'                    => 'https://' . $host . '/api/wayforpay_callback.php',
-        'returnUrl'                     => 'https://' . $host . '/index.php?route=checkout/hydro_success&token=' . $token,
+        'returnUrl'                     => 'https://' . $host . '/success?token=' . $token,
     ];
     $w4p = new W4P($secret);
     $fields['merchantSignature'] = $w4p->getRequestSignature($fields);

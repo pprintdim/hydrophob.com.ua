@@ -3,6 +3,8 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /system/
+Disallow: /checkout
+Disallow: /success
 Disallow: /*?route=checkout/
 Disallow: /*?route=account/
 Disallow: /*?page=$

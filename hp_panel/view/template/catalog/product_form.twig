@@ -30,7 +30,6 @@
             <li><a href="#tab-links" data-toggle="tab">{{ tab_links }}</a></li>
             <li><a href="#tab-attribute" data-toggle="tab">{{ tab_attribute }}</a></li>
             <li><a href="#tab-image" data-toggle="tab">{{ tab_image }}</a></li>
-            <li><a href="#tab-land" data-toggle="tab">{{ tab_land }}</a></li>
           </ul>
           <div class="tab-content">
             <div class="tab-pane active" id="tab-general">
@@ -67,6 +66,57 @@
                   </div>
                 {% endfor %}</div>
             </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Підзаголовок (ленд)</label>
+                <div class="col-sm-10">
+                  <ul class="nav nav-tabs">
+                    {% for language in languages %}
+                    <li{% if loop.first %} class="active"{% endif %}><a href="#land-sub{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                    {% endfor %}
+                  </ul>
+                  <div class="tab-content">
+                    {% for language in languages %}
+                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-sub{{ language.language_id }}">
+                      <input type="text" name="product_land[subtitle][{{ language.language_id }}]" value="{{ product_land.subtitle[language.language_id] is defined ? product_land.subtitle[language.language_id] : '' }}" placeholder="Підзаголовок для секції на головній" class="form-control" />
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Призначення</label>
+                <div class="col-sm-10">
+                  <ul class="nav nav-tabs">
+                    {% for language in languages %}
+                    <li{% if loop.first %} class="active"{% endif %}><a href="#land-purpose{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                    {% endfor %}
+                  </ul>
+                  <div class="tab-content">
+                    {% for language in languages %}
+                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-purpose{{ language.language_id }}">
+                      <textarea name="product_land[purpose][{{ language.language_id }}]" rows="4" data-toggle="summernote" class="form-control">{{ product_land.purpose[language.language_id] is defined ? product_land.purpose[language.language_id] : '' }}</textarea>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Як використовувати</label>
+                <div class="col-sm-10">
+                  <ul class="nav nav-tabs">
+                    {% for language in languages %}
+                    <li{% if loop.first %} class="active"{% endif %}><a href="#land-usage{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
+                    {% endfor %}
+                  </ul>
+                  <div class="tab-content">
+                    {% for language in languages %}
+                    <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-usage{{ language.language_id }}">
+                      <textarea name="product_land[usage][{{ language.language_id }}]" rows="4" data-toggle="summernote" class="form-control">{{ product_land.usage[language.language_id] is defined ? product_land.usage[language.language_id] : '' }}</textarea>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
             <div class="tab-pane" id="tab-data">
               <div class="form-group required">
                 <label class="col-sm-2 control-label" for="input-model">{{ entry_model }}</label>
@@ -470,90 +520,7 @@
             
             
 
-            <div class="tab-pane" id="tab-land">
-              <div class="hydro-card">
-                <div class="hydro-card__title">{{ entry_land_tab_title }}</div>
-                <ul class="nav nav-tabs hydro-tabs">
-                  {% for language in languages %}
-                  <li{% if loop.first %} class="active"{% endif %}><a href="#land-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                  {% endfor %}
-                </ul>
-                <div class="tab-content hydro-tab-content">
-                  {% for language in languages %}
-                  <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-title{{ language.language_id }}">
-                    <input type="text" name="product_land[tab_title][{{ language.language_id }}]" value="{{ product_land.tab_title[language.language_id] is defined ? product_land.tab_title[language.language_id] : '' }}" class="form-control" />
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-
-              <div class="hydro-card">
-                <div class="hydro-card__title">{{ entry_land_subtitle }}</div>
-                <ul class="nav nav-tabs hydro-tabs">
-                  {% for language in languages %}
-                  <li{% if loop.first %} class="active"{% endif %}><a href="#land-subtitle{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                  {% endfor %}
-                </ul>
-                <div class="tab-content hydro-tab-content">
-                  {% for language in languages %}
-                  <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-subtitle{{ language.language_id }}">
-                    <input type="text" name="product_land[subtitle][{{ language.language_id }}]" value="{{ product_land.subtitle[language.language_id] is defined ? product_land.subtitle[language.language_id] : '' }}" class="form-control" />
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-
-              <div class="hydro-repeater">
-                <div class="hydro-repeater__head">
-                  <h4>{{ entry_land_blocks }}</h4>
-                  <button type="button" class="btn btn-primary btn-sm" id="btn-add-land-block" data-next="{{ product_land_next_block }}"><i class="fa fa-plus-circle"></i> {{ entry_land_add_block }}</button>
-                </div>
-                <div id="land-blocks-list">
-                  {% for bKey, block in product_land.blocks %}
-                  <div class="hydro-row hydro-row--collapsed" id="land-block-{{ bKey }}">
-                    <div class="hydro-row__head hydro-row__toggle">
-                      <i class="fa fa-chevron-right hydro-row__chevron"></i>
-                      <strong>{{ entry_land_block }}</strong>
-                      <span class="hydro-row__preview">{{ block.title[2] is defined ? block.title[2] : '' }}</span>
-                      <button type="button" class="btn btn-danger btn-sm btn-remove-land-block"><i class="fa fa-minus-circle"></i></button>
-                    </div>
-                    <div class="hydro-row__body">
-                    <div class="hydro-card">
-                      <div class="hydro-card__title">{{ entry_land_block_title }}</div>
-                      <ul class="nav nav-tabs hydro-tabs">
-                        {% for language in languages %}
-                        <li{% if loop.first %} class="active"{% endif %}><a href="#land-b{{ bKey }}-title{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                        {% endfor %}
-                      </ul>
-                      <div class="tab-content hydro-tab-content">
-                        {% for language in languages %}
-                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-b{{ bKey }}-title{{ language.language_id }}">
-                          <input type="text" name="product_land[blocks][{{ bKey }}][title][{{ language.language_id }}]" value="{{ block.title[language.language_id] is defined ? block.title[language.language_id] : '' }}" class="form-control" />
-                        </div>
-                        {% endfor %}
-                      </div>
-                    </div>
-                    <div class="hydro-card">
-                      <div class="hydro-card__title">{{ entry_land_block_html }}</div>
-                      <ul class="nav nav-tabs hydro-tabs">
-                        {% for language in languages %}
-                        <li{% if loop.first %} class="active"{% endif %}><a href="#land-b{{ bKey }}-html{{ language.language_id }}" data-toggle="tab">{{ language.name }}</a></li>
-                        {% endfor %}
-                      </ul>
-                      <div class="tab-content hydro-tab-content">
-                        {% for language in languages %}
-                        <div class="tab-pane{% if loop.first %} active{% endif %}" id="land-b{{ bKey }}-html{{ language.language_id }}">
-                          <textarea name="product_land[blocks][{{ bKey }}][html][{{ language.language_id }}]" rows="5" data-toggle="summernote" class="form-control">{{ block.html[language.language_id] is defined ? block.html[language.language_id] : '' }}</textarea>
-                        </div>
-                        {% endfor %}
-                      </div>
-                    </div>
-                    </div>
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
+            
 
           </div>
         </form>
@@ -1135,20 +1102,4 @@
   </style>
 </div>
 
-<script type="text/javascript"><!--
-document.getElementById('land-blocks-list').addEventListener('click', function (e) {
-  if (e.target.closest('.btn-remove-land-block') || e.target.closest('a[data-toggle]') || e.target.closest('.note-editor')) return;
-  var head = e.target.closest('.hydro-row__toggle');
-  if (!head) return;
-  head.closest('.hydro-row').classList.toggle('hydro-row--collapsed');
-});
-//--></script>
-<style>
-#tab-land .hydro-row__toggle { cursor: pointer; display: flex; align-items: center; gap: 10px; user-select: none; }
-#tab-land .hydro-row__toggle .btn-remove-land-block { margin-left: auto; }
-#tab-land .hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
-#tab-land .hydro-row:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
-#tab-land .hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#tab-land .hydro-row--collapsed .hydro-row__body { display: none; }
-</style>
 {{ footer }} 

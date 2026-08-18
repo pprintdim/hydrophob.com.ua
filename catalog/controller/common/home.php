@@ -43,7 +43,7 @@ class ControllerCommonHome extends Controller {
 			'images'        => $images,
 			'carriers'      => $carriers,
 			'env'           => $env,
-			'checkout_url'  => $this->url->link('checkout/hydro_checkout'),
+			'checkout_url'  => '/checkout',
 		);
 
 		$partials = array('header', 'popup_video', 'popup_photo', 'popup_product', 'popup_about', 'popup_category', 'popup_delivery', 'cart', 'footer', 'cookie');
@@ -74,6 +74,8 @@ class ControllerCommonHome extends Controller {
 		$data['asset_version'] = (string)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
 
 		// ---- Правки з адмін-модулів (data-i18n на сторінці) мають виграти в JS-перемикачі мов ----
+		$data['schema_json'] = $this->buildSchemaJson($baseUrl);
+
 		$data['hydro_strings_overrides_json'] = json_encode($this->buildStringsOverrides(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 		$data['hydro_contacts_json'] = json_encode(array(
 			'lat'     => $this->config->get('module_hydrophob_contacts_lat'),
@@ -241,5 +243,113 @@ class ControllerCommonHome extends Controller {
 			}
 		}
 		return $env;
+	}
+
+	/**
+	 * JSON-LD (Organization+Store, WebSite, ItemList товарів з БД, FAQPage з модуля) —
+	 * відновлення розмітки зі старого статичного index.php, але з живих даних.
+	 */
+	private function buildSchemaJson($baseUrl) {
+		$seo = $this->readJson('data/seo.json');
+		$org = $seo['org'] ?? array();
+		$rating = $seo['rating'] ?? array();
+
+		$schema = array();
+
+		$organization = array(
+			'@context' => 'https://schema.org',
+			'@type' => array('Organization', 'Store'),
+			'name' => $this->config->get('config_name') ?: 'Hydrophob',
+			'url' => $baseUrl,
+			'logo' => $baseUrl . 'image/hydrophob/logo.svg',
+			'email' => $this->config->get('config_hydro_email') ?: ($org['email'] ?? ''),
+			'telephone' => $this->config->get('config_telephone') ?: ($org['telephoneDisplay'] ?? ''),
+			'priceRange' => '₴₴',
+			'openingHours' => $org['openHours'] ?? 'Mo-Su 08:00-22:00',
+			'address' => array(
+				'@type' => 'PostalAddress',
+				'streetAddress' => $org['streetAddress'] ?? '',
+				'addressLocality' => $org['addressLocality'] ?? 'Київ',
+				'addressCountry' => 'UA',
+			),
+		);
+		$geocode = (string)$this->config->get('config_geocode');
+		if (strpos($geocode, ',') !== false) {
+			list($lat, $lng) = array_map('trim', explode(',', $geocode, 2));
+			$organization['geo'] = array('@type' => 'GeoCoordinates', 'latitude' => (float)$lat, 'longitude' => (float)$lng);
+		}
+		if (!empty($rating['value'])) {
+			$organization['aggregateRating'] = array(
+				'@type' => 'AggregateRating',
+				'ratingValue' => $rating['value'],
+				'reviewCount' => $rating['count'] ?? '1',
+				'bestRating' => $rating['best'] ?? '5',
+			);
+		}
+		$socials = array_filter(array($this->config->get('config_hydro_tiktok'), $this->config->get('config_hydro_telegram')));
+		if ($socials) {
+			$organization['sameAs'] = array_values($socials);
+		}
+		$schema[] = $organization;
+
+		$schema[] = array(
+			'@context' => 'https://schema.org',
+			'@type' => 'WebSite',
+			'name' => $this->config->get('config_name') ?: 'Hydrophob',
+			'url' => $baseUrl,
+			'inLanguage' => 'uk_UA',
+		);
+
+		// ItemList товарів з живого каталогу
+		$this->load->model('catalog/product');
+		$items = array();
+		$position = 0;
+		foreach ($this->model_catalog_product->getProducts(array('filter_status' => 1)) as $product) {
+			$position++;
+			$items[] = array(
+				'@type' => 'ListItem',
+				'position' => $position,
+				'item' => array(
+					'@type' => 'Product',
+					'name' => $product['name'],
+					'description' => mb_substr(trim(strip_tags(html_entity_decode($product['description'], ENT_QUOTES, 'UTF-8'))), 0, 200),
+					'image' => $product['image'] ? $baseUrl . 'image/' . $product['image'] : '',
+					'sku' => $product['model'],
+					'brand' => array('@type' => 'Brand', 'name' => 'Hydrophob'),
+					'offers' => array(
+						'@type' => 'Offer',
+						'price' => (string)round((float)$product['price']),
+						'priceCurrency' => 'UAH',
+						'availability' => ((int)$product['quantity'] > 0) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+						'url' => $baseUrl,
+					),
+				),
+			);
+		}
+		if ($items) {
+			$schema[] = array('@context' => 'https://schema.org', '@type' => 'ItemList', 'itemListElement' => $items);
+		}
+
+		// FAQPage з модуля faq (укр)
+		$faqItems = $this->config->get('module_hydrophob_faq_items');
+		if (is_array($faqItems)) {
+			$main = array();
+			foreach ($faqItems as $item) {
+				$q = trim(strip_tags((string)($item['question'][2] ?? '')));
+				$a = trim(strip_tags((string)($item['answer'][2] ?? '')));
+				if ($q !== '' && $a !== '') {
+					$main[] = array(
+						'@type' => 'Question',
+						'name' => $q,
+						'acceptedAnswer' => array('@type' => 'Answer', 'text' => $a),
+					);
+				}
+			}
+			if ($main) {
+				$schema[] = array('@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => $main);
+			}
+		}
+
+		return json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 	}
 }

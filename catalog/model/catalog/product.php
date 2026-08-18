@@ -581,28 +581,28 @@ class ModelCatalogProduct extends Model {
 			return null;
 		}
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
-
-		if (!$query->num_rows) {
-			return null;
-		}
-
 		$langKey = array(1 => 'EN', 2 => 'UA', 3 => 'RU');
 
+		$rows = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'")->rows;
+		$hasDetails = (bool)$rows;
+
 		$byLang = array();
-		foreach ($query->rows as $row) {
+		foreach ($rows as $row) {
 			$key = isset($langKey[$row['language_id']]) ? $langKey[$row['language_id']] : null;
-			if (!$key) {
-				continue;
+			if ($key) {
+				$byLang[$key] = $row;
 			}
-			$byLang[$key] = array(
-				'tab_title' => $row['tab_title'],
-				'subtitle'  => $row['subtitle'],
-				'blocks'    => json_decode($row['blocks'], true) ?: array(),
-			);
 		}
 
-		if (!$byLang) {
+		// блоки (включно з "Характеристиками" з атрибутів) — по мовах
+		$blocksByLang = array();
+		$maxBlocks = 0;
+		foreach ($langKey as $lid => $key) {
+			$blocksByLang[$key] = $this->buildLandBlocks($product_id, $lid);
+			$maxBlocks = max($maxBlocks, count($blocksByLang[$key]));
+		}
+
+		if (!$hasDetails && !$maxBlocks) {
 			return null;
 		}
 
@@ -613,17 +613,12 @@ class ModelCatalogProduct extends Model {
 			$subtitle[$k] = isset($byLang[$k]['subtitle']) ? $byLang[$k]['subtitle'] : '';
 		}
 
-		$maxBlocks = 0;
-		foreach ($byLang as $l) {
-			$maxBlocks = max($maxBlocks, count($l['blocks']));
-		}
-
 		$blocks = array();
 		for ($i = 0; $i < $maxBlocks; $i++) {
 			$title = array();
 			$html  = array();
 			foreach (array('UA', 'RU', 'EN') as $k) {
-				$b = isset($byLang[$k]['blocks'][$i]) ? $byLang[$k]['blocks'][$i] : array();
+				$b = isset($blocksByLang[$k][$i]) ? $blocksByLang[$k][$i] : array();
 				$title[$k] = isset($b['title']) ? $b['title'] : '';
 				$html[$k]  = isset($b['html']) ? $b['html'] : '';
 			}
@@ -656,8 +651,51 @@ class ModelCatalogProduct extends Model {
 		return array(
 			'tab_title' => $row['tab_title'],
 			'subtitle'  => $row['subtitle'],
-			'blocks'    => json_decode($row['blocks'], true) ?: array(),
+			'purpose'   => $row['purpose'] ?? '',
+			'usage'     => $row['usage_html'] ?? '',
 		);
+	}
+
+	/**
+	 * Блоки infoBlock для мови: "Характеристики" — з атрибутів товару, далі
+	 * "Призначення" (purpose) і "Як використовувати" (usage_html) з oc_product_details.
+	 * Порожні блоки пропускаються.
+	 */
+	public function buildLandBlocks($product_id, $language_id) {
+		$titles = array(
+			1 => array('attrs' => 'Specifications:', 'purpose' => 'Purpose', 'usage' => 'How to use'),
+			2 => array('attrs' => 'Характеристики:', 'purpose' => 'Призначення', 'usage' => 'Як використовувати'),
+			3 => array('attrs' => 'Характеристики:', 'purpose' => 'Назначение', 'usage' => 'Как использовать'),
+		);
+		$t = isset($titles[$language_id]) ? $titles[$language_id] : $titles[2];
+
+		$blocks = array();
+
+		$attrs = $this->db->query("SELECT ad.name, pa.text FROM " . DB_PREFIX . "product_attribute pa LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (ad.attribute_id = pa.attribute_id AND ad.language_id = pa.language_id) LEFT JOIN " . DB_PREFIX . "attribute a ON (a.attribute_id = pa.attribute_id) WHERE pa.product_id = '" . (int)$product_id . "' AND pa.language_id = '" . (int)$language_id . "' ORDER BY a.sort_order")->rows;
+		if ($attrs) {
+			$li = '';
+			foreach ($attrs as $attr) {
+				if ($attr['name'] === null || $attr['name'] === 'Виробник') {
+					continue;
+				}
+				$li .= '<li>' . $attr['name'] . ': ' . $attr['text'] . '</li>';
+			}
+			if ($li !== '') {
+				$blocks[] = array('title' => $t['attrs'], 'html' => '<ul>' . $li . '</ul>');
+			}
+		}
+
+		$details = $this->getProductDetailsLocalized($product_id, $language_id);
+		if ($details) {
+			if (trim(strip_tags($details['purpose'] ?? '')) !== '') {
+				$blocks[] = array('title' => $t['purpose'], 'html' => $details['purpose']);
+			}
+			if (trim(strip_tags($details['usage'] ?? '')) !== '') {
+				$blocks[] = array('title' => $t['usage'], 'html' => $details['usage']);
+			}
+		}
+
+		return $blocks;
 	}
 
 	/** Значення текстового атрибута товару (напр. "Об'єм") поточною мовою. Null, якщо атрибута нема. */

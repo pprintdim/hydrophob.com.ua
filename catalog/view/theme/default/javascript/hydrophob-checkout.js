@@ -360,9 +360,135 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    /* ---- Авторизація по коду на email (обовʼязкова перед оплатою) ---- */
+    var authState = { logged: false, checked: false };
+
+    function checkAuth() {
+        return fetch('index.php?route=common/user_popup/status')
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                authState.logged = !!(d && d.logged);
+                authState.checked = true;
+                return authState.logged;
+            })
+            .catch(function () { return false; });
+    }
+
+    function openAuthPopup(onSuccess) {
+        var popup = document.getElementById('auth-popup');
+        if (!popup) { onSuccess(); return; }
+        var email = page.querySelector('input[name="email"]').value.trim();
+        popup.querySelector('.authPopup__email').textContent = email;
+        var stepSend = popup.querySelector('.authPopup__step--send');
+        var stepCode = popup.querySelector('.authPopup__step--code');
+        var errEl = popup.querySelector('.authPopup__error');
+        var okEl = popup.querySelector('.authPopup__ok');
+        var resendBtn = popup.querySelector('.authPopup__resend');
+        var timerEl = popup.querySelector('.authPopup__timer');
+        var codeInput = popup.querySelector('.authPopup__code');
+        stepSend.hidden = false; stepCode.hidden = true;
+        errEl.hidden = true; okEl.hidden = true;
+        codeInput.value = '';
+        popup.hidden = false;
+        document.body.classList.add('no-scroll');
+
+        var timerId = null;
+        function startTimer() {
+            var left = 55;
+            resendBtn.disabled = true;
+            timerEl.textContent = '(' + left + ')';
+            timerId = setInterval(function () {
+                left--;
+                timerEl.textContent = left > 0 ? '(' + left + ')' : '';
+                if (left <= 0) { clearInterval(timerId); resendBtn.disabled = false; }
+            }, 1000);
+        }
+
+        function fail(msg) {
+            errEl.textContent = msg || 'Сталася помилка. Спробуйте ще раз.';
+            errEl.hidden = false;
+            okEl.hidden = true;
+        }
+
+        function sendCode() {
+            errEl.hidden = true;
+            var telFullInput = page.querySelector('input[name="tel-full"]');
+            var telInput = page.querySelector('input[name="tel"]');
+            var nameVal = page.querySelector('input[name="name"]').value.trim();
+            var body = new URLSearchParams({
+                email: email,
+                firstname: nameVal.split(' ')[0] || nameVal,
+                lastname: nameVal.split(' ').slice(1).join(' '),
+                telephone: ((telFullInput && telFullInput.value) || telInput.value).trim(),
+            });
+            fetch('index.php?route=common/user_popup/sendCode', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body })
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (d && d.success) {
+                        stepSend.hidden = true;
+                        stepCode.hidden = false;
+                        okEl.textContent = 'Код надіслано на ' + email;
+                        okEl.hidden = false;
+                        startTimer();
+                        codeInput.focus();
+                    } else {
+                        var e = d && d.error ? (d.error.email || d.error.firstname || d.error.telephone || d.error.warning) : null;
+                        fail(e);
+                    }
+                })
+                .catch(function () { fail(); });
+        }
+
+        function verify() {
+            errEl.hidden = true;
+            var body = new URLSearchParams({ email: email, code: codeInput.value.trim() });
+            fetch('index.php?route=common/user_popup/verifyCode', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body })
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (d && d.success) {
+                        authState.logged = true;
+                        okEl.textContent = d.message || 'Підтверджено!';
+                        okEl.hidden = false;
+                        if (timerId) clearInterval(timerId);
+                        setTimeout(function () {
+                            popup.hidden = true;
+                            document.body.classList.remove('no-scroll');
+                            onSuccess();
+                        }, 600);
+                    } else {
+                        fail(d && d.error ? d.error.code : null);
+                    }
+                })
+                .catch(function () { fail(); });
+        }
+
+        popup.querySelector('.authPopup__send').onclick = sendCode;
+        popup.querySelector('.authPopup__verify').onclick = verify;
+        resendBtn.onclick = sendCode;
+        codeInput.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); verify(); } };
+        popup.querySelector('.authPopup__close').onclick = function () {
+            popup.hidden = true;
+            document.body.classList.remove('no-scroll');
+            if (timerId) clearInterval(timerId);
+        };
+    }
+
     /* ---- Сабміт замовлення ---- */
     function submitOrder(btn) {
         if (!cart.length) return;
+        // без підтвердженого email замовлення/оплату не пускаємо
+        if (!authState.logged) {
+            checkAuth().then(function (logged) {
+                if (logged) {
+                    submitOrder(btn);
+                } else {
+                    var emailVal = page.querySelector('input[name="email"]').value.trim();
+                    if (!emailVal) { alert('Вкажіть email — на нього прийде код підтвердження.'); return; }
+                    openAuthPopup(function () { submitOrder(btn); });
+                }
+            });
+            return;
+        }
         var telFullInput = page.querySelector('input[name="tel-full"]');
         var telInput = page.querySelector('input[name="tel"]');
         var payload = {
@@ -410,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     form.submit();
                 } else if (d && d.ok && d.token) {
                     localStorage.removeItem('hydrophob_cart');
-                    window.location.href = (cfg.successUrl || 'index.php?route=checkout/hydro_success') + '&token=' + d.token;
+                    window.location.href = (cfg.successUrl || '/success') + '&token=' + d.token;
                 } else {
                     throw new Error((d && d.error) || 'fail');
                 }

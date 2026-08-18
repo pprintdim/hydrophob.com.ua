@@ -42,20 +42,12 @@
             <div class="row">
               <div class="col-sm-4">
                 <div class="form-group">
-                  <label>{{ entry_category }}</label>
-                  <select name="module_hydrophob_info_block_rows[{{ row.index }}][category_id]" class="form-control input-category" data-row="{{ row.index }}">
-                    <option value="">{{ text_select }}</option>
-                    {% for category in categories %}
-                    <option value="{{ category.category_id }}"{% if category.category_id == row.category_id %} selected="selected"{% endif %}>{{ category.name }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
-              <div class="col-sm-4">
-                <div class="form-group">
                   <label>{{ entry_product }}</label>
-                  <select name="module_hydrophob_info_block_rows[{{ row.index }}][product_id]" class="form-control input-product" data-row="{{ row.index }}" data-selected="{{ row.product_id }}">
+                  <select name="module_hydrophob_info_block_rows[{{ row.index }}][product_id]" class="form-control input-product">
                     <option value="">{{ text_select }}</option>
+                    {% for product in products %}
+                    <option value="{{ product.product_id }}"{% if product.product_id == row.product_id %} selected="selected"{% endif %}>{{ product.name }}</option>
+                    {% endfor %}
                   </select>
                 </div>
               </div>
@@ -91,44 +83,14 @@
 </div>
 
 <script>
-var infoBlockProductsByCategory = {{ products_by_category_json|raw }};
+var infoBlockProducts = [{% for product in products %}{id: {{ product.product_id }}, name: '{{ product.name|escape('js') }}'}{% if not loop.last %},{% endif %}{% endfor %}];
 var infoBlockRowNext = {{ next_row_index }};
 var infoBlockTextSelect = '{{ text_select|escape('js') }}';
 
-function infoBlockFillProductSelect(select, categoryId, selectedId) {
-  select.innerHTML = '';
-  var optNone = document.createElement('option');
-  optNone.value = '';
-  optNone.textContent = infoBlockTextSelect;
-  select.appendChild(optNone);
-
-  var list = infoBlockProductsByCategory[categoryId] || [];
-  list.forEach(function(p) {
-    var opt = document.createElement('option');
-    opt.value = p.product_id;
-    opt.textContent = p.name;
-    if (String(p.product_id) === String(selectedId)) {
-      opt.selected = true;
-    }
-    select.appendChild(opt);
-  });
-}
-
 function infoBlockInitRow(row) {
-  var categorySelect = row.querySelector('.input-category');
-  var productSelect = row.querySelector('.input-product');
-  if (!categorySelect || !productSelect) return;
-
-  var selected = productSelect.dataset.selected || '';
-  infoBlockFillProductSelect(productSelect, categorySelect.value, selected);
-
-  categorySelect.addEventListener('change', function() {
-    infoBlockFillProductSelect(productSelect, categorySelect.value, '');
-  });
-
   var removeBtn = row.querySelector('.btn-remove-row');
   if (removeBtn) {
-    removeBtn.addEventListener('click', function() {
+    removeBtn.addEventListener('click', function () {
       row.parentNode.removeChild(row);
     });
   }
@@ -217,12 +179,11 @@ document.getElementById('btn-add-row').addEventListener('click', function() {
       '<div class="hydro-row__head hydro-row__toggle"><i class="fa fa-chevron-down hydro-row__chevron"></i><strong>{{ entry_row|escape('js') }}</strong><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus-circle"></i></button></div>' +
       '<div class="hydro-row__body">' +
       '<div class="row">' +
-        '<div class="col-sm-4"><div class="form-group"><label>{{ entry_category|escape('js') }}</label><select name="module_hydrophob_info_block_rows[' + idx + '][category_id]" class="form-control input-category" data-row="' + idx + '"><option value="">' + infoBlockTextSelect + '</option>' +
-        {% for category in categories %}
+                {% for category in categories %}
         '<option value="{{ category.category_id }}">{{ category.name|escape('js') }}</option>' +
         {% endfor %}
         '</select></div></div>' +
-        '<div class="col-sm-4"><div class="form-group"><label>{{ entry_product|escape('js') }}</label><select name="module_hydrophob_info_block_rows[' + idx + '][product_id]" class="form-control input-product" data-row="' + idx + '" data-selected=""><option value="">' + infoBlockTextSelect + '</option></select></div></div>' +
+        '<div class="col-sm-6"><div class="form-group"><label>{{ entry_product|escape('js') }}</label><select name="module_hydrophob_info_block_rows[' + idx + '][product_id]" class="form-control input-product">' + '<option value="">' + infoBlockTextSelect + '</option>' + infoBlockProducts.map(function (p) { return '<option value="' + p.id + '">' + p.name + '</option>'; }).join('') + '</select></div></div>' +
         
       '</div>' +
       '<div class="row">' +

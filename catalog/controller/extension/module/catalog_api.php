@@ -82,7 +82,7 @@ class ControllerExtensionModuleCatalogApi extends Controller {
 				'title'       => $product['name'],
 				'descr'       => $product['meta_description'] ?: mb_substr(strip_tags($descriptionHtml), 0, 200),
 				'descriptionHtml' => $descriptionHtml,
-				'volume'      => $product['tag'],
+				'volume'      => $this->attrValue($attrs, "Об'єм") ?: $product['tag'],
 				'price'       => (float)$product['price'],
 				'image'       => $product['image'] ? 'image/' . $product['image'] : '',
 				'available'   => (bool)$product['status'] && $product['quantity'] > 0,
@@ -114,5 +114,15 @@ class ControllerExtensionModuleCatalogApi extends Controller {
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+	}
+
+	/** Значення атрибута за назвою зі зібраного масиву attrs. */
+	private function attrValue(array $attrs, $name) {
+		foreach ($attrs as $attr) {
+			if (($attr['name'] ?? '') === $name) {
+				return $attr['value'];
+			}
+		}
+		return null;
 	}
 }
