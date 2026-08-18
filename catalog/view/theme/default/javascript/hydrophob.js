@@ -325,6 +325,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const videoElement = popup.querySelector('video');
     const videoSource = videoElement.querySelector('source');
     const popupPlayBtn = popup.querySelector('.popupVideo__play');
+    function openVideoPopup(videoUrl) {
+        videoSource.src = videoUrl;
+        videoElement.load();
+        popup.classList.add('active');
+        popupPlayBtn.style.display = 'none';
+        videoElement.setAttribute('controls', 'controls');
+        videoElement.play().catch(function () {
+            popupPlayBtn.style.display = 'inline-block';
+        });
+    }
+
+    // Клік по авто-відео в hero (перший слайд без кнопки) — відкриває його ж у попапі зі звуком
+    document.addEventListener('click', function (e) {
+        const heroVideo = e.target.closest('video.hero__slide-video');
+        if (heroVideo && heroVideo.getAttribute('src')) {
+            openVideoPopup(heroVideo.getAttribute('src'));
+        }
+    });
+
     playButtons.forEach(function(btn) {
         btn.addEventListener('click', function() {
             const videoUrl = this.dataset.video;

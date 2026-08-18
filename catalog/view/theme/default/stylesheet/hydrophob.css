@@ -4242,3 +4242,4 @@ section[id]{
 /* У слайдері hero ховер-зум зайвий (виглядає як підглядання наступного слайду) */
 .hero__slider:hover img,
 .hero__slider:hover video{ transform: none; }
+video.hero__slide-video{ cursor: pointer; }

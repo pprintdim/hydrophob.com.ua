@@ -76,20 +76,22 @@
                     </div>
                 </div>
                 <div class="header__lang">
-                    <div class="header__lang-selected">UA</div>
+                    <div class="header__lang-selected">{{ hydro_lang|default('UA') }}</div>
                     <div class="header__lang-content">
-                        <a href="#">RU</a>
-                        <a href="#">EN</a>
+                        {% if hydro_lang|default('UA') != 'UA' %}<a href="/">UA</a>{% endif %}
+                        {% if hydro_lang|default('UA') != 'RU' %}<a href="/ru">RU</a>{% endif %}
+                        {% if hydro_lang|default('UA') != 'EN' %}<a href="/en">EN</a>{% endif %}
                     </div>
                 </div>
             </div>
             <div class="header__lang">
-                <div class="header__lang-selected">UA</div>
-                <div class="header__lang-content">
-                    <a href="#">RU</a>
-                    <a href="#">EN</a>
+                    <div class="header__lang-selected">{{ hydro_lang|default('UA') }}</div>
+                    <div class="header__lang-content">
+                        {% if hydro_lang|default('UA') != 'UA' %}<a href="/">UA</a>{% endif %}
+                        {% if hydro_lang|default('UA') != 'RU' %}<a href="/ru">RU</a>{% endif %}
+                        {% if hydro_lang|default('UA') != 'EN' %}<a href="/en">EN</a>{% endif %}
+                    </div>
                 </div>
-            </div>
         </div>
         <div class="footer__bottom">
             <p class="footer__copy">© 2025 Hydrophonob</p>
