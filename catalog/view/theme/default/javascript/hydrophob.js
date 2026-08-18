@@ -33,6 +33,9 @@ let ticksDays, ticksHours, ticksMinutes, ticksSeconds;
 function initTicks() {
     const containers = ['ticks-days', 'ticks-hours', 'ticks-minutes', 'ticks-seconds'];
 
+    // на сторінках без секції "Акція" (чекаут тощо) контейнерів нема
+    if (!document.getElementById(containers[0])) return;
+
     containers.forEach(id => {
         const container = document.getElementById(id);
         container.innerHTML = '';
