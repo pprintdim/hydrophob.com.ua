@@ -4167,15 +4167,22 @@ section[id]{
 .cart__payment-option:has(input:checked){ border-color: #1D9CB2; box-shadow: 0 0 0 1px #1D9CB2 inset; }
 
 
-/* Попап підтвердження email перед оплатою */
-.authPopup{ align-items: center; background: rgba(18,18,18,.6); display: flex; inset: 0; justify-content: center; padding: 20px; position: fixed; z-index: 1200; }
+/* Попап підтвердження email перед оплатою (дизайн за hydrophob.net) */
+.authPopup{ align-items: center; background: rgba(18,18,18,.66); display: flex; inset: 0; justify-content: center; padding: 20px; position: fixed; z-index: 1200; }
 .authPopup[hidden]{ display: none; }
-.authPopup__inner{ background: #fff; border-radius: 20px; max-width: 460px; padding: 36px 32px 32px; position: relative; width: 100%; }
-.authPopup__close{ background: none; border: 0; color: #999; cursor: pointer; font-size: 28px; line-height: 1; position: absolute; right: 16px; top: 12px; }
-.authPopup__title{ font-size: 24px; font-weight: 700; margin-bottom: 10px; }
-.authPopup__descr{ color: #555; font-size: 16px; margin-bottom: 18px; }
-.authPopup__code{ margin-bottom: 14px; text-align: center; letter-spacing: 6px; font-size: 24px; }
-.authPopup__actions{ display: flex; gap: 10px; }
-.authPopup__actions .btn, .authPopup__actions .btn-2{ flex: 1; color: #fff; }
-.authPopup__error{ color: #c0392b; margin-top: 12px; }
-.authPopup__ok{ color: #1D9CB2; margin-top: 12px; }
+.authPopup__inner{ background: #161616; border-radius: 12px; color: #fff; max-width: 560px; padding: 56px 32px 44px; position: relative; text-align: center; width: 100%; }
+.authPopup__close{ background: none; border: 0; color: rgba(255,255,255,.6); cursor: pointer; font-size: 26px; line-height: 1; position: absolute; right: 16px; top: 12px; }
+.authPopup__side{ color: #1D9CB2; font-size: 12px; font-weight: 700; letter-spacing: .18em; margin-bottom: 14px; text-transform: uppercase; }
+.authPopup__title{ font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+.authPopup__descr{ color: rgba(255,255,255,.75); font-size: 15px; }
+.authPopup__email{ color: #1D9CB2; }
+.authPopup__cells{ display: flex; gap: 10px; justify-content: center; margin: 30px 0 22px; }
+.authPopup__cell{ background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.35); border-radius: 8px; color: #fff; font-family: inherit; font-size: 22px; font-weight: 700; height: 58px; text-align: center; width: 48px; }
+.authPopup__cell:focus{ border-color: #1D9CB2; outline: none; }
+.authPopup__actions{ display: grid; gap: 12px; justify-items: center; }
+.authPopup__actions .btn{ color: #fff; min-width: 220px; }
+.authPopup__timer{ color: rgba(255,255,255,.6); font-size: 12px; margin: 0; }
+.authPopup__resend{ background: none; border: 0; color: #1D9CB2; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; }
+.authPopup__error{ color: #ff7b6b; margin-top: 4px; }
+.authPopup__ok{ color: #1D9CB2; margin-top: 4px; }
+@media (max-width: 480px){ .authPopup__cell{ height: 50px; width: 40px; } }

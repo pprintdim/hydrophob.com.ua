@@ -1897,4 +1897,30 @@ class ControllerSaleOrder extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
+
+	/**
+	 * Ленд: пряме видалення замовлення (стоковий шлях ішов через вирізаний catalog-API).
+	 */
+	public function deleteorder() {
+		$this->load->language('sale/order');
+		$json = array();
+
+		if (!$this->user->hasPermission('modify', 'sale/order')) {
+			$json['error'] = $this->language->get('error_permission');
+		} else {
+			$order_id = (int)($this->request->get['order_id'] ?? 0);
+			if (!$order_id) {
+				$json['error'] = 'bad request';
+			} else {
+				$this->db->query("DELETE FROM `" . DB_PREFIX . "order` WHERE order_id = '" . $order_id . "'");
+				$this->db->query("DELETE FROM " . DB_PREFIX . "order_product WHERE order_id = '" . $order_id . "'");
+				$this->db->query("DELETE FROM " . DB_PREFIX . "order_total WHERE order_id = '" . $order_id . "'");
+				$this->db->query("DELETE FROM " . DB_PREFIX . "order_history WHERE order_id = '" . $order_id . "'");
+				$json['success'] = $this->language->get('text_success');
+			}
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
 }

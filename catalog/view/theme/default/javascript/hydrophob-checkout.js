@@ -379,28 +379,33 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!popup) { onSuccess(); return; }
         var email = page.querySelector('input[name="email"]').value.trim();
         popup.querySelector('.authPopup__email').textContent = email;
-        var stepSend = popup.querySelector('.authPopup__step--send');
-        var stepCode = popup.querySelector('.authPopup__step--code');
         var errEl = popup.querySelector('.authPopup__error');
         var okEl = popup.querySelector('.authPopup__ok');
+        var verifyBtn = popup.querySelector('.authPopup__verify');
         var resendBtn = popup.querySelector('.authPopup__resend');
         var timerEl = popup.querySelector('.authPopup__timer');
-        var codeInput = popup.querySelector('.authPopup__code');
-        stepSend.hidden = false; stepCode.hidden = true;
+        var cells = [].slice.call(popup.querySelectorAll('.authPopup__cell'));
+
+        cells.forEach(function (c) { c.value = ''; });
         errEl.hidden = true; okEl.hidden = true;
-        codeInput.value = '';
         popup.hidden = false;
         document.body.classList.add('no-scroll');
 
         var timerId = null;
         function startTimer() {
             var left = 55;
-            resendBtn.disabled = true;
-            timerEl.textContent = '(' + left + ')';
+            resendBtn.hidden = true;
+            timerEl.textContent = 'Повторна відправка через ' + left + ' с';
+            if (timerId) clearInterval(timerId);
             timerId = setInterval(function () {
                 left--;
-                timerEl.textContent = left > 0 ? '(' + left + ')' : '';
-                if (left <= 0) { clearInterval(timerId); resendBtn.disabled = false; }
+                if (left > 0) {
+                    timerEl.textContent = 'Повторна відправка через ' + left + ' с';
+                } else {
+                    clearInterval(timerId); timerId = null;
+                    timerEl.textContent = '';
+                    resendBtn.hidden = false;
+                }
             }, 1000);
         }
 
@@ -409,6 +414,37 @@ document.addEventListener('DOMContentLoaded', function () {
             errEl.hidden = false;
             okEl.hidden = true;
         }
+
+        function codeValue() {
+            return cells.map(function (c) { return c.value.replace(/\D/g, ''); }).join('');
+        }
+
+        function syncVerify() {
+            var full = codeValue().length === 6;
+            verifyBtn.disabled = !full;
+            verifyBtn.classList.toggle('btn-disabled', !full);
+        }
+
+        cells.forEach(function (cell, i) {
+            cell.oninput = function () {
+                cell.value = cell.value.replace(/\D/g, '').slice(0, 1);
+                if (cell.value && i < cells.length - 1) cells[i + 1].focus();
+                syncVerify();
+                if (codeValue().length === 6) verify();
+            };
+            cell.onkeydown = function (e) {
+                if (e.key === 'Backspace' && !cell.value && i > 0) cells[i - 1].focus();
+                if (e.key === 'Enter') { e.preventDefault(); if (!verifyBtn.disabled) verify(); }
+            };
+            cell.onpaste = function (e) {
+                e.preventDefault();
+                var digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6).split('');
+                digits.forEach(function (d, j) { if (cells[j]) cells[j].value = d; });
+                if (digits.length) cells[Math.min(digits.length, 5)].focus();
+                syncVerify();
+                if (codeValue().length === 6) verify();
+            };
+        });
 
         function sendCode() {
             errEl.hidden = true;
@@ -425,12 +461,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(function (r) { return r.json(); })
                 .then(function (d) {
                     if (d && d.success) {
-                        stepSend.hidden = true;
-                        stepCode.hidden = false;
-                        okEl.textContent = 'Код надіслано на ' + email;
+                        okEl.textContent = 'Код надіслано';
                         okEl.hidden = false;
                         startTimer();
-                        codeInput.focus();
+                        cells[0].focus();
                     } else {
                         var e = d && d.error ? (d.error.email || d.error.firstname || d.error.telephone || d.error.warning) : null;
                         fail(e);
@@ -440,8 +474,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function verify() {
+            if (verifyBtn.disabled) return;
             errEl.hidden = true;
-            var body = new URLSearchParams({ email: email, code: codeInput.value.trim() });
+            verifyBtn.disabled = true;
+            var body = new URLSearchParams({ email: email, code: codeValue() });
             fetch('index.php?route=common/user_popup/verifyCode', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body })
                 .then(function (r) { return r.json(); })
                 .then(function (d) {
@@ -454,23 +490,26 @@ document.addEventListener('DOMContentLoaded', function () {
                             popup.hidden = true;
                             document.body.classList.remove('no-scroll');
                             onSuccess();
-                        }, 600);
+                        }, 500);
                     } else {
+                        verifyBtn.disabled = false;
+                        syncVerify();
                         fail(d && d.error ? d.error.code : null);
                     }
                 })
-                .catch(function () { fail(); });
+                .catch(function () { verifyBtn.disabled = false; syncVerify(); fail(); });
         }
 
-        popup.querySelector('.authPopup__send').onclick = sendCode;
-        popup.querySelector('.authPopup__verify').onclick = verify;
+        verifyBtn.onclick = verify;
         resendBtn.onclick = sendCode;
-        codeInput.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); verify(); } };
         popup.querySelector('.authPopup__close').onclick = function () {
             popup.hidden = true;
             document.body.classList.remove('no-scroll');
             if (timerId) clearInterval(timerId);
         };
+
+        syncVerify();
+        sendCode(); // код шлеться одразу при відкритті
     }
 
     /* ---- Сабміт замовлення ---- */

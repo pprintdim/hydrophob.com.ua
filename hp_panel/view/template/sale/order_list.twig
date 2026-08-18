@@ -250,7 +250,7 @@ $('#form-order li:last-child a').on('click', function(e) {
 	
 	if (confirm('{{ text_confirm }}')) {
 		$.ajax({
-			url: '{{ catalog }}index.php?route=api/order/delete&api_token={{ api_token }}&store_id={{ store_id }}&order_id=' + $(element).attr('href'),
+			url: 'index.php?route=sale/order/deleteorder&user_token={{ user_token }}&order_id=' + $(element).attr('href'),
 			dataType: 'json',
 			beforeSend: function() {
 				$(element).parent().parent().parent().find('button').button('loading');
