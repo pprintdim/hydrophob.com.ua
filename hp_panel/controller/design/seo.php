@@ -52,14 +52,18 @@ class ControllerDesignSeo extends Controller {
 		$seo = $this->readJson($this->seoFile());
 
 		$data['langs'] = $this->langs;
-		$data['meta'] = array();
+		$data['pages'] = array();
 
-		foreach ($this->langs as $lang) {
-			$data['meta'][$lang] = array(
-				'title'       => $seo['meta'][$lang]['title'] ?? '',
-				'description' => $seo['meta'][$lang]['description'] ?? '',
-				'keywords'    => $seo['meta'][$lang]['keywords'] ?? '',
-			);
+		// три сторінки ленду: головна (meta), чекаут і 404 (metaPages)
+		foreach (array('home', 'checkout', 'error') as $page) {
+			foreach ($this->langs as $lang) {
+				$src = $page === 'home' ? ($seo['meta'][$lang] ?? array()) : ($seo['metaPages'][$page][$lang] ?? array());
+				$data['pages'][$page][$lang] = array(
+					'title'       => $src['title'] ?? '',
+					'description' => $src['description'] ?? '',
+					'keywords'    => $src['keywords'] ?? '',
+				);
+			}
 		}
 
 		$env = $this->readEnv();
@@ -78,8 +82,8 @@ class ControllerDesignSeo extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		// укр (дефолтна мова) title обовʼязковий
-		$title = trim((string)($this->request->post['meta']['UA']['title'] ?? ''));
+		// укр (дефолтна мова) title головної обовʼязковий
+		$title = trim((string)($this->request->post['pages']['home']['UA']['title'] ?? ''));
 
 		if ($title === '') {
 			$this->error['warning'] = $this->language->get('error_title');
@@ -93,10 +97,19 @@ class ControllerDesignSeo extends Controller {
 		$file = $this->seoFile();
 		$seo = $this->readJson($file);
 
-		foreach ($this->langs as $lang) {
-			$seo['meta'][$lang]['title'] = trim((string)($post['meta'][$lang]['title'] ?? ''));
-			$seo['meta'][$lang]['description'] = trim((string)($post['meta'][$lang]['description'] ?? ''));
-			$seo['meta'][$lang]['keywords'] = trim((string)($post['meta'][$lang]['keywords'] ?? ''));
+		foreach (array('home', 'checkout', 'error') as $page) {
+			foreach ($this->langs as $lang) {
+				$row = array(
+					'title'       => trim((string)($post['pages'][$page][$lang]['title'] ?? '')),
+					'description' => trim((string)($post['pages'][$page][$lang]['description'] ?? '')),
+					'keywords'    => trim((string)($post['pages'][$page][$lang]['keywords'] ?? '')),
+				);
+				if ($page === 'home') {
+					$seo['meta'][$lang] = array_merge($seo['meta'][$lang] ?? array(), $row);
+				} else {
+					$seo['metaPages'][$page][$lang] = $row;
+				}
+			}
 		}
 
 		file_put_contents($file, json_encode($seo, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));

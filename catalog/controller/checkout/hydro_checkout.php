@@ -22,8 +22,21 @@ class ControllerCheckoutHydroCheckout extends Controller {
 
 		$env = $this->readEnv($root . '.env');
 
-		$this->document->setTitle('Оформлення замовлення — Hydrophob');
-		$this->document->setDescription('Оформлення замовлення в інтернет-магазині Hydrophob.');
+		// Метатеги — з Design → SEO (data/seo.json, metaPages.checkout), за мовою сесії
+		$seoJson = $this->readJson($root . 'data/seo.json');
+		$langCodeMap = array(1 => 'EN', 2 => 'UA', 3 => 'RU');
+		$metaLang = $langCodeMap[(int)$this->config->get('config_language_id')] ?? 'UA';
+		$pageMeta = $seoJson['metaPages']['checkout'][$metaLang] ?? array();
+		$metaTitle = ($pageMeta['title'] ?? '') !== '' ? $pageMeta['title'] : 'Оформлення замовлення — Hydrophob';
+		$metaDescription = $pageMeta['description'] ?? '';
+		$metaKeywords = $pageMeta['keywords'] ?? '';
+
+		$this->document->setTitle($metaTitle);
+		$this->document->setDescription($metaDescription);
+
+		$data['meta_title'] = $metaTitle;
+		$data['meta_description'] = $metaDescription;
+		$data['meta_keywords'] = $metaKeywords;
 
 		$data['header'] = $this->load->view('common/home/header', array('hydro_lang' => 'UA'));
 		$data['footer'] = $this->load->view('common/home/footer', array());

@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Оформлення замовлення — Hydrophob</title>
-    <meta name="description" content="Оформлення замовлення в інтернет-магазині Hydrophob.">
+    <title>{{ meta_title }}</title>
+    <meta name="description" content="{{ meta_description }}">
+    {% if meta_keywords %}<meta name="keywords" content="{{ meta_keywords }}">{% endif %}
     <meta name="robots" content="noindex, follow">
     <link rel="canonical" href="https://hydrophob.net.ua/checkout">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Оформлення замовлення — Hydrophob">
-    <meta property="og:description" content="Оформлення замовлення в інтернет-магазині Hydrophob.">
+    <meta property="og:title" content="{{ meta_title }}">
+    <meta property="og:description" content="{{ meta_description }}">
     <meta property="og:url" content="https://hydrophob.net.ua/checkout">
     <meta property="og:image" content="https://hydrophob.net.ua/img/og-image.jpg">
     <link rel="icon" type="image/svg+xml" href="image/hydrophob/logo.svg">

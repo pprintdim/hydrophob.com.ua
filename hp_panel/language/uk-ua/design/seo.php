@@ -8,6 +8,10 @@ $_['text_success']        = 'Налаштування збережено!';
 $_['text_meta']           = 'Метатеги головної сторінки';
 $_['text_analytics']      = 'Аналітика';
 
+$_['text_page_home']      = 'Головна сторінка';
+$_['text_page_checkout']  = 'Сторінка оформлення замовлення';
+$_['text_page_error']     = 'Сторінка 404';
+
 // Entry
 $_['entry_title']         = 'Title';
 $_['entry_description']   = 'Description';

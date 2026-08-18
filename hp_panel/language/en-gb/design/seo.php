@@ -8,6 +8,10 @@ $_['text_success']        = 'Settings saved!';
 $_['text_meta']           = 'Home page meta tags';
 $_['text_analytics']      = 'Analytics';
 
+$_['text_page_home']      = 'Home page';
+$_['text_page_checkout']  = 'Checkout page';
+$_['text_page_error']     = '404 page';
+
 // Entry
 $_['entry_title']         = 'Title';
 $_['entry_description']   = 'Description';

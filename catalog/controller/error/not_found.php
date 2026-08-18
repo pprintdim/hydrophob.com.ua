@@ -3,7 +3,22 @@ class ControllerErrorNotFound extends Controller {
 	public function index() {
 		$this->load->language('error/not_found');
 
-		$this->document->setTitle($this->language->get('heading_title'));
+		// Метатеги — з Design → SEO (data/seo.json, metaPages.error)
+		$seoFile = DIR_APPLICATION . '../data/seo.json';
+		$seoJson = is_file($seoFile) ? (json_decode(file_get_contents($seoFile), true) ?: array()) : array();
+		$langCodeMap = array(1 => 'EN', 2 => 'UA', 3 => 'RU');
+		$metaLang = $langCodeMap[(int)$this->config->get('config_language_id')] ?? 'UA';
+		$pageMeta = $seoJson['metaPages']['error'][$metaLang] ?? array();
+
+		$this->document->setTitle(($pageMeta['title'] ?? '') !== '' ? $pageMeta['title'] : $this->language->get('heading_title'));
+
+		if (!empty($pageMeta['description'])) {
+			$this->document->setDescription($pageMeta['description']);
+		}
+
+		if (!empty($pageMeta['keywords'])) {
+			$this->document->setKeywords($pageMeta['keywords']);
+		}
 
 		$data['breadcrumbs'] = array();
 
