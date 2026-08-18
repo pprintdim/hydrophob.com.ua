@@ -113,11 +113,13 @@ class ControllerCommonHome extends Controller {
 		$data['og_locale'] = $seo['locales'][$lang] ?? 'uk_UA';
 		$data['site_name'] = $seo['siteName'] ?? 'Hydrophob';
 		$data['og_image'] = $baseUrl . ($seo['ogImage'] ?? 'img/og-image.jpg');
+		// Аналітика — з налаштувань (oc_setting, редагується в Design → SEO); є ID = production
+		$ga4 = (string)$this->config->get('config_analytics_ga4');
 		$data['analytics'] = array(
-			'mode'     => ($env['ANALYTICS_MODE'] ?? 'test') === 'production' ? 'production' : 'test',
-			'ga4'      => $env['GA4_ID'] ?? '',
-			'ads'      => $env['GOOGLE_ADS_ID'] ?? '',
-			'adsLabel' => $env['GOOGLE_ADS_PURCHASE_LABEL'] ?? '',
+			'mode'     => $ga4 !== '' ? 'production' : 'test',
+			'ga4'      => $ga4,
+			'ads'      => '',
+			'adsLabel' => '',
 		);
 		$data['asset_version'] = (string)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
 

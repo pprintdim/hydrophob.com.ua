@@ -66,9 +66,7 @@ class ControllerDesignSeo extends Controller {
 			}
 		}
 
-		$env = $this->readEnv();
-
-		$data['ga4_id'] = $env['GA4_ID'] ?? '';
+		$data['ga4_id'] = (string)$this->config->get('config_analytics_ga4');
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -114,12 +112,9 @@ class ControllerDesignSeo extends Controller {
 
 		file_put_contents($file, json_encode($seo, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
-		// аналітика -> .env; режим сам: є GA4 ID — production, нема — test
-		$ga4 = trim((string)($post['ga4_id'] ?? ''));
-		$this->writeEnv(array(
-			'GA4_ID'         => $ga4,
-			'ANALYTICS_MODE' => $ga4 !== '' ? 'production' : 'test',
-		));
+		// аналітика -> oc_setting (по-опенкартівськи); режим на фронті сам: є ID — production
+		$this->load->model('setting/setting');
+		$this->model_setting_setting->editSettingValue('config', 'config_analytics_ga4', trim((string)($post['ga4_id'] ?? '')));
 	}
 
 	private function seoFile() {
@@ -134,46 +129,5 @@ class ControllerDesignSeo extends Controller {
 		return is_array($data) ? $data : array();
 	}
 
-	private function readEnv() {
-		$file = DIR_APPLICATION . '../.env';
-		$env = array();
-		if (is_file($file)) {
-			foreach (file($file, FILE_IGNORE_NEW_LINES) as $line) {
-				$line = trim($line);
-				if ($line === '' || $line[0] === '#' || strpos($line, '=') === false) {
-					continue;
-				}
-				list($k, $v) = explode('=', $line, 2);
-				$env[trim($k)] = trim($v);
-			}
-		}
-		return $env;
-	}
 
-	/** Оновлює задані ключі в .env, зберігаючи решту рядків і коментарі. */
-	private function writeEnv($values) {
-		$file = DIR_APPLICATION . '../.env';
-		$lines = is_file($file) ? file($file, FILE_IGNORE_NEW_LINES) : array();
-		$found = array();
-
-		foreach ($lines as $i => $line) {
-			$trimmed = trim($line);
-			if ($trimmed === '' || $trimmed[0] === '#' || strpos($trimmed, '=') === false) {
-				continue;
-			}
-			$key = trim(explode('=', $trimmed, 2)[0]);
-			if (array_key_exists($key, $values)) {
-				$lines[$i] = $key . '=' . $values[$key];
-				$found[$key] = true;
-			}
-		}
-
-		foreach ($values as $key => $value) {
-			if (empty($found[$key])) {
-				$lines[] = $key . '=' . $value;
-			}
-		}
-
-		file_put_contents($file, implode("\n", $lines) . "\n");
-	}
 }
