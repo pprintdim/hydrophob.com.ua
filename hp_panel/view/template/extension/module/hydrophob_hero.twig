@@ -61,13 +61,20 @@
           <div class="form-group">
             <label class="col-sm-2 control-label">{{ entry_poster }}</label>
             <div class="col-sm-10">
-              <span class="media-tile">
-                <a href="" id="thumb-poster" data-toggle="image" class="img-thumbnail"><img src="{{ thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" /></a>
-                <input type="hidden" name="module_hydrophob_hero_poster" value="{{ poster }}" id="input-poster" />
-                <a href="" data-toggle="video" data-video-input="input-hero-video" class="media-tile__play {% if video %}media-tile__play--on{% else %}media-tile__play--off{% endif %}" title="{{ video ?: 'Прикріпити відео' }}"><i class="fa fa-play"></i></a>
-                <button type="button" class="media-tile__clear-video"{% if not video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
-                <input type="hidden" data-role="video" name="module_hydrophob_hero_video" value="{{ video }}" id="input-hero-video" />
-              </span>
+              <div class="hero-slides" id="hero-slides">
+                {% for slide in slides %}
+                <span class="media-tile hero-slide-tile">
+                  <a href="" id="thumb-slide{{ loop.index0 }}" data-toggle="image" class="img-thumbnail"><img src="{{ slide.thumb_poster }}" alt="" data-placeholder="{{ placeholder }}" /></a>
+                  <input type="hidden" name="module_hydrophob_hero_slides[{{ loop.index0 }}][poster]" value="{{ slide.poster }}" id="input-slide{{ loop.index0 }}" />
+                  <a href="" data-toggle="video" data-video-input="input-slide-video{{ loop.index0 }}" class="media-tile__play {% if slide.video %}media-tile__play--on{% else %}media-tile__play--off{% endif %}" title="{{ slide.video ?: 'Прикріпити відео' }}"><i class="fa fa-play"></i></a>
+                  <button type="button" class="media-tile__clear-video"{% if not slide.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
+                  <input type="hidden" data-role="video" name="module_hydrophob_hero_slides[{{ loop.index0 }}][video]" value="{{ slide.video }}" id="input-slide-video{{ loop.index0 }}" />
+                  <button type="button" class="hero-slide-remove" title="Видалити слайд">&times;</button>
+                </span>
+                {% endfor %}
+                <button type="button" class="img-thumbnail hero-slide-add" id="hero-slide-add" title="Додати слайд"><i class="fa fa-plus"></i></button>
+              </div>
+              <p class="help-block">Перший слайд програється одразу; порядок = порядок тайлів. Постер згенерується сам з кадру відео, якщо не вибраний.</p>
               <style>
 .media-tile { display: inline-block; position: relative; }
 .media-tile .img-thumbnail { display: block; margin: 0; padding: 2px; }
@@ -176,6 +183,33 @@ $(document).on('click', 'a[data-toggle="video"]', function (e) {
       $('#modal-image').modal('show');
     }
   });
+});
+//--></script>
+
+<style>
+.hero-slides { align-items: flex-start; display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-slide-tile { position: relative; }
+.hero-slide-remove { background: #fff; border: 1px solid #e3b3b3; border-radius: 50%; color: #c66; cursor: pointer; font-size: 13px; height: 22px; left: -7px; line-height: 1; padding: 0; position: absolute; top: -7px; width: 22px; z-index: 3; }
+.hero-slide-add { align-items: center; color: #9fb2c4; display: inline-flex; font-size: 22px; height: 104px; justify-content: center; width: 104px; }
+</style>
+<script type="text/javascript"><!--
+var heroSlideNext = {{ slides|length }};
+document.getElementById('hero-slide-add').addEventListener('click', function () {
+  var i = heroSlideNext++;
+  var span = document.createElement('span');
+  span.className = 'media-tile hero-slide-tile';
+  span.innerHTML =
+    '<a href="" id="thumb-slide' + i + '" data-toggle="image" class="img-thumbnail"><img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" /></a>' +
+    '<input type="hidden" name="module_hydrophob_hero_slides[' + i + '][poster]" value="" id="input-slide' + i + '" />' +
+    '<a href="" data-toggle="video" data-video-input="input-slide-video' + i + '" class="media-tile__play media-tile__play--off" title="Прикріпити відео"><i class="fa fa-play"></i></a>' +
+    '<button type="button" class="media-tile__clear-video" style="display:none;" title="Прибрати відео">&times;</button>' +
+    '<input type="hidden" data-role="video" name="module_hydrophob_hero_slides[' + i + '][video]" value="" id="input-slide-video' + i + '" />' +
+    '<button type="button" class="hero-slide-remove" title="Видалити слайд">&times;</button>';
+  this.before(span);
+});
+document.getElementById('hero-slides').addEventListener('click', function (e) {
+  var btn = e.target.closest('.hero-slide-remove');
+  if (btn) btn.closest('.hero-slide-tile').remove();
 });
 //--></script>
 {{ footer }}

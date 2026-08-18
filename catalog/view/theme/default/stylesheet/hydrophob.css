@@ -4230,3 +4230,11 @@ section[id]{
 .popupAbout__text ol{ counter-reset: pa-counter; list-style: none; }
 .popupAbout__text ol li{ counter-increment: pa-counter; padding-left: 24px; position: relative; }
 .popupAbout__text ol li::before{ color: #1D9CB2; content: counter(pa-counter) '.'; font-weight: 700; left: 0; position: absolute; }
+
+/* ===== Hero-слайдер відео ===== */
+.hero__slider{ overflow: hidden; position: relative; }
+.hero__slide{ position: relative; }
+.hero__slide-video{ border-radius: inherit; display: block; height: 100%; object-fit: cover; width: 100%; }
+.hero__dots{ bottom: 18px !important; }
+.hero__dots .swiper-pagination-bullet{ background: rgba(255,255,255,.55); height: 9px; opacity: 1; transition: background .15s ease, transform .15s ease; width: 9px; }
+.hero__dots .swiper-pagination-bullet-active{ background: #1D9CB2; transform: scale(1.25); }

@@ -24,7 +24,8 @@ class ControllerExtensionModuleHydrophobImagesBlock extends Controller {
 					continue;
 				}
 				$alt = $this->localizedFromArray($row['alt'] ?? array(), $lang_id, $legacyItems[$i]['alt'] ?? '');
-				$items[] = array('tile' => $tile, 'alt' => $alt);
+				$video = !empty($row['video']) ? $this->videoPath($row['video']) : '';
+				$items[] = array('tile' => $tile, 'alt' => $alt, 'video' => $video);
 			}
 		} else {
 			foreach ($legacyItems as $legacy) {
@@ -68,5 +69,13 @@ class ControllerExtensionModuleHydrophobImagesBlock extends Controller {
 			return 'image/hydrophob/' . substr($value, 4);
 		}
 		return $value;
+	}
+
+	/** Шлях відео: з медіатеки приходить відносно image/, легасі video/... — як є. */
+	private function videoPath($value) {
+		if (!$value || strpos($value, 'video/') === 0 || strpos($value, 'http') === 0 || strpos($value, 'image/') === 0) {
+			return $value;
+		}
+		return 'image/' . $value;
 	}
 }

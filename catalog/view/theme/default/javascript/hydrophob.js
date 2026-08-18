@@ -1499,3 +1499,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // page_view у test-режимі (у production шле сам gtag config)
     if (cfg.mode !== 'production') window.hydroTrack('page_view', { page: location.pathname });
 });
+
+/* ===== Hero-слайдер відео: дотс, автоплей, свайп/трекпад, активний слайд грає ===== */
+document.addEventListener('DOMContentLoaded', function () {
+    const el = document.getElementById('hero-slider');
+    if (!el || typeof Swiper === 'undefined') return;
+
+    function playActive(swiper) {
+        el.querySelectorAll('video').forEach(v => { v.pause(); });
+        const active = swiper.slides[swiper.activeIndex];
+        const video = active && active.querySelector('video');
+        if (video) { video.play().catch(() => {}); }
+    }
+
+    const swiper = new Swiper(el, {
+        loop: true,
+        speed: 600,
+        autoplay: { delay: 7000, disableOnInteraction: false },
+        pagination: { el: el.querySelector('.swiper-pagination'), clickable: true },
+        mousewheel: { forceToAxis: true },
+        grabCursor: true,
+        on: {
+            init: function () { playActive(this); },
+            slideChangeTransitionEnd: function () { playActive(this); },
+        },
+    });
+});
+
+/* ===== Відео-плитки imagesBlock: грають, коли блок у вʼюпорті ===== */
+document.addEventListener('DOMContentLoaded', function () {
+    const vids = document.querySelectorAll('.ib-scroll-video');
+    if (!vids.length) return;
+    const io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            const v = entry.target;
+            if (entry.intersectionRatio >= 0.4) {
+                v.play().catch(function () {});
+            } else {
+                v.pause();
+            }
+        });
+    }, { threshold: [0, 0.4] });
+    vids.forEach(v => io.observe(v));
+});

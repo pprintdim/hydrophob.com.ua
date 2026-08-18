@@ -4,7 +4,11 @@
             <div class="imagesBlock__block">
                 {% for item in items %}
                 <div class="imagesBlock__item{% if loop.index0 == 0 %} imagesBlock__item-large{% elseif loop.index0 == 1 %} imagesBlock__item-fill{% endif %}">
+                    {% if item.video %}
+                    <video class="imagesBlock__item-image ib-scroll-video" src="{{ item.video }}" poster="{{ item.tile }}" muted playsinline loop preload="metadata" aria-label="{{ item.alt }}"></video>
+                    {% else %}
                     <img class="imagesBlock__item-image" src="{{ item.tile }}" alt="{{ item.alt }}" loading="lazy" decoding="async">
+                    {% endif %}
                     <img class="imagesBlock__item-logo{% if loop.index0 == 2 %} imagesBlock__item-end{% endif %}" src="{{ logo|default('image/hydrophob/imagesBlock/logo.webp') }}" alt="Hydrophob" loading="lazy" decoding="async">
                 </div>
                 {% endfor %}

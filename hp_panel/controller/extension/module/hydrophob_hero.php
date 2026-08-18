@@ -56,6 +56,18 @@ class ControllerExtensionModuleHydrophobHero extends Controller {
 		$data['video']      = $this->field('video', '');
 		$data['poster']     = $this->field('poster', '');
 
+		// Слайди слайдера: {video, poster}; прев'ю постера — з ресайзера
+		$slides = $this->field('slides', array());
+		$data['slides'] = array();
+		foreach (array_values((array)$slides) as $i => $slide) {
+			$poster = $slide['poster'] ?? '';
+			$data['slides'][$i] = array(
+				'video'        => $slide['video'] ?? '',
+				'poster'       => $poster,
+				'thumb_poster' => $poster ? $this->model_tool_image->resize($poster, 160, 120) : $data['placeholder'],
+			);
+		}
+
 		$data['thumb_poster'] = $data['poster'] ? $this->model_tool_image->resize($data['poster'], 200, 150) : $data['placeholder'];
 
 		$data['header']      = $this->load->controller('common/header');

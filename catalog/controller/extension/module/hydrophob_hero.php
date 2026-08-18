@@ -24,6 +24,22 @@ class ControllerExtensionModuleHydrophobHero extends Controller {
 		$video_setting = $this->config->get('module_hydrophob_hero_video');
 		$data['video'] = $video_setting !== null && $video_setting !== '' ? $this->videoPath($video_setting) : ($images['hero']['video'] ?? 'video/hero.mp4');
 
+		// Слайдер: ряди {video, poster} з адмінки; шляхи нормалізуємо (медіатека -> image/)
+		$slides = array();
+		$slidesSetting = $this->config->get('module_hydrophob_hero_slides');
+		if (is_array($slidesSetting)) {
+			foreach ($slidesSetting as $slide) {
+				if (empty($slide['video'])) {
+					continue;
+				}
+				$slides[] = array(
+					'video'  => $this->videoPath($slide['video']),
+					'poster' => !empty($slide['poster']) ? 'image/' . $slide['poster'] : '',
+				);
+			}
+		}
+		$data['slides'] = $slides;
+
 		return $this->load->view('extension/module/hydrophob_hero', $data);
 	}
 
