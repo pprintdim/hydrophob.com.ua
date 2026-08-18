@@ -43,20 +43,18 @@
               <span class="hydro-row__preview">{{ item.alt[2] is defined ? item.alt[2] : '' }}</span>
               <button type="button" class="btn btn-danger btn-xs images-item-remove" title="Видалити"><i class="fa fa-minus-circle"></i></button>
             </div>
-            <div class="row hydro-row__body">
-              <div class="col-sm-3">
-                <span class="media-tile">
-                  <a href="" id="thumb-item{{ idx }}" data-toggle="image" class="img-thumbnail"><img src="{{ item.thumb_tile }}" alt="" data-placeholder="{{ placeholder }}" style="width:84px;height:84px;object-fit:cover;" /></a>
-                  <input type="hidden" name="module_hydrophob_images_block_items[{{ idx }}][tile]" value="{{ item.tile }}" id="input-item{{ idx }}" />
-                  <a href="" data-toggle="video" data-video-input="input-item-video{{ idx }}" class="media-tile__play {% if item.video %}media-tile__play--on{% else %}media-tile__play--off{% endif %}" title="{{ item.video ?: 'Прикріпити відео (гратиме при скролі)' }}"><i class="fa fa-play"></i></a>
-                  <button type="button" class="media-tile__clear-video"{% if not item.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
-                  <input type="hidden" data-role="video" name="module_hydrophob_images_block_items[{{ idx }}][video]" value="{{ item.video }}" id="input-item-video{{ idx }}" />
-                </span>
-              </div>
-              <div class="col-sm-9">
+            <div class="hydro-row__body images-item-line">
+              <span class="media-tile">
+                <a href="" id="thumb-item{{ idx }}" data-toggle="image" class="img-thumbnail"><img src="{{ item.thumb_tile }}" alt="" data-placeholder="{{ placeholder }}" style="width:64px;height:64px;object-fit:cover;" /></a>
+                <input type="hidden" name="module_hydrophob_images_block_items[{{ idx }}][tile]" value="{{ item.tile }}" id="input-item{{ idx }}" />
+                <a href="" data-toggle="video" data-video-input="input-item-video{{ idx }}" class="media-tile__play {% if item.video %}media-tile__play--on{% else %}media-tile__play--off{% endif %}" title="{{ item.video ?: 'Прикріпити відео (гратиме при скролі)' }}"><i class="fa fa-play"></i></a>
+                <button type="button" class="media-tile__clear-video"{% if not item.video %} style="display:none;"{% endif %} title="Прибрати відео">&times;</button>
+                <input type="hidden" data-role="video" name="module_hydrophob_images_block_items[{{ idx }}][video]" value="{{ item.video }}" id="input-item-video{{ idx }}" />
+              </span>
+              <div class="images-item-alt">
                 {% for language in languages %}
                 <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
-                  <input type="text" name="module_hydrophob_images_block_items[{{ idx }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" placeholder="{{ entry_alt }}" class="form-control" />
+                  <input type="text" name="module_hydrophob_images_block_items[{{ idx }}][alt][{{ language.language_id }}]" value="{{ item.alt[language.language_id] is defined ? item.alt[language.language_id] : '' }}" placeholder="{{ entry_alt }}" class="form-control input-sm" />
                 </div>
                 {% endfor %}
               </div>
@@ -134,18 +132,18 @@ document.getElementById('images-item-add').addEventListener('click', function ()
   imagesLangs.forEach(function (l) {
     var vis = String(l.id) === imagesActiveLang ? '' : ' style="display:none;"';
     fields += '<div class="lang-field lang-field-' + l.id + '"' + vis + '>' +
-      '<input type="text" name="module_hydrophob_images_block_items[' + idx + '][alt][' + l.id + ']" value="" placeholder="{{ entry_alt|escape('js') }}" class="form-control" /></div>';
+      '<input type="text" name="module_hydrophob_images_block_items[' + idx + '][alt][' + l.id + ']" value="" placeholder="{{ entry_alt|escape('js') }}" class="form-control input-sm" /></div>';
   });
   card.innerHTML =
     '<div class="hydro-row__toggle images-item-head"><i class="fa fa-chevron-down hydro-row__chevron"></i><span class="hydro-card__title" style="margin:0;">{{ entry_item|escape('js') }} <span class="images-item-num"></span></span><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-xs images-item-remove"><i class="fa fa-minus-circle"></i></button></div>' +
-    '<div class="row hydro-row__body"><div class="col-sm-3">' +
+    '<div class="hydro-row__body images-item-line">' +
     '<span class="media-tile">' +
-    '<a href="" id="thumb-item' + idx + '" data-toggle="image" class="img-thumbnail"><img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" style="width:84px;height:84px;object-fit:cover;" /></a>' +
+    '<a href="" id="thumb-item' + idx + '" data-toggle="image" class="img-thumbnail"><img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" style="width:64px;height:64px;object-fit:cover;" /></a>' +
     '<input type="hidden" name="module_hydrophob_images_block_items[' + idx + '][tile]" value="" id="input-item' + idx + '" />' +
     '<a href="" data-toggle="video" data-video-input="input-item-video' + idx + '" class="media-tile__play media-tile__play--off" title="Прикріпити відео"><i class="fa fa-play"></i></a>' +
     '<button type="button" class="media-tile__clear-video" style="display:none;">&times;</button>' +
     '<input type="hidden" data-role="video" name="module_hydrophob_images_block_items[' + idx + '][video]" value="" id="input-item-video' + idx + '" /></span>' +
-    '</div><div class="col-sm-9">' + fields + '</div></div>';
+    '<div class="images-item-alt">' + fields + '</div></div>';
   wrap.appendChild(card);
   renumberImages();
 });
@@ -166,6 +164,11 @@ function renumberImages() {
 
 
 <style>
+.images-item { padding: 10px 12px; }
+.images-item .hydro-row__body.images-item-line { align-items: center; display: flex; gap: 12px; padding-top: 10px; }
+.images-item .images-item-alt { flex: 1; min-width: 0; }
+.images-item .media-tile__play--off { bottom: 4px; height: 20px; right: 4px; width: 20px; font-size: 11px; }
+.images-item .media-tile__play--on { bottom: 4px; height: 22px; right: 4px; width: 22px; font-size: 12px; }
 .images-item .hydro-row__toggle { align-items: center; cursor: pointer; display: flex; gap: 10px; user-select: none; }
 .images-item .images-item-remove { margin-left: auto; }
 .images-item .hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }

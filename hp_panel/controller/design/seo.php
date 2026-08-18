@@ -64,11 +64,7 @@ class ControllerDesignSeo extends Controller {
 
 		$env = $this->readEnv();
 
-		$data['analytics_mode'] = ($env['ANALYTICS_MODE'] ?? 'test') === 'production' ? 'production' : 'test';
 		$data['ga4_id'] = $env['GA4_ID'] ?? '';
-		$data['gtm_id'] = $env['GTM_ID'] ?? '';
-		$data['ads_id'] = $env['GOOGLE_ADS_ID'] ?? '';
-		$data['ads_label'] = $env['GOOGLE_ADS_PURCHASE_LABEL'] ?? '';
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -105,13 +101,11 @@ class ControllerDesignSeo extends Controller {
 
 		file_put_contents($file, json_encode($seo, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
-		// аналітика -> .env
+		// аналітика -> .env; режим сам: є GA4 ID — production, нема — test
+		$ga4 = trim((string)($post['ga4_id'] ?? ''));
 		$this->writeEnv(array(
-			'ANALYTICS_MODE'              => ($post['analytics_mode'] ?? 'test') === 'production' ? 'production' : 'test',
-			'GA4_ID'                      => trim((string)($post['ga4_id'] ?? '')),
-			'GTM_ID'                      => trim((string)($post['gtm_id'] ?? '')),
-			'GOOGLE_ADS_ID'               => trim((string)($post['ads_id'] ?? '')),
-			'GOOGLE_ADS_PURCHASE_LABEL'   => trim((string)($post['ads_label'] ?? '')),
+			'GA4_ID'         => $ga4,
+			'ANALYTICS_MODE' => $ga4 !== '' ? 'production' : 'test',
 		));
 	}
 

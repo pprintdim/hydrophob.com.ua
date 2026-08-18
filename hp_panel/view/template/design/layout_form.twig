@@ -360,7 +360,16 @@
       </div>
     </div>
   </div>
-  <script type="text/javascript"><!--
+  <style>
+/* поле "id" поруч із селектом модуля — в один рядок */
+#module-column-left .input-group, #module-column-right .input-group,
+#module-content-top .input-group, #module-content-bottom .input-group { display: flex; align-items: center; gap: 6px; }
+#module-column-left .input-group select, #module-column-right .input-group select,
+#module-content-top .input-group select, #module-content-bottom .input-group select { flex: 1; min-width: 0; }
+.input-group input[name$="[anchor]"] { border-radius: 4px !important; flex: 0 0 110px; width: 110px; }
+.input-group .input-group-btn { display: flex; flex: 0 0 auto; width: auto; }
+</style>
+<script type="text/javascript"><!--
 var route_row = {{ route_row }};
 
 function addRoute() {

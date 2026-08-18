@@ -35,6 +35,16 @@
     <meta name="theme-color" content="#121212">
 
     <script>window.HYDRO_ANALYTICS = { mode: "{{ analytics.mode }}", ga4: "{{ analytics.ga4 }}", ads: "{{ analytics.ads }}", adsLabel: "{{ analytics.adsLabel }}" };</script>
+    {% if analytics.mode == 'production' and analytics.ga4 %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ analytics.ga4 }}"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+    gtag('js', new Date());
+    gtag('config', '{{ analytics.ga4 }}');
+    </script>
+    {% endif %}
     <script>window.HYDRO_STRINGS_OVERRIDES = {{ hydro_strings_overrides_json|raw }};</script>
     <script>window.HYDRO_CONTACTS = {{ hydro_contacts_json|raw }};</script>
 
