@@ -178,6 +178,28 @@ file_put_contents($orderFile, json_encode([
     'lines' => $lines,
 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
+// ===== реєстрація покупця за email замовлення, якщо такого ще нема =====
+if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $stmt = $db->prepare("SELECT customer_id FROM " . DB_PREFIX . "customer WHERE LOWER(email) = LOWER(?)");
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    if (!$stmt->get_result()->fetch_assoc()) {
+        $nameParts = preg_split('/\s+/', $name, 2);
+        $firstname = $nameParts[0] ?? $name;
+        $lastname = $nameParts[1] ?? '';
+        // схема пароля OC3: sha1(salt + sha1(salt + sha1(pass))), пароль випадковий (вхід по OTP)
+        $salt = substr(bin2hex(random_bytes(8)), 0, 9);
+        $passHash = sha1($salt . sha1($salt . sha1(bin2hex(random_bytes(10)))));
+        $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+        $stmt = $db->prepare("INSERT INTO " . DB_PREFIX . "customer
+            SET customer_group_id = 1, store_id = 0, language_id = 2, firstname = ?, lastname = ?,
+                email = ?, telephone = ?, fax = '', custom_field = '', salt = ?, password = ?,
+                newsletter = 0, ip = ?, status = 1, safe = 0, token = '', code = '', date_added = NOW()");
+        $stmt->bind_param('sssssss', $firstname, $lastname, $email, $phone, $salt, $passHash, $ip);
+        $stmt->execute();
+    }
+}
+
 // ===== лист (Brevo; помилка пошти не блокує замовлення) =====
 $body = "Нове замовлення №{$orderRef} (адмінка: #{$ocOrderId}) з hydrophob.net.ua\n\n"
     . "Товари:\n" . implode("\n", $lines) . "\n\n"
@@ -196,6 +218,17 @@ $recipients = array_filter(array_map('trim', explode(',', hydro_env('ORDER_EMAIL
 if (!$recipients) {
     $recipients = [$fromEmail];
 }
+// Лист клієнту — без службових деталей, тільки підтвердження і склад замовлення
+$clientBody = "Вітаємо, {$name}!\n\n"
+    . "Ваше замовлення №{$orderRef} успішно оформлено.\n\n"
+    . "Товари:\n" . implode("\n", $lines) . "\n\n"
+    . "Разом: {$total} грн\n\n"
+    . "Доставка: {$shippingTitle}\nМісто: {$dCity}\n"
+    . ($dType === 'courier' ? "Адреса (кур'єр): {$dBranch}\n" : "Відділення: {$dBranch}\n")
+    . "Оплата: {$paymentTitle}\n\n"
+    . "Ми зв'яжемося з вами найближчим часом для підтвердження.\n\n"
+    . "Дякуємо, що обрали Hydrophob!\nhttps://hydrophob.net.ua";
+
 if ($apiKey !== '') {
     $mailer = new BrevoMailer($apiKey, $fromEmail, $fromName);
     foreach ($recipients as $to) {
@@ -203,6 +236,13 @@ if ($apiKey !== '') {
             $mailer->send($to, "Hydrophob: замовлення №{$orderRef} на {$total} грн", $body);
         } catch (Throwable $e) {
             error_log('order ' . $orderRef . ' brevo error: ' . $e->getMessage());
+        }
+    }
+    if ($email !== '' && !in_array($email, $recipients, true)) {
+        try {
+            $mailer->send($email, "Hydrophob: ваше замовлення №{$orderRef} оформлено", $clientBody);
+        } catch (Throwable $e) {
+            error_log('order ' . $orderRef . ' brevo client error: ' . $e->getMessage());
         }
     }
 }

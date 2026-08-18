@@ -18,7 +18,9 @@ class ControllerCommonHome extends Controller {
 		$seo = $this->readJson('data/seo.json');
 		$env = $this->readEnv('.env');
 
-		$lang = 'UA';
+		// Мова сторінки (URL-версії /, /en, /ru) — від неї метатеги, html lang і канонікал
+		$langCodeMap = array(1 => 'EN', 2 => 'UA', 3 => 'RU');
+		$lang = $langCodeMap[(int)$this->config->get('config_language_id')] ?? 'UA';
 		$meta = ($seo['meta'][$lang] ?? null) ?: array('title' => 'Hydrophob', 'description' => '', 'keywords' => '');
 
 		$this->document->setTitle($meta['title']);
@@ -27,6 +29,41 @@ class ControllerCommonHome extends Controller {
 
 		// ---- Попап-галерея фото (popup_photo.twig) — ті самі кадри, що й imagesBlock ----
 		$images = $this->fixImagePaths($this->readJson('data/images.json'));
+
+		// Слайди попапу: спершу плитки imagesBlock (відео — з постером-кадром відео),
+		// потім додаткові повнорозмірні кадри галереї, що не увійшли.
+		$galleryItems = array();
+		$usedImages = array();
+		$legacyItems = $images['imagesBlock']['items'] ?? array();
+		$itemsSetting = $this->config->get('module_hydrophob_images_block_items');
+		$langId = (int)$this->config->get('config_language_id');
+
+		if (is_array($itemsSetting) && $itemsSetting) {
+			foreach (array_values($itemsSetting) as $i => $row) {
+				$alt = (is_array($row['alt'] ?? null) && !empty($row['alt'][$langId])) ? $row['alt'][$langId] : ($legacyItems[$i]['alt'] ?? '');
+
+				if (!empty($row['video'])) {
+					$video = (strpos($row['video'], 'video/') === 0 || strpos($row['video'], 'image/') === 0) ? $row['video'] : 'image/' . $row['video'];
+					$tile = !empty($row['tile']) ? 'image/' . $row['tile'] : ($legacyItems[$i]['tile'] ?? '');
+					$poster = $this->videoPoster($video);
+					$galleryItems[] = array('type' => 'video', 'src' => $video, 'poster' => $poster ?: $tile, 'alt' => $alt);
+				} else {
+					$full = $legacyItems[$i]['full'] ?? (!empty($row['tile']) ? 'image/' . $row['tile'] : '');
+					if ($full) {
+						$galleryItems[] = array('type' => 'image', 'src' => $full, 'poster' => '', 'alt' => $alt);
+						$usedImages[] = $full;
+					}
+				}
+			}
+		}
+
+		foreach ($legacyItems as $legacy) {
+			$full = $legacy['full'] ?? '';
+			if ($full && !in_array($full, $usedImages)) {
+				$galleryItems[] = array('type' => 'image', 'src' => $full, 'poster' => '', 'alt' => $legacy['alt'] ?? '');
+				$usedImages[] = $full;
+			}
+		}
 
 		// ---- Кошик (cart.twig): перевізники + дефолтний код країни для телефону ----
 		$deliveries = $this->readJson('data/deliveries.json');
@@ -41,14 +78,14 @@ class ControllerCommonHome extends Controller {
 
 		$shared = array(
 			'images'        => $images,
+			'photo_gallery' => $galleryItems,
 			'carriers'      => $carriers,
 			'env'           => $env,
 			'checkout_url'  => '/checkout',
 		);
 
 		// Поточна мова сторінки (URL-версії /, /en, /ru)
-		$langCodeMap = array(1 => 'EN', 2 => 'UA', 3 => 'RU');
-		$hydroLang = $langCodeMap[(int)$this->config->get('config_language_id')] ?? 'UA';
+		$hydroLang = $lang;
 		$langPath = array('UA' => '', 'EN' => '/en', 'RU' => '/ru');
 		$shared['hydro_lang'] = $hydroLang;
 
@@ -247,6 +284,38 @@ class ControllerCommonHome extends Controller {
 		}
 		$data = json_decode(file_get_contents($file), true);
 		return is_array($data) ? $data : array();
+	}
+
+	/**
+	 * Постер = кадр відео, схема імен та сама, що в адмінці (common/video_poster):
+	 * catalog/video-posters/<імʼя>-<md5(relative)6>.webp; генерується один раз.
+	 */
+	private function videoPoster($video) {
+		if (strpos($video, 'image/') === 0) {
+			$relative = substr($video, 6);
+		} elseif (strpos($video, 'video/') === 0) {
+			$relative = 'catalog/' . $video;
+		} else {
+			$relative = $video;
+		}
+
+		$source = DIR_IMAGE . $relative;
+		if (!is_file($source)) {
+			return '';
+		}
+
+		$name = pathinfo($relative, PATHINFO_FILENAME) . '-' . substr(md5($relative), 0, 6) . '.webp';
+		$poster = DIR_IMAGE . 'catalog/video-posters/' . $name;
+
+		if (!is_file($poster)) {
+			$dir = dirname($poster);
+			if (!is_dir($dir)) {
+				mkdir($dir, 0755, true);
+			}
+			exec('ffmpeg -y -ss 1 -i ' . escapeshellarg($source) . ' -frames:v 1 -q:v 4 ' . escapeshellarg($poster) . ' 2>/dev/null');
+		}
+
+		return is_file($poster) ? 'image/catalog/video-posters/' . $name : '';
 	}
 
 	private function readEnv($relativePath) {

@@ -25,6 +25,13 @@ class ControllerExtensionModuleHydrophobImagesBlock extends Controller {
 				}
 				$alt = $this->localizedFromArray($row['alt'] ?? array(), $lang_id, $legacyItems[$i]['alt'] ?? '');
 				$video = !empty($row['video']) ? $this->videoPath($row['video']) : '';
+				// постер відео — завжди кадр самого відео (детермінований, як у адмінці)
+				if ($video) {
+					$poster = $this->videoPoster($video);
+					if ($poster) {
+						$tile = $poster;
+					}
+				}
 				$items[] = array('tile' => $tile, 'alt' => $alt, 'video' => $video);
 			}
 		} else {
@@ -69,6 +76,38 @@ class ControllerExtensionModuleHydrophobImagesBlock extends Controller {
 			return 'image/hydrophob/' . substr($value, 4);
 		}
 		return $value;
+	}
+
+	/**
+	 * Постер = кадр відео, схема імен та сама, що в адмінці (common/video_poster):
+	 * catalog/video-posters/<імʼя>-<md5(relative)6>.webp; генерується один раз.
+	 */
+	private function videoPoster($video) {
+		if (strpos($video, 'image/') === 0) {
+			$relative = substr($video, 6);
+		} elseif (strpos($video, 'video/') === 0) {
+			$relative = 'catalog/' . $video;
+		} else {
+			$relative = $video;
+		}
+
+		$source = DIR_IMAGE . $relative;
+		if (!is_file($source)) {
+			return '';
+		}
+
+		$name = pathinfo($relative, PATHINFO_FILENAME) . '-' . substr(md5($relative), 0, 6) . '.webp';
+		$poster = DIR_IMAGE . 'catalog/video-posters/' . $name;
+
+		if (!is_file($poster)) {
+			$dir = dirname($poster);
+			if (!is_dir($dir)) {
+				mkdir($dir, 0755, true);
+			}
+			exec('ffmpeg -y -ss 1 -i ' . escapeshellarg($source) . ' -frames:v 1 -q:v 4 ' . escapeshellarg($poster) . ' 2>/dev/null');
+		}
+
+		return is_file($poster) ? 'image/catalog/video-posters/' . $name : '';
 	}
 
 	/** Шлях відео: з медіатеки приходить відносно image/, легасі video/... — як є. */

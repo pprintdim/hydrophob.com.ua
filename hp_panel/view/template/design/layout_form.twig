@@ -109,6 +109,7 @@
                             </optgroup>
                             {% endfor %}
                           </select>
+                          <input type="text" name="layout_module[{{ module_row }}][anchor]" value="{{ layout_module.anchor }}" class="form-control input-sm" placeholder="id" title="HTML id секції (якір для меню)" style="max-width: 110px;" />
                           <input type="hidden" name="layout_module[{{ module_row }}][position]" value="{{ layout_module.position }}" />
                           <input type="hidden" name="layout_module[{{ module_row }}][sort_order]" value="{{ layout_module.sort_order }}" />
                           <div class="input-group-btn"><a href="{{ layout_module.edit }}" type="button" data-toggle="tooltip" title="{{ button_edit }}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a>
@@ -178,6 +179,7 @@
                             </optgroup>
                             {% endfor %}
                           </select>
+                          <input type="text" name="layout_module[{{ module_row }}][anchor]" value="{{ layout_module.anchor }}" class="form-control input-sm" placeholder="id" title="HTML id секції (якір для меню)" style="max-width: 110px;" />
                           <input type="hidden" name="layout_module[{{ module_row }}][position]" value="{{ layout_module.position }}" />
                           <input type="hidden" name="layout_module[{{ module_row }}][sort_order]" value="{{ layout_module.sort_order }}" />
                           <div class="input-group-btn"> <a href="{{ layout_module.edit }}" type="button" data-toggle="tooltip" title="{{ button_edit }}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a>
@@ -245,6 +247,7 @@
                             </optgroup>
                             {% endfor %}
                           </select>
+                          <input type="text" name="layout_module[{{ module_row }}][anchor]" value="{{ layout_module.anchor }}" class="form-control input-sm" placeholder="id" title="HTML id секції (якір для меню)" style="max-width: 110px;" />
                           <input type="hidden" name="layout_module[{{ module_row }}][position]" value="{{ layout_module.position }}" />
                           <input type="hidden" name="layout_module[{{ module_row }}][sort_order]" value="{{ layout_module.sort_order }}" />
                           <div class="input-group-btn"><a href="{{ layout_module.edit }}" type="button" data-toggle="tooltip" title="{{ button_edit }}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a>
@@ -314,6 +317,7 @@
                             </optgroup>
                             {% endfor %}
                           </select>
+                          <input type="text" name="layout_module[{{ module_row }}][anchor]" value="{{ layout_module.anchor }}" class="form-control input-sm" placeholder="id" title="HTML id секції (якір для меню)" style="max-width: 110px;" />
                           <input type="hidden" name="layout_module[{{ module_row }}][position]" value="{{ layout_module.position }}" />
                           <input type="hidden" name="layout_module[{{ module_row }}][sort_order]" value="{{ layout_module.sort_order }}" />
                           <div class="input-group-btn"><a href="{{ layout_module.edit }}" data-toggle="tooltip" title="{{ button_edit }}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a>
@@ -393,6 +397,7 @@ function addModule(type) {
 	html += '    </optgroup>';
 	{% endfor %}
 	html += '  </select>';
+    html += '  <input type="text" name="layout_module[' + module_row + '][anchor]" value="" class="form-control input-sm" placeholder="id" title="HTML id секції (якір для меню)" style="max-width: 110px;" />';
     html += '  <input type="hidden" name="layout_module[' + module_row + '][position]" value="' + type.replace('-', '_') + '" />';
     html += '  <input type="hidden" name="layout_module[' + module_row + '][sort_order]" value="" />';
 	html += '  <div class="input-group-btn"><a href="" target="_blank" type="button" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a><button type="button" onclick="$(\'#module-row' + module_row + '\').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger btn-sm"><i class="fa fa fa-minus-circle"></i></button></div></div></td>';

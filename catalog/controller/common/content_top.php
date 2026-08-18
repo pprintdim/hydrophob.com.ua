@@ -52,7 +52,7 @@ class ControllerCommonContentTop extends Controller {
 				$module_data = $this->load->controller('extension/module/' . $part[0]);
 
 				if ($module_data) {
-					$data['modules'][] = $module_data;
+					$data['modules'][] = $this->applyAnchor($module_data, $module['anchor'] ?? '');
 				}
 			}
 
@@ -63,12 +63,26 @@ class ControllerCommonContentTop extends Controller {
 					$output = $this->load->controller('extension/module/' . $part[0], $setting_info);
 
 					if ($output) {
-						$data['modules'][] = $output;
+						$data['modules'][] = $this->applyAnchor($output, $module['anchor'] ?? '');
 					}
 				}
 			}
 		}
 
 		return $this->load->view('common/content_top', $data);
+	}
+
+	/** id секції з лейауту (oc_layout_module.anchor): підставляється в перший тег модуля. */
+	private function applyAnchor($html, $anchor) {
+		if ($anchor === '') {
+			return $html;
+		}
+
+		$anchor = htmlspecialchars($anchor, ENT_QUOTES, 'UTF-8');
+
+		return preg_replace_callback('/<(section|div|footer|header|main|article|aside)\b([^>]*)>/i', function($m) use ($anchor) {
+			$attrs = preg_replace('/\s+id="[^"]*"/i', '', $m[2]);
+			return '<' . $m[1] . ' id="' . $anchor . '"' . $attrs . '>';
+		}, $html, 1);
 	}
 }

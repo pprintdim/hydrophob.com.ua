@@ -17,9 +17,13 @@
                     </button>
                     <div class="popupPhoto__content-image">
                         <div class="swiper-wrapper">
-{% for galleryItem in images.imagesBlock.items|default([]) %}
+{% for galleryItem in photo_gallery|default([]) %}
                             <div class="swiper-slide">
-                                <img src="{{ galleryItem.full }}" alt="{{ galleryItem.alt|default('Hydrophob') }}" loading="lazy" decoding="async">
+                                {% if galleryItem.type == 'video' %}
+                                <video class="popupPhoto__slide-video" src="{{ galleryItem.src }}" poster="{{ galleryItem.poster }}" controls playsinline preload="metadata" aria-label="{{ galleryItem.alt|default('Hydrophob') }}"></video>
+                                {% else %}
+                                <img src="{{ galleryItem.src }}" alt="{{ galleryItem.alt|default('Hydrophob') }}" loading="lazy" decoding="async">
+                                {% endif %}
                             </div>
 {% endfor %}
                         </div>
@@ -34,9 +38,9 @@
                 </div>
                 <div class="popupPhoto__bottom">
                     <div class="swiper-wrapper">
-{% for galleryItem in images.imagesBlock.items|default([]) %}
-                        <div class="swiper-slide">
-                            <img src="{{ galleryItem.full }}" alt="{{ galleryItem.alt|default('Hydrophob') }}" loading="lazy" decoding="async">
+{% for galleryItem in photo_gallery|default([]) %}
+                        <div class="swiper-slide{% if galleryItem.type == 'video' %} popupPhoto__thumb-video{% endif %}">
+                            <img src="{{ galleryItem.type == 'video' ? galleryItem.poster : galleryItem.src }}" alt="{{ galleryItem.alt|default('Hydrophob') }}" loading="lazy" decoding="async">
                         </div>
 {% endfor %}
                     </div>

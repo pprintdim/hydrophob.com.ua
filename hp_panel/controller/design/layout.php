@@ -371,7 +371,8 @@ class ControllerDesignLayout extends Controller {
 					'code'       => $layout_module['code'],
 					'edit'       => $this->url->link('extension/module/' . $part[0], 'user_token=' . $this->session->data['user_token'], true),
 					'position'   => $layout_module['position'],
-					'sort_order' => $layout_module['sort_order']
+					'sort_order' => $layout_module['sort_order'],
+					'anchor'     => $layout_module['anchor'] ?? ''
 				);
 			} else {
 				$module_info = $this->model_setting_module->getModule($part[1]);
@@ -381,7 +382,8 @@ class ControllerDesignLayout extends Controller {
 						'code'       => $layout_module['code'],
 						'edit'       => $this->url->link('extension/module/' . $part[0], 'user_token=' . $this->session->data['user_token'] . '&module_id=' . $part[1], true),
 						'position'   => $layout_module['position'],
-						'sort_order' => $layout_module['sort_order']
+						'sort_order' => $layout_module['sort_order'],
+						'anchor'     => $layout_module['anchor'] ?? ''
 					);
 				}
 			}

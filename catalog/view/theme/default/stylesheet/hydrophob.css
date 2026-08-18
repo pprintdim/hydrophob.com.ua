@@ -846,13 +846,34 @@ main.main.main-hidden{
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
+    pointer-events: none;
+}
+/* відео-слайд: рідні контроли, лого не перекриває панель */
+.popupPhoto__content-image .swiper-slide:has(video)::after{
+    display: none;
 }
 .popupPhoto__content-image .swiper-slide img,
+.popupPhoto__content-image .swiper-slide video,
 .popupPhoto__bottom .swiper-slide img{
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
+}
+.popupPhoto__bottom .swiper-slide{
+    position: relative;
+}
+.popupPhoto__thumb-video::after{
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z' fill='%23fff'/%3E%3C/svg%3E") center / 20px no-repeat;
+    pointer-events: none;
 }
 .popupPhoto__content-top{
     width: 100%;

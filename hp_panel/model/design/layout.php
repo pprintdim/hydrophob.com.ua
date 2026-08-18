@@ -13,7 +13,7 @@ class ModelDesignLayout extends Model {
 
 		if (isset($data['layout_module'])) {
 			foreach ($data['layout_module'] as $layout_module) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = '" . (int)$layout_id . "', code = '" . $this->db->escape($layout_module['code']) . "', position = '" . $this->db->escape($layout_module['position']) . "', sort_order = '" . (int)$layout_module['sort_order'] . "'");
+				$this->db->query("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = '" . (int)$layout_id . "', code = '" . $this->db->escape($layout_module['code']) . "', position = '" . $this->db->escape($layout_module['position']) . "', sort_order = '" . (int)$layout_module['sort_order'] . "', anchor = '" . $this->db->escape($layout_module['anchor'] ?? '') . "'");
 			}
 		}
 
@@ -35,7 +35,7 @@ class ModelDesignLayout extends Model {
 
 		if (isset($data['layout_module'])) {
 			foreach ($data['layout_module'] as $layout_module) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = '" . (int)$layout_id . "', code = '" . $this->db->escape($layout_module['code']) . "', position = '" . $this->db->escape($layout_module['position']) . "', sort_order = '" . (int)$layout_module['sort_order'] . "'");
+				$this->db->query("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = '" . (int)$layout_id . "', code = '" . $this->db->escape($layout_module['code']) . "', position = '" . $this->db->escape($layout_module['position']) . "', sort_order = '" . (int)$layout_module['sort_order'] . "', anchor = '" . $this->db->escape($layout_module['anchor'] ?? '') . "'");
 			}
 		}
 	}

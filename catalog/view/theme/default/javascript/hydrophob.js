@@ -517,17 +517,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const popupPhotoInner = document.querySelector('.popupPhoto__inner');
     const popupPhotoClose = document.querySelector('.popupPhoto__close');
 
-    imagesBlockItems.forEach(function(item) {
+    // Відео в галереї: грає лише активний слайд, решта — на паузу
+    function stopPopupVideos() {
+        popupPhoto.querySelectorAll('video').forEach(function(v) { v.pause(); });
+    }
+    function playActivePopupVideo() {
+        stopPopupVideos();
+        if (!popupPhoto.classList.contains('active')) return;
+        const activeVideo = popupPhoto.querySelector('.popupPhoto__content-image .swiper-slide-active video');
+        if (activeVideo) {
+            activeVideo.muted = false;
+            activeVideo.play().catch(function() {
+                activeVideo.muted = true;
+                activeVideo.play().catch(function() {});
+            });
+        }
+    }
+    mainSwiper.on('slideChangeTransitionEnd', playActivePopupVideo);
+
+    imagesBlockItems.forEach(function(item, index) {
         item.addEventListener('click', function() {
             popupPhoto.classList.add('active');
+            mainSwiper.slideTo(index, 0);
+            playActivePopupVideo();
         });
     });
-    popupPhotoClose.addEventListener('click', function() {
+    function closePhotoPopup() {
         popupPhoto.classList.remove('active');
-    });
+        stopPopupVideos();
+    }
+    popupPhotoClose.addEventListener('click', closePhotoPopup);
     popupPhoto.addEventListener('click', function(e) {
         if (!popupPhotoInner.contains(e.target)) {
-            popupPhoto.classList.remove('active');
+            closePhotoPopup();
         }
     });
 });
@@ -718,14 +740,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const selected = block.querySelector('.header__lang-selected');
             const content = block.querySelector('.header__lang-content');
             if (!selected || !content) return;
+            // розмітку перемикача НЕ перебудовуємо — серверні посилання /, /ru, /en
             selected.textContent = lang;
-            content.innerHTML = '';
-            LANGS.filter(l => l !== lang).forEach(l => {
-                const a = document.createElement('a');
-                a.href = '#';
-                a.textContent = l;
-                content.appendChild(a);
-            });
             block.classList.remove('active');
         });
         applyStrings();
@@ -1179,6 +1195,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof f !== 'object') return f;
         const lang = window.hydroLang ? window.hydroLang() : 'UA';
         return f[lang] !== undefined ? f[lang] : f.UA;
+    }
+
+    function t(key, fallback) {
+        const v = window.hydroT ? window.hydroT(key) : null;
+        return v !== null && v !== undefined ? v : fallback;
     }
 
     function fillPopup(id) {
