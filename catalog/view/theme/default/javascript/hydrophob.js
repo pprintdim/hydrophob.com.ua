@@ -319,6 +319,7 @@ function playTimerIntro() {
 document.addEventListener('DOMContentLoaded', function() {
     const playButtons = document.querySelectorAll('.play-btn-open');
     const popup = document.querySelector('.popupVideo');
+    if (!popup) return; // сторінки без відео-попапа (чекаут)
     const popupInner = document.querySelector('.popupVideo__inner');
     const closeBtn = document.querySelector('.popupVideo__close');
     const videoElement = popup.querySelector('video');
@@ -487,6 +488,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const imagesBlockItems = document.querySelectorAll('.imagesBlock__item');
     const popupPhoto = document.querySelector('.popupPhoto');
+    if (!popupPhoto) return; // сторінки без фото-попапа
     const popupPhotoInner = document.querySelector('.popupPhoto__inner');
     const popupPhotoClose = document.querySelector('.popupPhoto__close');
 
@@ -545,6 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * туди, catalog/view/theme/default/javascript/hydrophob-checkout.js). */
 document.addEventListener("DOMContentLoaded", function() {
     const cartSection = document.querySelector('.cart');
+    if (!cartSection) return; // чекаут-сторінка має власний кошик
     const cartOpenButtons = document.querySelectorAll('.cart-open');
     const cartCloseButtons = cartSection.querySelectorAll('.cart-close-btn, .cart__closed');
 
@@ -867,6 +870,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ===== Кошик: додавання товару, зміна кількості, видалення, суми ===== */
 document.addEventListener('DOMContentLoaded', function() {
     const cartSection = document.querySelector('.cart');
+    if (!cartSection) return; // чекаут-сторінка має власний кошик
     const productsBlock = cartSection.querySelector('.cart__products-block');
     const productsNumber = cartSection.querySelector('.cart__products-number');
     const totals = cartSection.querySelectorAll('.cart__products-bottom .cart__products-total p:last-child');
