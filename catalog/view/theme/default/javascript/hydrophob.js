@@ -16,13 +16,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const headerBurger = document.querySelector('.header__burger');
 const headerMenu = document.querySelector('.header__menu');
-headerBurger.addEventListener('click', () => {
+if (headerBurger) headerBurger.addEventListener('click', () => {
     headerMenu.classList.toggle('active');
 });
 
 
 
+/* ===== Каунтдаун секції "Акція" (тільки якщо секція є на сторінці) ===== */
+(function () {
 const timerSection = document.querySelector('.action');
+if (!timerSection) return;
 const startDate = new Date(timerSection ? timerSection.dataset.timerStart : '');
 const endDate = new Date(timerSection ? timerSection.dataset.timerEnd : '');
 const startTimestamp = startDate.getTime();
@@ -310,6 +313,8 @@ function playTimerIntro() {
 
 
 
+
+})();
 
 document.addEventListener('DOMContentLoaded', function() {
     const playButtons = document.querySelectorAll('.play-btn-open');
