@@ -4186,3 +4186,47 @@ section[id]{
 .authPopup__error{ color: #ff7b6b; margin-top: 4px; }
 .authPopup__ok{ color: #1D9CB2; margin-top: 4px; }
 @media (max-width: 480px){ .authPopup__cell{ height: 50px; width: 40px; } }
+
+/* ===== Типографіка контент-блоків (Призначення/Інструкція/описи з редактора) ===== */
+.infoBlock__more-content p{ line-height: 1.55; }
+.infoBlock__more-content p + p{ margin-top: 10px; }
+.infoBlock__more-content p + ul,
+.infoBlock__more-content p + ol,
+.infoBlock__more-content ul + p,
+.infoBlock__more-content ol + p{ margin-top: 12px; }
+.infoBlock__more-content h3,
+.infoBlock__more-content h4{ font-size: 18px; font-weight: 700; margin: 14px 0 8px; }
+.infoBlock__more-content strong{ font-weight: 700; }
+.infoBlock__more-content ol li + li{ margin-top: 8px; }
+.infoBlock__more-content ol li{ padding-left: 24px; }
+.infoBlock__more-content ol li::before{ left: 0; position: absolute; }
+
+/* Попап товару: опис (descriptionHtml з редактора) */
+.popupProduct__descr-content p{ line-height: 1.55; }
+.popupProduct__descr-content p + p{ margin-top: 10px; }
+.popupProduct__descr-content h3,
+.popupProduct__descr-content h4{ font-size: 18px; font-weight: 700; margin: 14px 0 8px; }
+.popupProduct__descr-content ul,
+.popupProduct__descr-content ol{ margin: 10px 0; }
+.popupProduct__descr-content ul li{ padding-left: 22px; position: relative; }
+.popupProduct__descr-content ul li + li,
+.popupProduct__descr-content ol li + li{ margin-top: 8px; }
+.popupProduct__descr-content ul li::before{ background-color: #1D9CB2; border-radius: 50%; content: ''; height: 5px; left: 6px; position: absolute; top: 9px; width: 5px; }
+.popupProduct__descr-content ol{ counter-reset: pp-counter; list-style: none; }
+.popupProduct__descr-content ol li{ counter-increment: pp-counter; padding-left: 24px; position: relative; }
+.popupProduct__descr-content ol li::before{ content: counter(pp-counter) '.'; left: 0; position: absolute; }
+
+/* Темні попапи (Про нас / Категорія / Доставка): той самий набір, світлим по темному */
+.popupAbout__text p{ line-height: 1.6; }
+.popupAbout__text p + p{ margin-top: 12px; }
+.popupAbout__text h3,
+.popupAbout__text h4{ font-size: 19px; font-weight: 700; margin: 16px 0 8px; }
+.popupAbout__text ul,
+.popupAbout__text ol{ margin: 12px 0; }
+.popupAbout__text ul li{ padding-left: 22px; position: relative; }
+.popupAbout__text ul li + li,
+.popupAbout__text ol li + li{ margin-top: 8px; }
+.popupAbout__text ul li::before{ background-color: #1D9CB2; border-radius: 50%; content: ''; height: 5px; left: 6px; position: absolute; top: 10px; width: 5px; }
+.popupAbout__text ol{ counter-reset: pa-counter; list-style: none; }
+.popupAbout__text ol li{ counter-increment: pa-counter; padding-left: 24px; position: relative; }
+.popupAbout__text ol li::before{ color: #1D9CB2; content: counter(pa-counter) '.'; font-weight: 700; left: 0; position: absolute; }
