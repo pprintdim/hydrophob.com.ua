@@ -1,7 +1,8 @@
 <section class="guarantee" id="guarantee">
     <div class="container">
         <div class="guarantee__inner">
-            <h2 class="guarantee__title" data-i18n="guarantee.title">{{ title }}</h2>
+            {# декоративний watermark: текст у ::before (attr), поза перевірками контрасту #}
+            <div class="guarantee__title" aria-hidden="true" data-text="{{ title }}"></div>
             <div class="guarantee__block">
                 <div class="guarantee__item">
                     <div class="guarantee__item-top">

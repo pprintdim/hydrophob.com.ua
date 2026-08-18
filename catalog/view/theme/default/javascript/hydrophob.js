@@ -339,8 +339,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Клік по авто-відео в hero (перший слайд без кнопки) — відкриває його ж у попапі зі звуком
     document.addEventListener('click', function (e) {
         const heroVideo = e.target.closest('video.hero__slide-video');
-        if (heroVideo && heroVideo.getAttribute('src')) {
-            openVideoPopup(heroVideo.getAttribute('src'));
+        const heroSrc = heroVideo && (heroVideo.getAttribute('src') || heroVideo.dataset.src);
+        if (heroSrc) {
+            openVideoPopup(heroSrc);
         }
     });
 
@@ -455,34 +456,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-// Карта: Leaflet + OpenStreetMap (безкоштовно, без API-ключа)
+// Карта: Leaflet + OpenStreetMap (безкоштовно, без API-ключа).
+// Ініт лінивий — тайли не вантажаться, поки секція контактів не у вʼюпорті.
 document.addEventListener('DOMContentLoaded', function() {
     const mapEl = document.getElementById('map');
     if (!mapEl || typeof L === 'undefined') return;
-    // вул. Якова Гніздовського, Київ (координати з OSM/Nominatim) — можна змінити в адмінці (модуль "Контакти")
-    const hydroContacts = window.HYDRO_CONTACTS || {};
-    const coords = (hydroContacts.lat && hydroContacts.lng) ? [parseFloat(hydroContacts.lat), parseFloat(hydroContacts.lng)] : [50.4542, 30.6402];
-    const mapAddress = hydroContacts.address || 'Київ, вул. Якова Гніздовського, 15';
-    const map = L.map(mapEl, { scrollWheelZoom: false, attributionControl: false }).setView(coords, 15);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19
-    }).addTo(map);
-    const marker = L.marker(coords, {
-        icon: L.icon({
-            iconUrl: 'image/hydrophob/point.svg',
-            iconSize: [80, 96],
-            iconAnchor: [40, 96],
-            popupAnchor: [0, -96]
-        })
-    }).addTo(map);
-    const gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + coords[0] + ',' + coords[1];
-    marker.bindPopup(
-        '<div class="map-popup">' +
-        '<strong>Hydrophob</strong><br>' + mapAddress + '<br>' +
-        '<a href="' + gmapsUrl + '" target="_blank" rel="noopener">Відкрити в Google Maps →</a>' +
-        '</div>'
-    );
+
+    function initMap() {
+        // вул. Якова Гніздовського, Київ (координати з OSM/Nominatim) — можна змінити в адмінці (модуль "Контакти")
+        const hydroContacts = window.HYDRO_CONTACTS || {};
+        const coords = (hydroContacts.lat && hydroContacts.lng) ? [parseFloat(hydroContacts.lat), parseFloat(hydroContacts.lng)] : [50.4542, 30.6402];
+        const mapAddress = hydroContacts.address || 'Київ, вул. Якова Гніздовського, 15';
+        const map = L.map(mapEl, { scrollWheelZoom: false, attributionControl: false }).setView(coords, 15);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        const marker = L.marker(coords, {
+            icon: L.icon({
+                iconUrl: 'image/hydrophob/point.svg',
+                iconSize: [80, 96],
+                iconAnchor: [40, 96],
+                popupAnchor: [0, -96]
+            })
+        }).addTo(map);
+        const gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + coords[0] + ',' + coords[1];
+        marker.bindPopup(
+            '<div class="map-popup">' +
+            '<strong>Hydrophob</strong><br>' + mapAddress + '<br>' +
+            '<a href="' + gmapsUrl + '" target="_blank" rel="noopener">Відкрити в Google Maps →</a>' +
+            '</div>'
+        );
+    }
+
+    const mapIo = new IntersectionObserver(function(entries, io) {
+        if (entries.some(e => e.isIntersecting)) {
+            io.disconnect();
+            initMap();
+        }
+    }, { rootMargin: '200px' });
+    mapIo.observe(mapEl);
 });
 
 
@@ -833,7 +846,7 @@ document.addEventListener('DOMContentLoaded', function() {
         collectTextNodes(el, textNodes);
         const fullTexts = textNodes.map(n => n.nodeValue);
         // текст з переносами: фіксуємо висоту повного тексту, щоб верстка не стрибала під час друку
-        el.style.visibility = 'visible';
+        el.style.opacity = '';
         el.style.minHeight = el.offsetHeight + 'px';
         textNodes.forEach(n => { n.nodeValue = ''; });
         el.classList.add('is-typing');
@@ -861,7 +874,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ховаємо текст до першого показу, щоб не було "миготіння" повного тексту
-    headings.forEach(el => { el.style.visibility = 'hidden'; states.set(el, { timer: null, typed: false }); });
+    headings.forEach(el => { el.style.opacity = '0'; states.set(el, { timer: null, typed: false }); });
 
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
@@ -1549,16 +1562,29 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!el || typeof Swiper === 'undefined') return;
 
     let slideTimer = null;
+    function startVideo(video, swiper) {
+        // відео вантажиться ліниво (data-src): src ставимо тільки після window.load,
+        // щоб 10+МБ ролика не конкурували з першим рендером; до того видно постер
+        if (!video.getAttribute('src') && video.dataset.src) {
+            video.src = video.dataset.src;
+        }
+        video.currentTime = 0;
+        video.onended = function () { swiper.slideNext(); };
+        video.play().catch(() => {});
+    }
     function playActive(swiper) {
         el.querySelectorAll('video').forEach(v => { v.pause(); v.onended = null; });
         if (slideTimer) { clearTimeout(slideTimer); slideTimer = null; }
         const active = swiper.slides[swiper.activeIndex];
         const video = active && active.querySelector('video');
         if (video) {
-            // відео-слайд (перший): грає одразу; дограв — їдемо далі
-            video.currentTime = 0;
-            video.onended = function () { swiper.slideNext(); };
-            video.play().catch(() => {});
+            if (!video.getAttribute('src') && video.dataset.src && document.readyState !== 'complete') {
+                window.addEventListener('load', function () {
+                    if (swiper.slides[swiper.activeIndex] === active) startVideo(video, swiper);
+                }, { once: true });
+            } else {
+                startVideo(video, swiper);
+            }
         } else {
             // постер-слайд: гортаємо таймером
             slideTimer = setTimeout(function () { swiper.slideNext(); }, 5000);

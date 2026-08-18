@@ -92,7 +92,7 @@ button{
 }
 .btn{
     border-radius: 50px;
-    background: #1D9CB2;
+    background: #17809A; /* затемнений #1D9CB2: контраст із білим текстом 4.5+ (WCAG AA) */
     padding: 16px;
 }
 .btn:hover{
@@ -1689,7 +1689,7 @@ button.product__slider-next{
     opacity: 1;
 }
 .infoBlock__select-btn.active{
-    background-color: #1D9CB2;
+    background-color: #17809A;
     color: #FFF;
 }
 .infoBlock__result{
@@ -4264,3 +4264,16 @@ section[id]{
 .hero__slider:hover img,
 .hero__slider:hover video{ transform: none; }
 video.hero__slide-video{ cursor: pointer; }
+
+/* Доступність: тач-зона булетів пагінації >= 24px, вигляд той самий */
+.swiper-pagination-bullet{
+    width: 24px;
+    height: 24px;
+    border: 8px solid transparent;
+    background-clip: padding-box;
+}
+
+/* watermark "гарантуємо": текст рендериться псевдоелементом з data-text */
+.guarantee__title::before{
+    content: attr(data-text);
+}

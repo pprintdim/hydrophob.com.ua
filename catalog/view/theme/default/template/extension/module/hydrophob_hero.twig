@@ -10,7 +10,8 @@
                 <div class="swiper-slide hero__slide">
                     {% if loop.first %}
                     {# перший слайд: відео грає одразу, без кнопки — дограв, і слайдер їде далі #}
-                    <video class="hero__slide-video" src="{{ slide.video }}" poster="{{ slide.poster }}" muted playsinline preload="auto"></video>
+                    {# src ставить JS після window.load — 10+МБ відео не блокує перший рендер #}
+                    <video class="hero__slide-video" data-src="{{ slide.video }}" poster="{{ slide.poster }}" muted playsinline preload="none"></video>
                     {% else %}
                     {# решта: постер + Play, відео відкривається в попапі #}
                     <img class="hero__slide-video" src="{{ slide.poster }}" alt="" loading="lazy" decoding="async">

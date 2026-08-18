@@ -121,6 +121,14 @@ class ControllerCommonHome extends Controller {
 		);
 		$data['asset_version'] = (string)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
 
+		// Фавікон — з налаштувань (config_icon), фолбек — старий шлях
+		$configIcon = (string)$this->config->get('config_icon');
+		$data['favicon'] = $configIcon !== '' ? 'image/' . $configIcon : 'image/hydrophob/favicon.png';
+
+		// Preload постера першого hero-слайда — це LCP-елемент (саме відео вантажиться після onload)
+		$heroSlides = $this->config->get('module_hydrophob_hero_slides');
+		$data['preload_poster'] = (is_array($heroSlides) && !empty($heroSlides[0]['poster'])) ? 'image/' . $heroSlides[0]['poster'] : '';
+
 		// ---- Правки з адмін-модулів (data-i18n на сторінці) мають виграти в JS-перемикачі мов ----
 		$data['schema_json'] = $this->buildSchemaJson($baseUrl);
 

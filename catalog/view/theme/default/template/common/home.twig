@@ -28,10 +28,10 @@
     <meta name="twitter:description" content="{{ meta.description }}">
     <meta name="twitter:image" content="{{ og_image }}">
 
+    {# фавікон — з налаштувань (Налаштування → config_icon); favicon.ico в корені згенерований з нього ж #}
     <link rel="icon" href="favicon.ico" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="image/hydrophob/logo.svg">
-    <link rel="icon" type="image/png" href="image/hydrophob/favicon.png">
-    <link rel="apple-touch-icon" href="image/hydrophob/favicon.png">
+    <link rel="icon" type="image/png" href="{{ favicon }}">
+    <link rel="apple-touch-icon" href="{{ favicon }}">
     <meta name="theme-color" content="#121212">
 
     <script>window.HYDRO_ANALYTICS = { mode: "{{ analytics.mode }}", ga4: "{{ analytics.ga4 }}", ads: "{{ analytics.ads }}", adsLabel: "{{ analytics.adsLabel }}" };</script>
@@ -40,28 +40,32 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    {# шрифти і leaflet не блокують перший рендер: media=print -> all після завантаження #}
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="catalog/view/javascript/vendor/swiper-bundle.min.css">
-    <link rel="stylesheet" href="catalog/view/javascript/vendor/leaflet.css">
+    <link rel="stylesheet" href="catalog/view/javascript/vendor/leaflet.css" media="print" onload="this.media='all'">
+    {% if preload_poster %}<link rel="preload" as="image" href="{{ preload_poster }}" fetchpriority="high">{% endif %}
     <link rel="stylesheet" href="catalog/view/theme/default/stylesheet/hydrophob.css?v={{ asset_version }}">
     <script type="application/ld+json">{{ schema_json|raw }}</script>
     <script>window.HYDRO_LANG = "{{ hydro_lang|default('UA') }}";</script>
 </head>
 <body class="body">
     {{ header }}
+
+    <main class="main">
+        {{ content_top }}
+    </main>
+
+    {{ footer }}
+    {# попапи в кінці body — щоб порядок заголовків починався з h1 у hero #}
     {{ popup_video }}
     {{ popup_photo }}
     {{ popup_product }}
     {{ popup_about }}
     {{ popup_category }}
     {{ popup_delivery }}
-
-    <main class="main">
-        {{ content_top }}
-    </main>
-
     {{ cart }}
-    {{ footer }}
     {{ cookie }}
 
     <script src="catalog/view/javascript/vendor/leaflet.js"></script>
