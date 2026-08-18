@@ -30,13 +30,17 @@
           <div id="images-items">
           {% for item in items %}
           {% set idx = loop.index0 %}
-          <div class="hydro-card images-item">
-            <button type="button" class="btn btn-danger btn-xs pull-right images-item-remove" title="{{ button_remove|default('Видалити') }}"><i class="fa fa-minus-circle"></i></button>
-            <div class="hydro-card__title">{{ entry_item }} <span class="images-item-num">{{ loop.index }}</span></div>
-            <div class="row">
+          <div class="hydro-card images-item hydro-row--collapsed">
+            <div class="hydro-row__toggle images-item-head">
+              <i class="fa fa-chevron-right hydro-row__chevron"></i>
+              <span class="hydro-card__title" style="margin:0;">{{ entry_item }} <span class="images-item-num">{{ loop.index }}</span></span>
+              <span class="hydro-row__preview">{{ item.alt[2] is defined ? item.alt[2] : '' }}</span>
+              <button type="button" class="btn btn-danger btn-xs images-item-remove" title="Видалити"><i class="fa fa-minus-circle"></i></button>
+            </div>
+            <div class="row hydro-row__body">
               <div class="col-sm-3">
                 <a href="" id="thumb-item{{ idx }}" data-toggle="image" class="img-thumbnail">
-                  <img src="{{ item.thumb_tile }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" />
+                  <img src="{{ item.thumb_tile }}" alt="" data-placeholder="{{ placeholder }}" style="width:84px;height:84px;object-fit:cover;" />
                 </a>
                 <input type="hidden" name="module_hydrophob_images_block_items[{{ idx }}][tile]" value="{{ item.tile }}" id="input-item{{ idx }}" />
               </div>
@@ -66,7 +70,7 @@
           <div class="hydro-card">
             <div class="hydro-card__title">{{ entry_logo }}</div>
             <a href="" id="thumb-logo" data-toggle="image" class="img-thumbnail">
-              <img src="{{ thumb_logo }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" />
+              <img src="{{ thumb_logo }}" alt="" data-placeholder="{{ placeholder }}" style="width:84px;height:84px;object-fit:cover;" />
             </a>
             <input type="hidden" name="module_hydrophob_images_block_logo" value="{{ logo }}" id="input-logo" />
           </div>
@@ -115,11 +119,10 @@ document.getElementById('images-item-add').addEventListener('click', function ()
       '<input type="text" name="module_hydrophob_images_block_items[' + idx + '][alt][' + l.id + ']" value="" placeholder="{{ entry_alt }}" class="form-control" /></div>';
   });
   card.innerHTML =
-    '<button type="button" class="btn btn-danger btn-xs pull-right images-item-remove"><i class="fa fa-minus-circle"></i></button>' +
-    '<div class="hydro-card__title">{{ entry_item }} <span class="images-item-num"></span></div>' +
-    '<div class="row"><div class="col-sm-3">' +
+    '<div class="hydro-row__toggle images-item-head"><i class="fa fa-chevron-down hydro-row__chevron"></i><span class="hydro-card__title" style="margin:0;">{{ entry_item }} <span class="images-item-num"></span></span><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-xs images-item-remove"><i class="fa fa-minus-circle"></i></button></div>' +
+    '<div class="row hydro-row__body"><div class="col-sm-3">' +
     '<a href="" id="thumb-item' + idx + '" data-toggle="image" class="img-thumbnail">' +
-    '<img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" style="max-width:160px;" /></a>' +
+    '<img src="{{ placeholder }}" alt="" data-placeholder="{{ placeholder }}" style="width:84px;height:84px;object-fit:cover;" /></a>' +
     '<input type="hidden" name="module_hydrophob_images_block_items[' + idx + '][tile]" value="" id="input-item' + idx + '" />' +
     '</div><div class="col-sm-9">' +
     '<ul class="nav nav-tabs hydro-tabs">' + tabs + '</ul>' +
@@ -129,6 +132,12 @@ document.getElementById('images-item-add').addEventListener('click', function ()
   renumberImages();
 });
 document.getElementById('images-items').addEventListener('click', function (e) {
+  if (e.target.closest('.images-item-remove') || e.target.closest('a[data-toggle]')) return;
+  var head = e.target.closest('.hydro-row__toggle');
+  if (head) head.closest('.images-item').classList.toggle('hydro-row--collapsed');
+});
+
+document.getElementById('images-items').addEventListener('click', function (e) {
   var btn = e.target.closest('.images-item-remove');
   if (btn) { btn.closest('.images-item').remove(); renumberImages(); }
 });
@@ -137,4 +146,13 @@ function renumberImages() {
 }
 //--></script>
 
+
+<style>
+.images-item .hydro-row__toggle { align-items: center; cursor: pointer; display: flex; gap: 10px; user-select: none; }
+.images-item .images-item-remove { margin-left: auto; }
+.images-item .hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
+.images-item:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
+.images-item .hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.images-item.hydro-row--collapsed .hydro-row__body { display: none; }
+</style>
 {{ footer }}

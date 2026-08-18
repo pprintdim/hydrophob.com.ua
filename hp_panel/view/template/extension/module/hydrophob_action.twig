@@ -27,7 +27,7 @@
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
 
-          {% for field in ['title', 'name', 'days', 'hours', 'minutes', 'seconds'] %}
+          {% for field in ['title', 'name'] %}
           <div class="hydro-card">
             <div class="hydro-card__title">{{ attribute(_context, 'entry_' ~ field) }}</div>
             <ul class="nav nav-tabs hydro-tabs">

@@ -13,8 +13,13 @@ class ControllerExtensionModuleHydrophobAction extends Controller {
 		$lang_id = (int)$this->config->get('config_language_id');
 		$strings = $this->readJson('data/strings.json');
 
-		foreach (array('title', 'name', 'descr', 'days', 'hours', 'minutes', 'seconds') as $field) {
+		foreach (array('title', 'name', 'descr') as $field) {
 			$data[$field] = $this->localized($field, $lang_id, $strings['action'][$field] ?? array());
+		}
+
+		// Підписи таймера — словникові, живуть у мовних файлах (не в налаштуваннях модуля)
+		foreach (array('days', 'hours', 'minutes', 'seconds') as $field) {
+			$data[$field] = $this->language->get('text_' . $field);
 		}
 
 		$env = $this->readEnv('.env');

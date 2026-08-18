@@ -118,7 +118,7 @@ class ControllerCommonHome extends Controller {
 		}
 
 		// action
-		foreach (array('title', 'name', 'descr', 'days', 'hours', 'minutes', 'seconds') as $field) {
+		foreach (array('title', 'name', 'descr') as $field) {
 			if (($v = $ml3('module_hydrophob_action', $field)) !== null) $overrides['action.' . $field] = $v;
 		}
 

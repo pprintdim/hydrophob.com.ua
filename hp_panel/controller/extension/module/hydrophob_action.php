@@ -32,7 +32,7 @@ class ControllerExtensionModuleHydrophobAction extends Controller {
 		$data['languages'] = $this->model_localisation_language->getLanguages();
 
 		$data['status'] = $this->field('status', 1);
-		foreach (array('title', 'name', 'descr', 'days', 'hours', 'minutes', 'seconds') as $field) {
+		foreach (array('title', 'name', 'descr') as $field) {
 			$data[$field] = $this->field($field, array());
 		}
 
