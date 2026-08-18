@@ -48,22 +48,16 @@ class ControllerExtensionModuleCatalogApi extends Controller {
 				$descriptionHtml = html_entity_decode($descriptionHtml, ENT_QUOTES, 'UTF-8');
 			}
 
-			// Атрибути — реальні з БД (oc_product_attribute), порядок за sort_order; "Виробник" не показуємо.
-			// Фолбек — старий data/products.json (теж без "Виробника"), якщо в БД атрибутів нема.
+			// Атрибути — реальні з БД (oc_product_attribute), порядок за sort_order (включно з "Виробником").
+			// Фолбек — старий data/products.json, якщо в БД атрибутів нема.
 			$attrs = array();
 			foreach ($this->model_catalog_product->getProductAttributes($product['product_id']) as $group) {
 				foreach ($group['attribute'] as $attribute) {
-					if ($attribute['name'] === 'Виробник') {
-						continue;
-					}
 					$attrs[] = array('name' => $attribute['name'], 'value' => $attribute['text']);
 				}
 			}
 			if (!$attrs) {
 				foreach (($extra['attrs'] ?? array()) as $attribute) {
-					if (($attribute['name'] ?? '') === 'Виробник') {
-						continue;
-					}
 					$attrs[] = $attribute;
 				}
 			}

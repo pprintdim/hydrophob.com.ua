@@ -484,29 +484,32 @@ class ModelCatalogProduct extends Model {
 	 * мовах, у формі, сумісній з полями форми product_land[tab_title|subtitle|blocks][...].
 	 */
 	public function getProductDetails($product_id) {
-		$tab_title = array();
-		$subtitle  = array();
-		$purpose   = array();
-		$usage     = array();
+		$tab_title   = array();
+		$subtitle    = array();
+		$purpose     = array();
+		$usage       = array();
+		$instruction = array();
 
 		if (!$this->productDetailsTableExists()) {
-			return array('tab_title' => $tab_title, 'subtitle' => $subtitle, 'purpose' => $purpose, 'usage' => $usage);
+			return array('tab_title' => $tab_title, 'subtitle' => $subtitle, 'purpose' => $purpose, 'usage' => $usage, 'instruction' => $instruction);
 		}
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_details WHERE product_id = '" . (int)$product_id . "'");
 
 		foreach ($query->rows as $row) {
-			$tab_title[$row['language_id']] = $row['tab_title'];
-			$subtitle[$row['language_id']]  = $row['subtitle'];
-			$purpose[$row['language_id']]   = $row['purpose'] ?? '';
-			$usage[$row['language_id']]     = $row['usage_html'] ?? '';
+			$tab_title[$row['language_id']]   = $row['tab_title'];
+			$subtitle[$row['language_id']]    = $row['subtitle'];
+			$purpose[$row['language_id']]     = $row['purpose'] ?? '';
+			$usage[$row['language_id']]       = $row['usage_html'] ?? '';
+			$instruction[$row['language_id']] = $row['instruction_html'] ?? '';
 		}
 
 		return array(
-			'tab_title' => $tab_title,
-			'subtitle'  => $subtitle,
-			'purpose'   => $purpose,
-			'usage'     => $usage,
+			'tab_title'   => $tab_title,
+			'subtitle'    => $subtitle,
+			'purpose'     => $purpose,
+			'usage'       => $usage,
+			'instruction' => $instruction,
 		);
 	}
 
@@ -532,7 +535,7 @@ class ModelCatalogProduct extends Model {
 		$land = isset($data['product_land']) && is_array($data['product_land']) ? $data['product_land'] : array();
 
 		$language_ids = array();
-		foreach (array('tab_title', 'subtitle', 'purpose', 'usage') as $field) {
+		foreach (array('tab_title', 'subtitle', 'purpose', 'usage', 'instruction') as $field) {
 			if (!empty($land[$field]) && is_array($land[$field])) {
 				foreach (array_keys($land[$field]) as $language_id) {
 					$language_ids[$language_id] = true;
@@ -541,16 +544,17 @@ class ModelCatalogProduct extends Model {
 		}
 
 		foreach (array_keys($language_ids) as $language_id) {
-			$tab_title = isset($land['tab_title'][$language_id]) ? (string)$land['tab_title'][$language_id] : ($existing_tab_titles[$language_id] ?? '');
-			$subtitle  = isset($land['subtitle'][$language_id]) ? (string)$land['subtitle'][$language_id] : '';
-			$purpose   = isset($land['purpose'][$language_id]) ? (string)$land['purpose'][$language_id] : '';
-			$usage     = isset($land['usage'][$language_id]) ? (string)$land['usage'][$language_id] : '';
+			$tab_title   = isset($land['tab_title'][$language_id]) ? (string)$land['tab_title'][$language_id] : ($existing_tab_titles[$language_id] ?? '');
+			$subtitle    = isset($land['subtitle'][$language_id]) ? (string)$land['subtitle'][$language_id] : '';
+			$purpose     = isset($land['purpose'][$language_id]) ? (string)$land['purpose'][$language_id] : '';
+			$usage       = isset($land['usage'][$language_id]) ? (string)$land['usage'][$language_id] : '';
+			$instruction = isset($land['instruction'][$language_id]) ? (string)$land['instruction'][$language_id] : '';
 
-			if ($tab_title === '' && $subtitle === '' && trim(strip_tags($purpose)) === '' && trim(strip_tags($usage)) === '') {
+			if ($tab_title === '' && $subtitle === '' && trim(strip_tags($purpose)) === '' && trim(strip_tags($usage)) === '' && trim(strip_tags($instruction)) === '') {
 				continue;
 			}
 
-			$this->db->query("INSERT INTO " . DB_PREFIX . "product_details SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', tab_title = '" . $this->db->escape($tab_title) . "', subtitle = '" . $this->db->escape($subtitle) . "', purpose = '" . $this->db->escape($purpose) . "', usage_html = '" . $this->db->escape($usage) . "', blocks = ''");
+			$this->db->query("INSERT INTO " . DB_PREFIX . "product_details SET product_id = '" . (int)$product_id . "', language_id = '" . (int)$language_id . "', tab_title = '" . $this->db->escape($tab_title) . "', subtitle = '" . $this->db->escape($subtitle) . "', purpose = '" . $this->db->escape($purpose) . "', usage_html = '" . $this->db->escape($usage) . "', instruction_html = '" . $this->db->escape($instruction) . "', blocks = ''");
 		}
 	}
 

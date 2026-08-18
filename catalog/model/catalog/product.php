@@ -649,23 +649,24 @@ class ModelCatalogProduct extends Model {
 		}
 
 		return array(
-			'tab_title' => $row['tab_title'],
-			'subtitle'  => $row['subtitle'],
-			'purpose'   => $row['purpose'] ?? '',
-			'usage'     => $row['usage_html'] ?? '',
+			'tab_title'   => $row['tab_title'],
+			'subtitle'    => $row['subtitle'],
+			'purpose'     => $row['purpose'] ?? '',
+			'usage'       => $row['usage_html'] ?? '',
+			'instruction' => $row['instruction_html'] ?? '',
 		);
 	}
 
 	/**
-	 * Блоки infoBlock для мови: "Характеристики" — з атрибутів товару, далі
-	 * "Призначення" (purpose) і "Як використовувати" (usage_html) з oc_product_details.
-	 * Порожні блоки пропускаються.
+	 * Блоки infoBlock для мови: "Характеристики" — з атрибутів товару (включно з
+	 * "Виробником"), далі "Призначення" (purpose), "Як використовувати" (usage_html) і
+	 * "Інструкція" (instruction_html) з oc_product_details. Порожні блоки пропускаються.
 	 */
 	public function buildLandBlocks($product_id, $language_id) {
 		$titles = array(
-			1 => array('attrs' => 'Specifications:', 'purpose' => 'Purpose', 'usage' => 'How to use'),
-			2 => array('attrs' => 'Характеристики:', 'purpose' => 'Призначення', 'usage' => 'Як використовувати'),
-			3 => array('attrs' => 'Характеристики:', 'purpose' => 'Назначение', 'usage' => 'Как использовать'),
+			1 => array('attrs' => 'Specifications:', 'purpose' => 'Purpose', 'usage' => 'How to use', 'instruction' => 'Instructions'),
+			2 => array('attrs' => 'Характеристики:', 'purpose' => 'Призначення', 'usage' => 'Як використовувати', 'instruction' => 'Інструкція'),
+			3 => array('attrs' => 'Характеристики:', 'purpose' => 'Назначение', 'usage' => 'Как использовать', 'instruction' => 'Инструкция'),
 		);
 		$t = isset($titles[$language_id]) ? $titles[$language_id] : $titles[2];
 
@@ -675,7 +676,7 @@ class ModelCatalogProduct extends Model {
 		if ($attrs) {
 			$li = '';
 			foreach ($attrs as $attr) {
-				if ($attr['name'] === null || $attr['name'] === 'Виробник') {
+				if ($attr['name'] === null) {
 					continue;
 				}
 				$li .= '<li>' . $attr['name'] . ': ' . $attr['text'] . '</li>';
@@ -692,6 +693,9 @@ class ModelCatalogProduct extends Model {
 			}
 			if (trim(strip_tags($details['usage'] ?? '')) !== '') {
 				$blocks[] = array('title' => $t['usage'], 'html' => $details['usage']);
+			}
+			if (trim(strip_tags($details['instruction'] ?? '')) !== '') {
+				$blocks[] = array('title' => $t['instruction'], 'html' => $details['instruction']);
 			}
 		}
 
