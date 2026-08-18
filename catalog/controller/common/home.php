@@ -46,6 +46,12 @@ class ControllerCommonHome extends Controller {
 			'checkout_url'  => '/checkout',
 		);
 
+		// Поточна мова сторінки (URL-версії /, /en, /ru)
+		$langCodeMap = array(1 => 'EN', 2 => 'UA', 3 => 'RU');
+		$hydroLang = $langCodeMap[(int)$this->config->get('config_language_id')] ?? 'UA';
+		$langPath = array('UA' => '', 'EN' => '/en', 'RU' => '/ru');
+		$shared['hydro_lang'] = $hydroLang;
+
 		$partials = array('header', 'popup_video', 'popup_photo', 'popup_product', 'popup_about', 'popup_category', 'popup_delivery', 'cart', 'footer', 'cookie');
 		$sections = array();
 		foreach ($partials as $section) {
@@ -61,7 +67,12 @@ class ControllerCommonHome extends Controller {
 		$data = $sections;
 		$data['html_lang'] = $seo['htmlLang'][$lang] ?? 'uk';
 		$data['meta'] = $meta;
-		$data['canonical'] = $baseUrl;
+
+		$data['hydro_lang'] = $hydroLang;
+		$data['canonical'] = rtrim($baseUrl, '/') . ($langPath[$hydroLang] ?: '/');
+		if ($hydroLang !== 'UA') {
+			$data['canonical'] = rtrim($baseUrl, '/') . $langPath[$hydroLang];
+		}
 		$data['og_locale'] = $seo['locales'][$lang] ?? 'uk_UA';
 		$data['site_name'] = $seo['siteName'] ?? 'Hydrophob';
 		$data['og_image'] = $baseUrl . ($seo['ogImage'] ?? 'img/og-image.jpg');

@@ -28,7 +28,7 @@ class ControllerInformationLegal extends Controller {
 		$data['canonical'] = $baseUrl . $key;
 		$data['home'] = $this->url->link('common/home');
 
-		$data['header'] = $this->load->view('common/home/header', array());
+		$data['header'] = $this->load->view('common/home/header', array('hydro_lang' => 'UA'));
 		$data['footer'] = $this->load->view('common/home/footer', array());
 		$data['asset_version'] = (string)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
 

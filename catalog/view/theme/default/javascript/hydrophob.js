@@ -331,7 +331,13 @@ document.addEventListener('DOMContentLoaded', function() {
             videoSource.src = videoUrl;
             videoElement.load();
             popup.classList.add('active');
-            popupPlayBtn.style.display = 'inline-block';
+            // граємо одразу, без другого кліку
+            popupPlayBtn.style.display = 'none';
+            videoElement.setAttribute('controls', 'controls');
+            videoElement.play().catch(function () {
+                // якщо браузер заборонив авто-звук — показуємо кнопку як фолбек
+                popupPlayBtn.style.display = 'inline-block';
+            });
         });
     });
     popupPlayBtn.addEventListener('click', function() {
@@ -654,7 +660,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const HTML_LANG = { UA: 'uk', RU: 'ru', EN: 'en' };
     const langBlocks = document.querySelectorAll('.header__lang');
     let STRINGS = null;
-    let currentLang = localStorage.getItem('hydrophob_lang') || 'UA';
+    // Мова тепер серверна (URL-версії /, /en, /ru) — клієнт лише читає її
+    let currentLang = window.HYDRO_LANG || 'UA';
     if (!LANGS.includes(currentLang)) currentLang = 'UA';
 
     // Глобальний доступ до рядків (використовує кошик та ін.)
@@ -706,12 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.dispatchEvent(new CustomEvent('hydro:lang', { detail: { lang: lang } }));
     }
 
-    document.addEventListener('click', function(e) {
-        const link = e.target.closest('.header__lang-content a');
-        if (!link) return;
-        e.preventDefault();
-        applyLang(link.textContent.trim());
-    });
+    // Перемикач мов — звичайні посилання на /, /ru, /en (серверні версії)
 
     // Правки з адмін-модулів (Hydrophob → Розширення → модулі) виграють над data/strings.json
     // у всіх мовах — щоб контент не "розʼїжджався" при перемиканні UA/RU/EN після SSR-редагування.
@@ -985,7 +987,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<div class="cart__products-content">' +
                     '<h3 class="cart__products-title">' + pv(p.title) + '</h3>' +
                     '<p class="cart__products-descr">' + pv(p.descr) + '</p>' +
-                    '<p class="cart__products-volume">' + t('cart.volumeLabel', 'Об’єм') + ' <span>' + (p.volume || '—') + '</span></p>' +
+                    '<p class="cart__products-volume">' + t('cart.volumeLabel', 'Об’єм') + ' <span>' + (pv(p.volume) || '—') + '</span></p>' +
                     '<div class="cart__products-info">' +
                         '<p class="cart__products-avaliable">' + (p.available ? t('cart.available', 'Є в наявності') : t('cart.notAvailable', 'Немає в наявності')) + '</p>' +
                         '<div class="cart__products-quantity">' +
@@ -1147,8 +1149,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!categoryPopup || !cat) return;
         const titleEl = categoryPopup.querySelector('.popupCategory__title');
         const textEl = categoryPopup.querySelector('.popupCategory__text');
-        if (titleEl) titleEl.textContent = cat.name || '';
-        if (textEl) textEl.innerHTML = cat.description || '';
+        if (titleEl) titleEl.textContent = val(cat.name) || '';
+        if (textEl) textEl.innerHTML = val(cat.description) || '';
         categoryPopup.classList.add('active');
         document.body.classList.add('no-scroll');
     }
@@ -1170,29 +1172,30 @@ document.addEventListener('DOMContentLoaded', function() {
             img.src = p.image;
             img.alt = val(p.title);
             title.textContent = val(p.title);
-            volumeValue.textContent = p.volume || '—';
-            volumeWrap.style.display = p.volume ? '' : 'none';
+            volumeValue.textContent = val(p.volume) || '—';
+            volumeWrap.style.display = val(p.volume) ? '' : 'none';
             priceValue.textContent = p.price;
             buyBtn.dataset.productId = p.id;
             specsList.innerHTML = '';
 
             // Перший рядок характеристик — категорія товару (клікабельна, якщо в неї є опис).
-            if (p.category) {
+            const categoryName = val(p.category);
+            if (categoryName) {
                 const catLi = document.createElement('li');
                 const catLabel = document.createElement('span');
-                catLabel.textContent = 'Категорія: ';
+                catLabel.textContent = t('popupProduct.categoryLabel', 'Категорія: ');
                 catLi.appendChild(catLabel);
 
                 const cat = p.categoryId && CATEGORIES ? CATEGORIES[p.categoryId] : null;
-                if (cat && cat.description) {
+                if (cat && val(cat.description)) {
                     const link = document.createElement('a');
                     link.href = '#';
                     link.className = 'category-open';
                     link.dataset.categoryId = p.categoryId;
-                    link.textContent = p.category;
+                    link.textContent = categoryName;
                     catLi.appendChild(link);
                 } else {
-                    catLi.appendChild(document.createTextNode(p.category));
+                    catLi.appendChild(document.createTextNode(categoryName));
                 }
                 specsList.appendChild(catLi);
             }
@@ -1200,9 +1203,9 @@ document.addEventListener('DOMContentLoaded', function() {
             (p.attrs || []).forEach(a => {
                 const li = document.createElement('li');
                 const label = document.createElement('span');
-                label.textContent = a.name + ': ';
+                label.textContent = val(a.name) + ': ';
                 li.appendChild(label);
-                li.appendChild(document.createTextNode(a.value));
+                li.appendChild(document.createTextNode(val(a.value)));
                 specsList.appendChild(li);
             });
             specsWrap.style.display = (specsList.children.length) ? '' : 'none';

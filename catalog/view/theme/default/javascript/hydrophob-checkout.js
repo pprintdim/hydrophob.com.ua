@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<div class="cart__products-content">' +
                     '<h3 class="cart__products-title">' + pv(p.title) + '</h3>' +
                     '<p class="cart__products-descr">' + pv(p.descr) + '</p>' +
-                    '<p class="cart__products-volume">Об’єм <span>' + (p.volume || '—') + '</span></p>' +
+                    '<p class="cart__products-volume">Об’єм <span>' + (pv(p.volume) || '—') + '</span></p>' +
                     '<div class="cart__products-info">' +
                         '<p class="cart__products-avaliable">' + (p.available ? 'Є в наявності' : 'Немає в наявності') + '</p>' +
                         '<div class="cart__products-quantity">' +

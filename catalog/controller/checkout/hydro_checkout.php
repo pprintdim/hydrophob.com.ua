@@ -25,7 +25,7 @@ class ControllerCheckoutHydroCheckout extends Controller {
 		$this->document->setTitle('Оформлення замовлення — Hydrophob');
 		$this->document->setDescription('Оформлення замовлення в інтернет-магазині Hydrophob.');
 
-		$data['header'] = $this->load->view('common/home/header', array());
+		$data['header'] = $this->load->view('common/home/header', array('hydro_lang' => 'UA'));
 		$data['footer'] = $this->load->view('common/home/footer', array());
 		$data['carriers'] = $carriers;
 

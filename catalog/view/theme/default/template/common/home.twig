@@ -8,10 +8,10 @@
     <meta name="keywords" content="{{ meta.keywords }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ canonical }}">
-    <link rel="alternate" hreflang="uk" href="{{ canonical }}">
-    <link rel="alternate" hreflang="ru" href="{{ canonical }}?lang=ru">
-    <link rel="alternate" hreflang="en" href="{{ canonical }}?lang=en">
-    <link rel="alternate" hreflang="x-default" href="{{ canonical }}">
+    <link rel="alternate" hreflang="uk" href="https://hydrophob.net.ua/">
+    <link rel="alternate" hreflang="ru" href="https://hydrophob.net.ua/ru">
+    <link rel="alternate" hreflang="en" href="https://hydrophob.net.ua/en">
+    <link rel="alternate" hreflang="x-default" href="https://hydrophob.net.ua/">
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="{{ og_locale }}">
@@ -45,6 +45,7 @@
     <link rel="stylesheet" href="catalog/view/javascript/vendor/leaflet.css">
     <link rel="stylesheet" href="catalog/view/theme/default/stylesheet/hydrophob.css?v={{ asset_version }}">
     <script type="application/ld+json">{{ schema_json|raw }}</script>
+    <script>window.HYDRO_LANG = "{{ hydro_lang|default('UA') }}";</script>
 </head>
 <body class="body">
     {{ header }}

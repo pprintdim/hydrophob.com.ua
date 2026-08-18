@@ -65,7 +65,17 @@ class ControllerStartupStartup extends Controller {
 		
 		$languages = $this->model_localisation_language->getLanguages();
 		
-		if (isset($this->session->data['language'])) {
+		// Мовні версії лендінгу через URL: / = uk-ua, /en -> hl=en, /ru -> hl=ru (nginx).
+		// URL-мова головніша за сесію/куку — перемикач працює простими посиланнями.
+		$hlMap = array('en' => 'en-gb', 'ru' => 'ru-ru', 'uk' => 'uk-ua');
+		if (isset($this->request->get['hl']) && isset($hlMap[$this->request->get['hl']])) {
+			$code = $hlMap[$this->request->get['hl']];
+		} elseif (($this->request->get['route'] ?? '') === 'common/home' || !isset($this->request->get['route'])) {
+			// корінь без hl — завжди укр (не липнемо до сесії, інакше /en «фарбує» і головну)
+			$code = 'uk-ua';
+		}
+		
+		if ($code === '' && isset($this->session->data['language'])) {
 			$code = $this->session->data['language'];
 		}
 				

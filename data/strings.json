@@ -713,6 +713,11 @@
         }
     },
     "popupProduct": {
+        "categoryLabel": {
+            "UA": "Категорія: ",
+            "RU": "Категория: ",
+            "EN": "Category: "
+        },
         "specsTitle": {
             "UA": "Характеристики",
             "RU": "Характеристики",

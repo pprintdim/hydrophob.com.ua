@@ -26,21 +26,23 @@
                             <a href="#contacts" data-i18n="header.menu.contacts">Контакти</a>
                         </li>
                         <div class="header__lang">
-                            <div class="header__lang-selected">UA</div>
+                            <div class="header__lang-selected">{{ hydro_lang|default('UA') }}</div>
                             <div class="header__lang-content">
-                                <a href="#">RU</a>
-                                <a href="#">EN</a>
+                                {% if hydro_lang|default('UA') != 'UA' %}<a href="/">UA</a>{% endif %}
+                                {% if hydro_lang|default('UA') != 'RU' %}<a href="/ru">RU</a>{% endif %}
+                                {% if hydro_lang|default('UA') != 'EN' %}<a href="/en">EN</a>{% endif %}
                             </div>
                         </div>
                     </ul>
                 </nav>
                 <div class="header__lang">
-                    <div class="header__lang-selected">UA</div>
-                    <div class="header__lang-content">
-                        <a href="#">RU</a>
-                        <a href="#">EN</a>
-                    </div>
-                </div>
+                            <div class="header__lang-selected">{{ hydro_lang|default('UA') }}</div>
+                            <div class="header__lang-content">
+                                {% if hydro_lang|default('UA') != 'UA' %}<a href="/">UA</a>{% endif %}
+                                {% if hydro_lang|default('UA') != 'RU' %}<a href="/ru">RU</a>{% endif %}
+                                {% if hydro_lang|default('UA') != 'EN' %}<a href="/en">EN</a>{% endif %}
+                            </div>
+                        </div>
                 <button class="header__burger">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="20" viewBox="0 0 28 20" fill="none">
                         <path d="M27.3327 18.0067C27.3327 18.74 26.738 19.3333 26.006 19.3333H15.326C14.9742 19.3333 14.6367 19.1936 14.3879 18.9448C14.1391 18.696 13.9993 18.3585 13.9993 18.0067C13.9993 17.6548 14.1391 17.3174 14.3879 17.0686C14.6367 16.8198 14.9742 16.68 15.326 16.68H26.006C26.7393 16.68 27.3327 17.2733 27.3327 18.0067ZM27.3327 10C27.3327 10.7333 26.738 11.3267 26.006 11.3267H1.99268C1.64083 11.3267 1.30339 11.1869 1.05459 10.9381C0.805789 10.6893 0.666016 10.3519 0.666016 10C0.666016 9.64814 0.805789 9.3107 1.05459 9.0619C1.30339 8.81311 1.64083 8.67333 1.99268 8.67333H26.006C26.7393 8.67333 27.3327 9.268 27.3327 10ZM26.006 3.32C26.3579 3.32 26.6953 3.18023 26.9441 2.93143C27.1929 2.68263 27.3327 2.34519 27.3327 1.99333C27.3327 1.64148 27.1929 1.30404 26.9441 1.05524C26.6953 0.806439 26.3579 0.666666 26.006 0.666666H9.99268C9.81846 0.666666 9.64595 0.700981 9.48499 0.767653C9.32403 0.834324 9.17778 0.932045 9.05459 1.05524C8.93139 1.17843 8.83367 1.32468 8.767 1.48564C8.70033 1.6466 8.66602 1.81911 8.66602 1.99333C8.66602 2.16755 8.70033 2.34007 8.767 2.50103C8.83367 2.66198 8.93139 2.80824 9.05459 2.93143C9.17778 3.05462 9.32403 3.15234 9.48499 3.21901C9.64595 3.28568 9.81846 3.32 9.99268 3.32H26.006Z" fill="white"/>
