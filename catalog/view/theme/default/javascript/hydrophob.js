@@ -1594,9 +1594,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const swiper = new Swiper(el, {
         loop: true,
         speed: 600,
+        // дотси клікабельні; трекпад/свайп вимкнені — інакше тільки автоплей (відео дограло → далі)
         pagination: { el: el.querySelector('.swiper-pagination'), clickable: true },
-        mousewheel: { forceToAxis: true },
-        grabCursor: true,
+        allowTouchMove: false,
+        simulateTouch: false,
         on: {
             init: function () { playActive(this); },
             slideChangeTransitionEnd: function () { playActive(this); },
