@@ -200,6 +200,14 @@ class ControllerCommonColumnLeft extends Controller {
 				);
 			}
 
+			if ($this->user->hasPermission('access', 'design/menu')) {
+				$design[] = array(
+					'name'	   => $this->language->get('text_menu_hydro'),
+					'href'     => $this->url->link('design/menu', 'user_token=' . $this->session->data['user_token'], true),
+					'children' => array()
+				);
+			}
+
 			if ($this->user->hasPermission('access', 'design/seo')) {
 				$design[] = array(
 					'name'	   => $this->language->get('text_seo_settings'),

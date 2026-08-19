@@ -15,6 +15,11 @@
                 <div class="footer__box">
                     <h3 class="footer__name" data-i18n="footer.infoTitle">ІНФОРМАЦІЯ</h3>
                     <ul class="footer__menu">
+                        {% if menu_footer_info is defined and menu_footer_info %}
+                        {% for item in menu_footer_info %}
+                        <li><a href="{{ item.href }}"{% if item.tab %} data-tab="{{ item.tab }}"{% endif %}>{{ item.label }}</a></li>
+                        {% endfor %}
+                        {% else %}
                         <li>
                             <a href="#about" data-i18n="footer.about">Про нас</a>
                         </li>
@@ -33,11 +38,17 @@
                         <li>
                             <a href="offer" data-i18n="footer.offer">Публічна оферта</a>
                         </li>
+                        {% endif %}
                     </ul>
                 </div>
                 <div class="footer__box">
                     <h3 class="footer__name" data-i18n="footer.productsTitle">Продукція</h3>
                     <ul class="footer__menu">
+                        {% if menu_footer_products is defined and menu_footer_products %}
+                        {% for item in menu_footer_products %}
+                        <li><a href="{{ item.href }}"{% if item.tab %} data-tab="{{ item.tab }}"{% endif %}>{{ item.label }}</a></li>
+                        {% endfor %}
+                        {% else %}
                         <li>
                             <a href="#lineup" data-tab="Automobile" data-i18n="footer.ceramics">Для автомобіля</a>
                         </li>
@@ -47,6 +58,7 @@
                         <li>
                             <a href="#lineup" data-tab="Textile" data-i18n="footer.clothes">Для одягу та взуття</a>
                         </li>
+                        {% endif %}
                     </ul>
                 </div>
                 <div class="footer__box">

@@ -76,12 +76,18 @@ class ControllerCommonHome extends Controller {
 			);
 		}
 
+		// Меню хедера/футера — з адмінки Design → Меню
+		$this->load->model('design/hydro_menu');
+
 		$shared = array(
 			'images'        => $images,
 			'photo_gallery' => $galleryItems,
 			'carriers'      => $carriers,
 			'env'           => $env,
 			'checkout_url'  => '/checkout',
+			'menu_header'          => $this->model_design_hydro_menu->getMenu('header', true),
+			'menu_footer_info'     => $this->model_design_hydro_menu->getMenu('footer_info', true),
+			'menu_footer_products' => $this->model_design_hydro_menu->getMenu('footer_products', true),
 		);
 
 		// Поточна мова сторінки (URL-версії /, /en, /ru)

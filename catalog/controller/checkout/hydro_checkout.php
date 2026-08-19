@@ -38,8 +38,14 @@ class ControllerCheckoutHydroCheckout extends Controller {
 		$data['meta_description'] = $metaDescription;
 		$data['meta_keywords'] = $metaKeywords;
 
-		$data['header'] = $this->load->view('common/home/header', array('hydro_lang' => 'UA'));
-		$data['footer'] = $this->load->view('common/home/footer', array());
+		$this->load->model('design/hydro_menu');
+		$menuVars = array(
+			'menu_header'          => $this->model_design_hydro_menu->getMenu('header', false),
+			'menu_footer_info'     => $this->model_design_hydro_menu->getMenu('footer_info', false),
+			'menu_footer_products' => $this->model_design_hydro_menu->getMenu('footer_products', false),
+		);
+		$data['header'] = $this->load->view('common/home/header', array_merge(array('hydro_lang' => 'UA'), $menuVars));
+		$data['footer'] = $this->load->view('common/home/footer', $menuVars);
 		$data['carriers'] = $carriers;
 
 		// Активні способи оплати (список синхронний з api/order.php -> hydro_payment_methods)

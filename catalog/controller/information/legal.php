@@ -43,8 +43,14 @@ class ControllerInformationLegal extends Controller {
 		// Модулі з Макетів (route information/legal, позиція content_top)
 		$data['content_top'] = $this->load->controller('common/content_top');
 
-		$data['header'] = $this->load->view('common/home/header', array('hydro_lang' => 'UA'));
-		$data['footer'] = $this->load->view('common/home/footer', array());
+		$this->load->model('design/hydro_menu');
+		$menuVars = array(
+			'menu_header'          => $this->model_design_hydro_menu->getMenu('header', false),
+			'menu_footer_info'     => $this->model_design_hydro_menu->getMenu('footer_info', false),
+			'menu_footer_products' => $this->model_design_hydro_menu->getMenu('footer_products', false),
+		);
+		$data['header'] = $this->load->view('common/home/header', array_merge(array('hydro_lang' => 'UA'), $menuVars));
+		$data['footer'] = $this->load->view('common/home/footer', $menuVars);
 		$data['asset_version'] = (string)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
 
 		$this->response->setOutput($this->load->view('information/legal', $data));

@@ -75,3 +75,4 @@ $_['text_complete_status']      = 'Завершені замовлення';
 $_['text_processing_status']    = 'Замовлення в обробці';
 $_['text_other_status']         = 'Інші статуси';
 $_['text_seo_settings']         = 'SEO та аналітика';
+$_['text_menu_hydro']           = 'Меню';

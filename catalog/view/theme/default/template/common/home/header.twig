@@ -7,6 +7,11 @@
             <div class="header__content">
                 <nav class="header__menu">
                     <ul>
+                        {% if menu_header is defined and menu_header %}
+                        {% for item in menu_header %}
+                        <li><a href="{{ item.href }}"{% if item.tab %} data-tab="{{ item.tab }}"{% endif %}>{{ item.label }}</a></li>
+                        {% endfor %}
+                        {% else %}
                         <li>
                             <a href="#home" data-i18n="header.menu.home">Головна</a>
                         </li>
@@ -25,6 +30,7 @@
                         <li>
                             <a href="#contacts" data-i18n="header.menu.contacts">Контакти</a>
                         </li>
+                        {% endif %}
                         <li class="header__lang-li"><div class="header__lang">
                             <div class="header__lang-selected">{{ hydro_lang|default('UA') }}</div>
                             <div class="header__lang-content">

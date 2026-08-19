@@ -1,0 +1,150 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-menu" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-menu">
+
+      {# один глобальний перемикач мов на всю форму (стандарт адмін-форм) #}
+      <ul class="nav nav-tabs hydro-global-langs" style="margin-bottom: 15px;">
+        {% for language in languages %}
+        <li{% if loop.first %} class="active"{% endif %}><a href="#" data-lang="{{ language.language_id }}">{{ language.name }}</a></li>
+        {% endfor %}
+      </ul>
+
+      {% for key, menu in menus %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-bars"></i> {{ menu.label }}</h3>
+        </div>
+        <div class="panel-body">
+          <div class="menu-items" id="menu-{{ key }}" data-menu="{{ key }}">
+            {% for item in menu.items %}
+            <div class="hydro-card menu-item hydro-row--collapsed">
+              <div class="hydro-row__toggle">
+                <i class="fa fa-chevron-right hydro-row__chevron"></i>
+                <span class="hydro-card__title" style="margin:0;">{{ text_item }} <span class="menu-item-num">{{ loop.index }}</span></span>
+                <span class="hydro-row__preview">{{ item.label[2] is defined ? item.label[2] : '' }} → {{ item.link }}</span>
+                <button type="button" class="btn btn-danger btn-xs menu-item-remove" title="{{ button_remove }}"><i class="fa fa-minus-circle"></i></button>
+              </div>
+              <div class="hydro-row__body menu-item-line">
+                <input type="text" name="menus[{{ key }}][{{ loop.index0 }}][link]" value="{{ item.link }}" placeholder="{{ entry_link }}" title="{{ help_link }}" class="form-control input-sm menu-item-link" />
+                <input type="text" name="menus[{{ key }}][{{ loop.index0 }}][tab]" value="{{ item.tab }}" placeholder="data-tab" title="{{ help_tab }}" class="form-control input-sm menu-item-tab" />
+                <div class="menu-item-labels">
+                  {% for language in languages %}
+                  <div class="lang-field lang-field-{{ language.language_id }}"{% if not loop.first %} style="display:none;"{% endif %}>
+                    <input type="text" name="menus[{{ key }}][{{ loop.index0 }}][label][{{ language.language_id }}]" value="{{ item.label[language.language_id] is defined ? item.label[language.language_id] : '' }}" placeholder="{{ entry_label }}" class="form-control input-sm" />
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn-primary btn-sm menu-item-add" data-menu="{{ key }}"><i class="fa fa-plus-circle"></i> {{ button_add_item }}</button>
+        </div>
+      </div>
+      {% endfor %}
+
+    </form>
+  </div>
+</div>
+
+<style>
+.hydro-card { background: linear-gradient(180deg, #fff 0%, #f8fbff 100%); border: 1px solid #dfe6f1; border-radius: 10px; margin-bottom: 12px; padding: 10px 12px; }
+.hydro-card__title { color: #36506b; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.hydro-global-langs { border-bottom: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.hydro-global-langs > li { float: none; margin: 0; }
+.hydro-global-langs > li > a { background: #f7fafc; border: 1px solid #d9e4ef; border-radius: 999px; color: #4b627b; padding: 6px 10px; }
+.hydro-global-langs > li.active > a { background: #e9f4ff; border-color: #acd1f1; color: #1f5d95; }
+.menu-item .hydro-row__toggle { align-items: center; cursor: pointer; display: flex; gap: 10px; user-select: none; }
+.menu-item .menu-item-remove { margin-left: auto; }
+.menu-item .hydro-row__chevron { color: #7f96ad; font-size: 12px; transition: transform .18s ease; }
+.menu-item:not(.hydro-row--collapsed) .hydro-row__chevron { transform: rotate(90deg); }
+.menu-item .hydro-row__preview { color: #8fa2b5; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-item.hydro-row--collapsed .hydro-row__body { display: none; }
+.menu-item .hydro-row__body.menu-item-line { align-items: center; display: flex; gap: 10px; padding-top: 10px; }
+.menu-item .menu-item-link { flex: 0 0 180px; }
+.menu-item .menu-item-tab { flex: 0 0 120px; }
+.menu-item .menu-item-labels { flex: 1; min-width: 0; }
+.menu-items:empty + .menu-item-add { margin-top: 0; }
+</style>
+
+<script type="text/javascript"><!--
+var menuLangs = [{% for language in languages %}{id: {{ language.language_id }}, name: '{{ language.name|escape('js') }}'}{% if not loop.last %},{% endif %}{% endfor %}];
+var menuActiveLang = String(menuLangs.length ? menuLangs[0].id : '');
+var menuRowIndex = 1000; // нові ряди — з великих індексів, щоб не перетнутись з наявними
+
+document.querySelectorAll('.hydro-global-langs a[data-lang]').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    menuActiveLang = this.dataset.lang;
+    document.querySelectorAll('.hydro-global-langs li').forEach(function (li) { li.classList.remove('active'); });
+    this.parentNode.classList.add('active');
+    document.querySelectorAll('.lang-field').forEach(function (el) {
+      el.style.display = el.classList.contains('lang-field-' + menuActiveLang) ? '' : 'none';
+    });
+  });
+});
+
+document.querySelectorAll('.menu-item-add').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var menu = this.dataset.menu;
+    var idx = menuRowIndex++;
+    var labels = '';
+    menuLangs.forEach(function (l) {
+      var vis = String(l.id) === menuActiveLang ? '' : ' style="display:none;"';
+      labels += '<div class="lang-field lang-field-' + l.id + '"' + vis + '>' +
+        '<input type="text" name="menus[' + menu + '][' + idx + '][label][' + l.id + ']" value="" placeholder="{{ entry_label|escape('js') }}" class="form-control input-sm" /></div>';
+    });
+    var card = document.createElement('div');
+    card.className = 'hydro-card menu-item';
+    card.innerHTML =
+      '<div class="hydro-row__toggle"><i class="fa fa-chevron-down hydro-row__chevron"></i><span class="hydro-card__title" style="margin:0;">{{ text_item|escape('js') }} <span class="menu-item-num"></span></span><span class="hydro-row__preview"></span><button type="button" class="btn btn-danger btn-xs menu-item-remove"><i class="fa fa-minus-circle"></i></button></div>' +
+      '<div class="hydro-row__body menu-item-line">' +
+      '<input type="text" name="menus[' + menu + '][' + idx + '][link]" value="" placeholder="{{ entry_link|escape('js') }}" title="{{ help_link|escape('js') }}" class="form-control input-sm menu-item-link" />' +
+      '<input type="text" name="menus[' + menu + '][' + idx + '][tab]" value="" placeholder="data-tab" title="{{ help_tab|escape('js') }}" class="form-control input-sm menu-item-tab" />' +
+      '<div class="menu-item-labels">' + labels + '</div></div>';
+    document.getElementById('menu-' + menu).appendChild(card);
+    renumberMenu(menu);
+  });
+});
+
+document.addEventListener('click', function (e) {
+  var rm = e.target.closest('.menu-item-remove');
+  if (rm) {
+    var wrap = rm.closest('.menu-items');
+    rm.closest('.menu-item').remove();
+    if (wrap) renumberMenu(wrap.dataset.menu);
+    return;
+  }
+  var head = e.target.closest('.menu-item .hydro-row__toggle');
+  if (head) head.closest('.menu-item').classList.toggle('hydro-row--collapsed');
+});
+
+function renumberMenu(menu) {
+  document.querySelectorAll('#menu-' + menu + ' .menu-item-num').forEach(function (el, i) { el.textContent = i + 1; });
+}
+//--></script>
+{{ footer }}
