@@ -411,6 +411,35 @@ class ControllerCommonHome extends Controller {
 
 		// ItemList товарів з живого каталогу
 		$this->load->model('catalog/product');
+
+		// Спільні для всіх офферів блоки — вимоги Merchant listing (GSC):
+		// повернення 14 днів (як на сторінці /returns) і доставка по Україні (НП та ін.)
+		$returnPolicy = array(
+			'@type' => 'MerchantReturnPolicy',
+			'applicableCountry' => 'UA',
+			'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+			'merchantReturnDays' => 14,
+			'returnMethod' => 'https://schema.org/ReturnByMail',
+			'returnFees' => 'https://schema.org/ReturnFeesCustomerResponsibility',
+		);
+		$shippingDetails = array(
+			'@type' => 'OfferShippingDetails',
+			'shippingRate' => array(
+				'@type' => 'MonetaryAmount',
+				'value' => '80',
+				'currency' => 'UAH',
+			),
+			'shippingDestination' => array(
+				'@type' => 'DefinedRegion',
+				'addressCountry' => 'UA',
+			),
+			'deliveryTime' => array(
+				'@type' => 'ShippingDeliveryTime',
+				'handlingTime' => array('@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 1, 'unitCode' => 'DAY'),
+				'transitTime' => array('@type' => 'QuantitativeValue', 'minValue' => 1, 'maxValue' => 3, 'unitCode' => 'DAY'),
+			),
+		);
+
 		$items = array();
 		$position = 0;
 		foreach ($this->model_catalog_product->getProducts(array('filter_status' => 1)) as $product) {
@@ -431,6 +460,8 @@ class ControllerCommonHome extends Controller {
 						'priceCurrency' => 'UAH',
 						'availability' => ((int)$product['quantity'] > 0) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
 						'url' => $baseUrl,
+						'hasMerchantReturnPolicy' => $returnPolicy,
+						'shippingDetails' => $shippingDetails,
 					),
 				),
 			);
