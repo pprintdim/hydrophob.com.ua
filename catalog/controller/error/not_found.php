@@ -3,6 +3,12 @@ class ControllerErrorNotFound extends Controller {
 	public function index() {
 		$this->load->language('error/not_found');
 
+		// 404 не має потрапляти в індекс: шаблон ленду власного meta robots
+		// не має, тому правило віддаємо заголовком.
+		if (!headers_sent()) {
+			header('X-Robots-Tag: noindex, follow', true);
+		}
+
 		// Метатеги — з Design → SEO (data/seo.json, metaPages.error)
 		$seoFile = DIR_APPLICATION . '../data/seo.json';
 		$seoJson = is_file($seoFile) ? (json_decode(file_get_contents($seoFile), true) ?: array()) : array();
