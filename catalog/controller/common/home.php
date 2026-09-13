@@ -370,7 +370,7 @@ class ControllerCommonHome extends Controller {
 			'@type' => array('Organization', 'Store'),
 			'name' => $this->config->get('config_name') ?: 'Hydrophob',
 			'url' => $baseUrl,
-			'logo' => $baseUrl . 'image/hydrophob/logo.svg',
+			'logo' => $baseUrl . 'image/hydrophob/logo.png', // растр: Google не бере анімований svg
 			'email' => $this->config->get('config_hydro_email') ?: ($org['email'] ?? ''),
 			'telephone' => $this->config->get('config_telephone') ?: ($org['telephoneDisplay'] ?? ''),
 			'priceRange' => '₴₴',
