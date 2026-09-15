@@ -63,6 +63,47 @@
     <script>window.HYDRO_LANG = "{{ hydro_lang|default('UA') }}";</script>
 </head>
 <body class="body">
+    {% if show_preloader %}
+    {# Прелоадер із логотипом: висить, доки не готовий перший кадр hero-відео (або 3 с), мінімум 0.9 с #}
+    <div class="hp-preloader" id="hp-preloader" aria-hidden="true">
+        <div class="hp-preloader__inner">
+            <img class="hp-preloader__logo" src="image/hydrophob/logo.svg" alt="Hydrophob" width="220" height="53">
+            <div class="hp-preloader__bar"><i id="hp-preloader-progress"></i></div>
+        </div>
+    </div>
+    <style>
+    .hp-preloader{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;background:#0b0f12;transition:opacity .6s ease,visibility .6s ease}
+    .hp-preloader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .hp-preloader__inner{display:flex;flex-direction:column;align-items:center;gap:22px}
+    .hp-preloader__logo{width:min(220px,60vw);height:auto;animation:hp-preloader-pulse 1.6s ease-in-out infinite}
+    .hp-preloader__bar{width:min(220px,60vw);height:2px;border-radius:2px;background:rgba(255,255,255,.14);overflow:hidden}
+    .hp-preloader__bar i{display:block;width:0;height:100%;background:#1ea7e0;transition:width .25s ease}
+    @keyframes hp-preloader-pulse{0%,100%{opacity:.75}50%{opacity:1}}
+    @media (prefers-reduced-motion: reduce){.hp-preloader__logo{animation:none}}
+    </style>
+    <script>
+    (function () {
+        var pre = document.getElementById('hp-preloader'), bar = document.getElementById('hp-preloader-progress');
+        if (!pre) return;
+        document.documentElement.style.overflow = 'hidden';
+        var prog = 0, timer = setInterval(function () { prog = Math.min(90, prog + Math.random() * 8 + 3); bar.style.width = prog + '%'; }, 160);
+        var done = false;
+        function finish() {
+            if (done) return; done = true;
+            clearInterval(timer); bar.style.width = '100%';
+            setTimeout(function () { pre.classList.add('is-hidden'); document.documentElement.style.overflow = ''; setTimeout(function () { pre.remove(); }, 700); }, 250);
+        }
+        var minShow = new Promise(function (r) { setTimeout(r, 900); });
+        // перше hero-відео вантажиться лише після window.load — тому чекаємо саме його перший кадр
+        var videoReady = new Promise(function (r) {
+            document.addEventListener('loadeddata', function (e) { if (e.target && e.target.matches && e.target.matches('video.hero__slide-video')) r(); }, true);
+            window.addEventListener('load', function () { setTimeout(r, 3000); }, { once: true });
+        });
+        Promise.all([minShow, videoReady]).then(finish);
+        setTimeout(finish, 6000);
+    })();
+    </script>
+    {% endif %}
     {{ header }}
 
     <main class="main">

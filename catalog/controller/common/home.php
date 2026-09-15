@@ -147,6 +147,9 @@ class ControllerCommonHome extends Controller {
 			'address' => $this->localizedContactAddress(),
 		), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
+		// прелоадер із логотипом до першого кадру hero-відео — за спільною для групи логікою показів
+		$data['show_preloader'] = $this->shouldShowPreloader();
+
 		$this->response->setOutput($this->load->view('common/home', $data));
 	}
 
@@ -491,5 +494,49 @@ class ControllerCommonHome extends Controller {
 		}
 
 		return json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+	}
+
+	/**
+	 * Прелоадер з логотипом (замість вітальної сторінки магазинів групи):
+	 * перший візит — завжди; далі протягом місяця ще до трьох показів у
+	 * випадкові моменти, не частіше ніж раз на 6 годин. Ботам — ніколи.
+	 * ?welcome=1 показує примусово (для перевірки).
+	 */
+	private function shouldShowPreloader() {
+		$agent = isset($this->request->server['HTTP_USER_AGENT']) ? strtolower($this->request->server['HTTP_USER_AGENT']) : '';
+
+		if ($agent && preg_match('/bot|crawl|spider|slurp|yandex|bingpreview|facebookexternalhit|telegrambot|whatsapp|twitterbot|linkedinbot|pinterest|applebot|duckduck|semrush|ahrefs|mj12|petalbot|headlesschrome|lighthouse|pagespeed|gtmetrix/', $agent)) {
+			return false;
+		}
+
+		if (isset($this->request->get['welcome'])) {
+			return (bool)$this->request->get['welcome'];
+		}
+
+		$now = time();
+		$month = 60 * 60 * 24 * 30;
+		$raw = isset($this->request->cookie['hydro_welcome']) ? (string)$this->request->cookie['hydro_welcome'] : '';
+		$parts = $raw !== '' ? array_map('intval', explode('|', $raw)) : array();
+
+		$shows = isset($parts[0]) ? $parts[0] : 0;
+		$last = isset($parts[1]) ? $parts[1] : 0;
+		$first = isset($parts[2]) ? $parts[2] : 0;
+
+		if ($first === 0 || $now - $first > $month) {
+			$first = $now;
+			$shows = 0;
+		}
+
+		$show = ($shows === 0) || ($shows < 4 && $now - $last > 6 * 3600 && mt_rand(1, 100) <= 20);
+
+		if ($show) {
+			$shows++;
+			$last = $now;
+		}
+
+		$secure = isset($this->request->server['HTTPS']) && $this->request->server['HTTPS'] && $this->request->server['HTTPS'] != 'off';
+		setcookie('hydro_welcome', $shows . '|' . $last . '|' . $first, $first + $month, '/', '', $secure, true);
+
+		return $show;
 	}
 }
