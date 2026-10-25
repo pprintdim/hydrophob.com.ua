@@ -17,7 +17,15 @@ document.addEventListener('DOMContentLoaded', function() {
 const headerBurger = document.querySelector('.header__burger');
 const headerMenu = document.querySelector('.header__menu');
 if (headerBurger) headerBurger.addEventListener('click', () => {
-    headerMenu.classList.toggle('active');
+    const open = headerMenu.classList.toggle('active');
+    headerBurger.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+// Escape закриває меню й повертає фокус на бургер
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && headerMenu && headerMenu.classList.contains('active')) {
+        headerMenu.classList.remove('active');
+        if (headerBurger) { headerBurger.setAttribute('aria-expanded', 'false'); headerBurger.focus(); }
+    }
 });
 
 
@@ -429,9 +437,10 @@ document.addEventListener('DOMContentLoaded', function() {
     infoBlockSelectButtons.forEach(button => {
         button.addEventListener('click', function() {
             const target = button.dataset.infoblockBtn;
-            infoBlockSelectButtons.forEach(btn => btn.classList.remove('active'));
+            infoBlockSelectButtons.forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-selected', 'false'); });
             infoBlockSelectResults.forEach(res => res.classList.remove('active'));
             button.classList.add('active');
+            button.setAttribute('aria-selected', 'true');
             const targetResult = document.querySelector(`.infoBlock__result-content[data-infoBlock-result="${target}"]`);
             if (targetResult) {
                 targetResult.classList.add('active');
@@ -443,13 +452,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const faqItems = document.querySelectorAll('.faq__item');
     faqItems.forEach(item => {
         const title = item.querySelector('.faq__item-title');
-        title.addEventListener('click', function() {
+        const syncFaq = () => faqItems.forEach(i => {
+            const t = i.querySelector('.faq__item-title');
+            if (t) t.setAttribute('aria-expanded', i.classList.contains('active') ? 'true' : 'false');
+        });
+        const toggleFaq = () => {
             if (item.classList.contains('active')) {
                 item.classList.remove('active');
             } else {
                 faqItems.forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
             }
+            syncFaq();
+        };
+        title.addEventListener('click', toggleFaq);
+        // заголовок лишається h3 (типографіка), відкривається і з клавіатури
+        title.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleFaq(); }
         });
     });
 });
@@ -468,10 +487,32 @@ document.addEventListener('DOMContentLoaded', function() {
         const coords = (hydroContacts.lat && hydroContacts.lng) ? [parseFloat(hydroContacts.lat), parseFloat(hydroContacts.lng)] : [50.4542, 30.6402];
         const mapAddress = hydroContacts.address || 'Київ, вул. Якова Гніздовського, 15';
         const map = L.map(mapEl, { scrollWheelZoom: false, attributionControl: false }).setView(coords, 15);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            subdomains: 'abcd',
-            maxZoom: 19
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            /* CARTO з 2026-09 вимагає API-ключ і малює «API KEY REQUIRED» просто на тайлах */
+            attribution: 'Esri, HERE, Garmin &copy; OpenStreetMap'
         }).addTo(map);
+
+        // запасні тайли: якщо основний провайдер відвалився, тихо підміняємо шар
+        (function () {
+            var swapped = false;
+
+            map.eachLayer(function (layer) {
+                if (!layer.getTileUrl) return;
+
+                layer.on('tileerror', function () {
+                    if (swapped) return;
+                    swapped = true;
+
+                    map.removeLayer(layer);
+
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap'
+                    }).addTo(map);
+                });
+            });
+        })();
         const marker = L.marker(coords, {
             icon: L.icon({
                 iconUrl: 'image/hydrophob/point.svg',
@@ -1567,12 +1608,13 @@ document.addEventListener('DOMContentLoaded', function () {
     let slideTimer = null;
     function startVideo(video, swiper) {
         // відео вантажиться ліниво (data-src): src ставимо тільки після window.load,
-        // щоб 10+МБ ролика не конкурували з першим рендером; до того видно постер
+        // щоб 10+МБ ролика не конкурували з першим рендером; до того видно постер.
+        // Прогрітий під прелоадером ролик (video-warmup.js) грає з blob, а не з мережі
         if (!video.getAttribute('src') && video.dataset.src) {
-            video.src = video.dataset.src;
+            video.src = window.videoWarmup ? window.videoWarmup.resolve(video.dataset.src) : video.dataset.src;
         }
         video.currentTime = 0;
-        video.onended = function () { swiper.slideNext(); };
+        video.onended = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? null : function () { swiper.slideNext(); };
         video.play().catch(() => {});
     }
     function playActive(swiper) {
@@ -1581,10 +1623,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const active = swiper.slides[swiper.activeIndex];
         const video = active && active.querySelector('video');
         if (video) {
-            if (!video.getAttribute('src') && video.dataset.src && document.readyState !== 'complete') {
-                window.addEventListener('load', function () {
-                    if (swiper.slides[swiper.activeIndex] === active) startVideo(video, swiper);
-                }, { once: true });
+            if (!video.getAttribute('src') && video.dataset.src) {
+                // після window.load, а під прелоадером — ще й після прогріву (video-warmup.js), щоб не качати двічі
+                var afterLoad = function () {
+                    (window.videoWarmup ? window.videoWarmup.gate(6000) : Promise.resolve()).then(function () {
+                        if (swiper.slides[swiper.activeIndex] === active) startVideo(video, swiper);
+                    });
+                };
+                if (document.readyState !== 'complete') window.addEventListener('load', afterLoad, { once: true }); else afterLoad();
             } else {
                 startVideo(video, swiper);
             }
@@ -1624,3 +1670,340 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { threshold: [0, 0.4] });
     vids.forEach(v => io.observe(v));
 });
+
+/* Skip-link веде на <main>; id ставимо тут, бо <main> у кожного шаблону свій */
+document.addEventListener('DOMContentLoaded', function () {
+    var main = document.querySelector('main');
+    if (main && !main.id) main.id = 'main';
+    if (main && !main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+});
+
+
+/* ===== Доступність попапів: фокус усередині відкритого діалогу, повернення на кнопку-відкривач =====
+   Попапи відкриваються класом .active (свої обробники не чіпаємо) — стан ловимо спостерігачем. */
+document.addEventListener('DOMContentLoaded', function () {
+    const dialogs = document.querySelectorAll('.cart, .popupVideo, .popupPhoto, .popupProduct, .popupAbout');
+    if (!dialogs.length) return;
+    const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), video[controls], [tabindex]:not([tabindex="-1"])';
+    let current = null;
+    let opener = null;
+
+    const focusables = (dialog) => Array.from(dialog.querySelectorAll(FOCUSABLE)).filter(el => el.offsetParent !== null);
+
+    document.addEventListener('mousedown', (e) => { opener = e.target.closest('button, a, [tabindex]'); }, true);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') opener = document.activeElement; }, true);
+
+    const observer = new MutationObserver((records) => {
+        records.forEach((rec) => {
+            const el = rec.target;
+            const isOpen = el.classList.contains('active');
+            const wasOpen = (rec.oldValue || '').split(/\s+/).includes('active');
+            if (isOpen && !wasOpen) {
+                current = el;
+                const target = el.querySelector('[class*="__close"]') || focusables(el)[0] || el;
+                setTimeout(() => { try { target.focus({ preventScroll: true }); } catch (err) { target.focus(); } }, 50);
+            } else if (!isOpen && wasOpen && current === el) {
+                current = null;
+                if (opener && document.contains(opener)) { try { opener.focus({ preventScroll: true }); } catch (err) { opener.focus(); } }
+            }
+        });
+    });
+    dialogs.forEach(d => observer.observe(d, { attributes: true, attributeFilter: ['class'], attributeOldValue: true }));
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab' || !current || !current.classList.contains('active')) return;
+        const list = focusables(current);
+        if (!list.length) return;
+        const first = list[0], last = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+});
+
+/* ===== Плаваюча кнопка дзвінка: зʼявляється після 40% прокрутки ===== */
+(function () {
+    const fab = document.querySelector('[data-call-fab]');
+    if (!fab) return;
+    const tick = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        fab.classList.toggle('is-visible', max > 0 && window.scrollY / max >= 0.4);
+    };
+    window.addEventListener('scroll', tick, { passive: true });
+    window.addEventListener('resize', tick);
+    tick();
+})();
+
+
+/* ===== Форма зворотного дзвінка: код країни, маска телефону, ajax на common/lead/send =====
+   Кнопка активна лише коли є імʼя, валідний телефон і згода; після успіху форму
+   змінює блок «дякуємо», у GA4 летить generate_lead. */
+(function () {
+    const form = document.getElementById('callback-form');
+    if (!form) return;
+
+    const nameInput = form.querySelector('input[name="name"]');
+    const countrySelect = form.querySelector('.callback__phone select');
+    const phoneInput = form.querySelector('input[name="tel"]');
+    const phoneFull = form.querySelector('input[name="phone"]');
+    const consent = form.querySelector('input[name="consent"]');
+    const submit = form.querySelector('button[type="submit"]');
+    const success = form.parentNode.querySelector('.callback__success');
+    const errorFor = (key) => form.querySelector('[data-error-for="' + key + '"]');
+
+    // той самий довідник, що в чекауті: код, мінімум і максимум цифр
+    const CTRY = [["UA","🇺🇦",380,9,9],["PL","🇵🇱",48,9,9],["DE","🇩🇪",49,10,11],["GB","🇬🇧",44,10,10],["US","🇺🇸",1,10,10],["CZ","🇨🇿",420,9,9],["SK","🇸🇰",421,9,9],["FR","🇫🇷",33,9,9],["IT","🇮🇹",39,9,10],["ES","🇪🇸",34,9,9],["NL","🇳🇱",31,9,9],["AT","🇦🇹",43,10,11],["CH","🇨🇭",41,9,9],["LT","🇱🇹",370,8,8],["LV","🇱🇻",371,8,8],["EE","🇪🇪",372,7,8],["MD","🇲🇩",373,8,8],["RO","🇷🇴",40,9,9],["BG","🇧🇬",359,8,9],["TR","🇹🇷",90,10,10],["GE","🇬🇪",995,9,9],["IL","🇮🇱",972,9,9],["AE","🇦🇪",971,9,9],["KZ","🇰🇿",7,10,10]];
+
+    if (countrySelect) {
+        countrySelect.innerHTML = CTRY.map((c) => '<option value="' + c[0] + '">' + c[1] + ' +' + c[2] + '</option>').join('');
+        const def = (countrySelect.dataset.defaultCountry || 'UA').toUpperCase();
+        countrySelect.value = CTRY.some((c) => c[0] === def) ? def : 'UA';
+    }
+
+    const cur = () => CTRY.find((c) => c[0] === (countrySelect ? countrySelect.value : 'UA')) || CTRY[0];
+
+    function formatPhone() {
+        const c = cur();
+        let d = phoneInput.value.replace(/\D/g, '');
+        const code = String(c[2]);
+        if (d.indexOf(code) === 0 && d.length > c[4]) d = d.slice(code.length);
+        if (c[0] === 'UA' && d.charAt(0) === '0') d = d.slice(1);
+        d = d.slice(0, c[4]);
+        const groups = c[0] === 'UA' ? [2, 3, 2, 2] : [3, 3, 5];
+        let out = '', pos = 0;
+        for (let g = 0; g < groups.length && pos < d.length; g++) {
+            if (out) out += ' ';
+            out += d.slice(pos, pos + groups[g]);
+            pos += groups[g];
+        }
+        phoneInput.value = out;
+        const valid = d.length >= c[3] && d.length <= c[4];
+        phoneFull.value = valid ? '+' + code + d : '';
+        phoneInput.classList.toggle('phone-invalid', d.length > 0 && !valid);
+    }
+
+    function sync() {
+        const ok = nameInput.value.trim() !== '' && phoneFull.value !== '' && consent.checked;
+        submit.disabled = !ok;
+        submit.classList.toggle('btn-disabled', !ok);
+    }
+
+    function showErrors(errors) {
+        form.querySelectorAll('.callback__error').forEach((el) => { el.hidden = true; el.textContent = ''; });
+        Object.keys(errors || {}).forEach((key) => {
+            const box = errorFor(key === 'tel' ? 'phone' : key) || errorFor('common');
+            if (box) { box.textContent = errors[key]; box.hidden = false; }
+        });
+    }
+
+    phoneInput.addEventListener('input', () => { formatPhone(); sync(); });
+    if (countrySelect) countrySelect.addEventListener('change', () => { formatPhone(); sync(); });
+    nameInput.addEventListener('input', sync);
+    consent.addEventListener('change', sync);
+    sync();
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (submit.disabled) return;
+        submit.disabled = true;
+        submit.classList.add('btn-disabled');
+        showErrors({});
+
+        fetch(form.action, { method: 'POST', body: new FormData(form), credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then((r) => r.json())
+            .then((json) => {
+                if (json.success) {
+                    if (typeof gtag === 'function') gtag('event', 'generate_lead', { form: 'callback' });
+                    form.hidden = true;
+                    if (success) { success.hidden = false; success.focus && success.setAttribute('tabindex', '-1'); success.focus(); }
+                    return;
+                }
+                const errors = json.errors || (typeof json.error === 'object' ? json.error : { common: json.error || (window.hydroT ? window.hydroT('callback.error') : '') });
+                showErrors(errors);
+                sync();
+            })
+            .catch(() => {
+                showErrors({ common: window.hydroT ? window.hydroT('callback.error') : 'Не вдалося надіслати заявку. Спробуйте ще раз.' });
+                sync();
+            });
+    });
+})();
+
+/* Кнопка «нагору»: зʼявляється після двох екранів, стоїть у стовпчику
+   над «подзвонити» і кошиком, щоб нічого не перекривалось. */
+(function () {
+    if (document.querySelector('[data-to-top]')) return;
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'hp-totop';
+    btn.setAttribute('data-to-top', '');
+    btn.setAttribute('aria-label', 'Нагору');
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>';
+    document.body.appendChild(btn);
+
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    btn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    var ticking = false;
+
+    window.addEventListener('scroll', function () {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () {
+            ticking = false;
+            btn.classList.toggle('is-visible', window.scrollY > window.innerHeight * 2);
+        });
+    }, { passive: true });
+})();
+
+
+
+/* ===== Липка панель купівлі =====
+   Каталог тут — слайдер на лендінгу, а не окрема сторінка товару, тому панель
+   показує саме той товар, що зараз активний у слайдері. Зʼявляється, коли
+   слайдер пішов вище екрана: на комп'ютері зверху під шапкою, на телефоні знизу.
+   Кнопка просто натискає «Купити» активного слайда, щоб логіка лишалась одна. */
+(function () {
+    var slider = document.querySelector('.product__slider');
+    if (!slider || !window.matchMedia) return;
+
+    var desktop = window.matchMedia('(min-width: 768px)');
+    var header = document.querySelector('.header');
+    var bar = null;
+    var waiting = false;
+
+    function slide() {
+        return slider.querySelector('.product__slide.swiper-slide-active') || slider.querySelector('.product__slide');
+    }
+
+    function build() {
+        if (bar) return bar;
+
+        bar = document.createElement('div');
+        bar.className = 'hp-buybar';
+        bar.innerHTML = '<div class="hp-buybar__inner">'
+            + '<img class="hp-buybar__img" src="" alt="" width="48" height="48">'
+            + '<div class="hp-buybar__info">'
+            + '<span class="hp-buybar__title"></span>'
+            + '<span class="hp-buybar__pricebox hp-buybar__pricebox--mobile"></span>'
+            + '</div>'
+            + '<div class="hp-buybar__pricebox hp-buybar__pricebox--desktop">'
+            + '<span class="hp-buybar__price"></span>'
+            + '</div>'
+            + '<button type="button" class="hp-buybar__btn"></button>'
+            + '</div>';
+
+        document.body.appendChild(bar);
+
+        movePrice();
+        desktop.addEventListener('change', movePrice);
+
+        bar.querySelector('.hp-buybar__btn').addEventListener('click', function () {
+            var buy = slide() && slide().querySelector('.product__slide-buy');
+            if (buy) buy.click();
+        });
+
+        return bar;
+    }
+
+    // ціна живе в одному місці: на телефоні під назвою, на ПК окремою колонкою
+    function movePrice() {
+        if (!bar) return;
+
+        var to = bar.querySelector(desktop.matches ? '.hp-buybar__pricebox--desktop' : '.hp-buybar__pricebox--mobile');
+        var from = bar.querySelector(desktop.matches ? '.hp-buybar__pricebox--mobile' : '.hp-buybar__pricebox--desktop');
+
+        [].slice.call(from.children).forEach(function (el) { to.appendChild(el); });
+    }
+
+    /* Кнопка панелі має виглядати як справжня «Купити» цього сайту */
+    function skin() {
+        var buy = slide() && slide().querySelector('.product__slide-buy');
+        if (!bar || !buy || !window.getComputedStyle) return;
+
+        var from = window.getComputedStyle(buy);
+        var to = bar.querySelector('.hp-buybar__btn').style;
+
+        to.background = from.backgroundImage !== 'none' ? from.backgroundImage : from.backgroundColor;
+        to.color = from.color;
+        to.borderRadius = from.borderRadius;
+        to.fontFamily = from.fontFamily;
+        to.fontWeight = from.fontWeight;
+        to.letterSpacing = from.letterSpacing;
+        to.textTransform = from.textTransform;
+    }
+
+    function place() {
+        if (!bar || !desktop.matches) return;
+
+        var top = 0;
+
+        if (header) {
+            var pos = getComputedStyle(header).position;
+
+            if (pos === 'fixed' || pos === 'sticky') {
+                var box = header.getBoundingClientRect();
+                if (box.top <= 1) top = Math.max(0, Math.round(box.bottom));
+            }
+        }
+
+        document.documentElement.style.setProperty('--hp-buybar-top', top + 'px');
+    }
+
+    function sync() {
+        if (!bar) return;
+
+        var current = slide();
+        if (!current) return;
+
+        var img = current.querySelector('.product__slide-image img');
+        var photo = bar.querySelector('.hp-buybar__img');
+
+        if (img && photo) {
+            photo.src = img.currentSrc || img.getAttribute('src') || '';
+            photo.alt = '';
+        }
+
+        var name = current.querySelector('.product__slide-title');
+        bar.querySelector('.hp-buybar__title').textContent = name ? name.textContent.trim() : '';
+
+        var price = current.querySelector('.product__slide-price');
+        bar.querySelector('.hp-buybar__price').textContent = price ? price.textContent.trim() : '';
+
+        var buy = current.querySelector('.product__slide-buy');
+        bar.querySelector('.hp-buybar__btn').textContent = buy ? buy.textContent.trim() : '';
+
+        skin();
+    }
+
+    function show(on) {
+        build();
+        sync();
+        place();
+        bar.classList.toggle('is-visible', on);
+        document.body.classList.toggle('has-buybar', on);
+    }
+
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) { show(!entry.isIntersecting && entry.boundingClientRect.top < 0); });
+        }, { threshold: 0 }).observe(slider);
+    }
+
+    // активний слайд змінився — панель показує вже інший товар
+    if (typeof productSwiper !== 'undefined' && productSwiper && productSwiper.on) {
+        productSwiper.on('slideChange', function () { window.setTimeout(sync, 50); });
+    }
+
+    function later() {
+        if (waiting) return;
+        waiting = true;
+        requestAnimationFrame(function () { waiting = false; place(); });
+    }
+
+    window.addEventListener('scroll', later, { passive: true });
+    window.addEventListener('resize', later);
+})();

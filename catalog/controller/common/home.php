@@ -95,6 +95,12 @@ class ControllerCommonHome extends Controller {
 		$langPath = array('UA' => '', 'EN' => '/en', 'RU' => '/ru');
 		$shared['hydro_lang'] = $hydroLang;
 
+		// які мовні версії увімкнені — перемикачі й hreflang показують лише їх
+		$this->load->model('localisation/language');
+		$active = array_keys($this->model_localisation_language->getLanguages());
+		$shared['lang_ru'] = in_array('ru-ru', $active, true);
+		$shared['lang_en'] = in_array('en-gb', $active, true);
+
 		$partials = array('header', 'popup_video', 'popup_photo', 'popup_product', 'popup_about', 'popup_category', 'popup_delivery', 'cart', 'footer', 'cookie');
 		$sections = array();
 		foreach ($partials as $section) {
@@ -112,6 +118,8 @@ class ControllerCommonHome extends Controller {
 		$data['meta'] = $meta;
 
 		$data['hydro_lang'] = $hydroLang;
+		$data['lang_ru'] = $shared['lang_ru'];
+		$data['lang_en'] = $shared['lang_en'];
 		$data['canonical'] = rtrim($baseUrl, '/') . ($langPath[$hydroLang] ?: '/');
 		if ($hydroLang !== 'UA') {
 			$data['canonical'] = rtrim($baseUrl, '/') . $langPath[$hydroLang];
@@ -119,13 +127,18 @@ class ControllerCommonHome extends Controller {
 		$data['og_locale'] = $seo['locales'][$lang] ?? 'uk_UA';
 		$data['site_name'] = $seo['siteName'] ?? 'Hydrophob';
 		$data['og_image'] = $baseUrl . ($seo['ogImage'] ?? 'img/og-image.jpg');
+		$data['twitter_site'] = (string)($seo['twitter'] ?? '');
 		// Аналітика — з налаштувань (oc_setting, редагується в Design → SEO); є ID = production
 		$ga4 = (string)$this->config->get('config_analytics_ga4');
+		// тег Google Ads (AW-…) і мітка конверсії покупки — теж із налаштувань
+		// контейнер GTM — коли задано, GA4/Ads вантажаться з нього
+		$gtm = trim((string)$this->config->get('config_analytics_gtm'));
 		$data['analytics'] = array(
+			'gtm'      => $gtm,
 			'mode'     => $ga4 !== '' ? 'production' : 'test',
 			'ga4'      => $ga4,
-			'ads'      => '',
-			'adsLabel' => '',
+			'ads'      => trim((string)$this->config->get('config_analytics_ads')),
+			'adsLabel' => trim((string)$this->config->get('config_analytics_ads_label')),
 		);
 		$data['asset_version'] = (string)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/stylesheet/hydrophob.css') ?: '1';
 
@@ -150,6 +163,9 @@ class ControllerCommonHome extends Controller {
 		// прелоадер із логотипом до першого кадру hero-відео — за спільною для групи логікою показів
 		$data['show_preloader'] = $this->shouldShowPreloader();
 
+		// прогрів роликів під прелоадером (video-warmup.js) — версія для збиття 10-річного кешу
+		$data['warmup_version'] = (int)@filemtime(DIR_APPLICATION . '../catalog/view/theme/default/javascript/video-warmup.js');
+
 		$this->response->setOutput($this->load->view('common/home', $data));
 	}
 
@@ -171,7 +187,9 @@ class ControllerCommonHome extends Controller {
 			if (!is_array($v)) {
 				return null;
 			}
-			return array('UA' => $v[$ukId] ?? '', 'RU' => $v[$ruId] ?? '', 'EN' => $v[$enId] ?? '');
+			// адмінка зберігає значення екранованими — теги мають дійти до сторінки живими
+			$d = function($x) { return html_entity_decode((string)$x, ENT_QUOTES, 'UTF-8'); };
+			return array('UA' => $d($v[$ukId] ?? ''), 'RU' => $d($v[$ruId] ?? ''), 'EN' => $d($v[$enId] ?? ''));
 		};
 
 		$overrides = array();
@@ -478,8 +496,10 @@ class ControllerCommonHome extends Controller {
 		if (is_array($faqItems)) {
 			$main = array();
 			foreach ($faqItems as $item) {
-				$q = trim(strip_tags((string)($item['question'][2] ?? '')));
-				$a = trim(strip_tags((string)($item['answer'][2] ?? '')));
+				// мова сторінки, а не завжди укр — інакше /ru і /en віддавали б чужу схему
+				$faqLang = (int)$this->config->get('config_language_id');
+				$q = trim(strip_tags((string)($item['question'][$faqLang] ?? $item['question'][2] ?? '')));
+				$a = trim(strip_tags((string)($item['answer'][$faqLang] ?? $item['answer'][2] ?? '')));
 				if ($q !== '' && $a !== '') {
 					$main[] = array(
 						'@type' => 'Question',

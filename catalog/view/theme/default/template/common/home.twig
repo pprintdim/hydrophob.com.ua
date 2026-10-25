@@ -8,10 +8,10 @@
     <meta name="keywords" content="{{ meta.keywords }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ canonical }}">
-    <link rel="alternate" hreflang="uk" href="https://hydrophob.net.ua/">
-    <link rel="alternate" hreflang="ru" href="https://hydrophob.net.ua/ru">
-    <link rel="alternate" hreflang="en" href="https://hydrophob.net.ua/en">
-    <link rel="alternate" hreflang="x-default" href="https://hydrophob.net.ua/">
+    <link rel="alternate" hreflang="uk" href="https://hydrophob.com.ua/">
+    {% if lang_ru %}<link rel="alternate" hreflang="ru" href="https://hydrophob.com.ua/ru">{% endif %}
+    {% if lang_en %}<link rel="alternate" hreflang="en" href="https://hydrophob.com.ua/en">{% endif %}
+    <link rel="alternate" hreflang="x-default" href="https://hydrophob.com.ua/">
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="{{ og_locale }}">
@@ -24,6 +24,7 @@
     <meta property="og:image:height" content="630">
 
     <meta name="twitter:card" content="summary_large_image">
+    {% if twitter_site %}<meta name="twitter:site" content="{{ twitter_site }}">{% endif %}
     <meta name="twitter:title" content="{{ meta.title }}">
     <meta name="twitter:description" content="{{ meta.description }}">
     <meta name="twitter:image" content="{{ og_image }}">
@@ -37,7 +38,15 @@
     <meta name="theme-color" content="#121212">
 
     <script>window.HYDRO_ANALYTICS = { mode: "{{ analytics.mode }}", ga4: "{{ analytics.ga4 }}", ads: "{{ analytics.ads }}", adsLabel: "{{ analytics.adsLabel }}" };</script>
-    {% if analytics.mode == 'production' and analytics.ga4 %}
+    {% if analytics.mode == 'production' and analytics.gtm %}
+    {# GTM: consent default — до контейнера; GA4 і Ads підключені всередині нього #}
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+    </script>
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ analytics.gtm }}');</script>
+    {% elseif analytics.mode == 'production' and analytics.ga4 %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ analytics.ga4 }}"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
@@ -45,6 +54,7 @@
     gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
     gtag('js', new Date());
     gtag('config', '{{ analytics.ga4 }}');
+    {% if analytics.ads %}gtag('config', '{{ analytics.ads }}');{% endif %}
     </script>
     {% endif %}
     <script>window.HYDRO_STRINGS_OVERRIDES = {{ hydro_strings_overrides_json|raw }};</script>
@@ -61,8 +71,12 @@
     <link rel="stylesheet" href="catalog/view/theme/default/stylesheet/hydrophob.css?v={{ asset_version }}">
     <script type="application/ld+json">{{ schema_json|raw }}</script>
     <script>window.HYDRO_LANG = "{{ hydro_lang|default('UA') }}";</script>
+    {# прогрів роликів під прелоадером — має бути в <head>, до inline-скрипта прелоадера #}
+    {% if show_preloader %}<script src="catalog/view/theme/default/javascript/video-warmup.js?v={{ warmup_version }}"></script>{% endif %}
 </head>
 <body class="body">
+{% if analytics.mode == 'production' and analytics.gtm %}<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ analytics.gtm }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>{% endif %}
+<a class="hp-skip" href="#main">{% if html_lang starts with 'ru' %}Перейти к содержимому{% elseif html_lang starts with 'en' %}Skip to content{% else %}Перейти до вмісту{% endif %}</a>
     {% if show_preloader %}
     {# Прелоадер із логотипом: висить, доки не готовий перший кадр hero-відео (або 3 с), мінімум 0.9 с #}
     <div class="hp-preloader" id="hp-preloader" aria-hidden="true">
@@ -99,8 +113,18 @@
             document.addEventListener('loadeddata', function (e) { if (e.target && e.target.matches && e.target.matches('video.hero__slide-video')) r(); }, true);
             window.addEventListener('load', function () { setTimeout(r, 3000); }, { once: true });
         });
-        Promise.all([minShow, videoReady]).then(finish);
-        setTimeout(finish, 6000);
+        // прогрів роликів (video-warmup.js): перший екран докачується під прелоадером (ще й як blob),
+        // решта — у кеш; стартуємо, коли розмітка розібрана, інакше роликів у DOM ще немає
+        var warm = new Promise(function (r) {
+            function go() {
+                setTimeout(finish, 6500); // запасний таймер — прелоадер не висить довше за прогрів
+                if (!window.videoWarmup) { r(); return; }
+                window.videoWarmup.start();
+                window.videoWarmup.gate(6000).then(r);
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go, { once: true }); else go();
+        });
+        Promise.all([minShow, videoReady, warm]).then(finish);
     })();
     </script>
     {% endif %}
